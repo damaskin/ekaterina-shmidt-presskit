@@ -4,6 +4,7 @@ import { PRESSKIT } from '../data/presskit.data';
 import { useBooking } from '../context/BookingContext';
 import { modalBackdrop, modalPanel } from '../motion';
 import { submitBooking, BookingSubmitError } from '../services/submitBooking';
+import BookingDatePicker from './BookingDatePicker';
 import { emptyBookingForm, type BookingFormData } from '../types/booking';
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
@@ -167,17 +168,14 @@ export default function BookingModal() {
                         placeholder="+7 …"
                       />
                     </label>
-                    <label className="booking-field">
-                      <span className="booking-field__label">Event date *</span>
-                      <input
-                        className="booking-field__input"
-                        type="date"
-                        name="eventDate"
-                        required
-                        value={form.eventDate}
-                        onChange={update('eventDate')}
-                      />
-                    </label>
+                    <BookingDatePicker
+                      value={form.eventDate}
+                      onChange={(iso) => {
+                        setForm((prev) => ({ ...prev, eventDate: iso }));
+                        if (status === 'error') setStatus('idle');
+                      }}
+                      required
+                    />
                   </div>
 
                   <div className="booking-form__row booking-form__row--2">
