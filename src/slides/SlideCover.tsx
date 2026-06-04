@@ -7,14 +7,12 @@ import { useSectionActive } from '../hooks/useSectionActive';
 import { fadeUpHero, motion } from '../motion';
 
 const Aurora = lazy(() => import('../components/effects/Aurora'));
-const SplashCursor = lazy(() => import('../components/effects/SplashCursor'));
 
 export default function SlideCover() {
   const { ref, isActive } = useSectionActive<HTMLElement>(0.15);
   const profile = usePerformanceProfile();
   const documentVisible = useDocumentVisible();
   const runEffects = isActive && documentVisible;
-  const showFluid = runEffects && !profile.disableFluid;
 
   return (
     <section
@@ -23,26 +21,6 @@ export default function SlideCover() {
       className="slide slide-cover"
       aria-label="Cover"
     >
-      {showFluid && (
-        <Suspense fallback={null}>
-          <SplashCursor
-            SIM_RESOLUTION={96}
-            DYE_RESOLUTION={profile.fluidDyeResolution}
-            CAPTURE_RESOLUTION={384}
-            DENSITY_DISSIPATION={3.5}
-            VELOCITY_DISSIPATION={2}
-            PRESSURE={0.1}
-            PRESSURE_ITERATIONS={profile.pressureIterations}
-            CURL={3}
-            SPLAT_RADIUS={0.2}
-            SPLAT_FORCE={6000}
-            SHADING={!profile.reducedEffects}
-            COLOR_UPDATE_SPEED={10}
-            TRANSPARENT
-          />
-        </Suspense>
-      )}
-
       <div className="slide-cover__backdrop" aria-hidden="true">
         <div
           className="slide-cover__bg"

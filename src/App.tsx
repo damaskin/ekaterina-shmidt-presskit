@@ -1,3 +1,4 @@
+import ActiveSplashCursor from './components/ActiveSplashCursor';
 import BookingModal from './components/BookingModal';
 import NavDots from './components/NavDots';
 import { BookingProvider } from './context/BookingContext';
@@ -14,6 +15,7 @@ export default function App() {
 
   return (
     <BookingProvider>
+      <ActiveSplashCursor activeIndex={activeIndex} />
       <NavDots activeIndex={activeIndex} onNavigate={goToSlide} />
       <SlideCover />
       <SlideAbout />

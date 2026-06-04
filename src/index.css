@@ -547,14 +547,16 @@ button {
   position: relative;
   z-index: 3;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   min-height: inherit;
+  padding-left: clamp(34%, 40vw, 46%);
+  padding-right: var(--slide-pad-x);
 }
 
 .slide-about__content {
-  width: min(100%, 520px);
-  margin-left: auto;
+  width: min(100%, 620px);
+  margin-left: 0;
 }
 
 .slide-about__name {
@@ -565,7 +567,7 @@ button {
 .slide-about__name-first {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(2.35rem, 5.8vw, 3.75rem);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -573,7 +575,7 @@ button {
 .slide-about__name-last {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-size: clamp(3.35rem, 10vw, 6.25rem);
   font-weight: 800;
   color: var(--color-accent);
   letter-spacing: 0.02em;
@@ -581,34 +583,40 @@ button {
 
 .slide-about__rule {
   width: 100%;
-  max-width: 280px;
+  max-width: 320px;
   height: 1px;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   background: rgb(255 255 255 / 25%);
 }
 
 .slide-about__bio {
-  margin: 0 0 1.5rem;
-  max-width: 52ch;
-  line-height: 1.7;
-  opacity: 0.88;
+  margin: 0 0 1.75rem;
+  max-width: 58ch;
+  font-size: clamp(1.05rem, 1.45vw, 1.22rem);
+  line-height: 1.75;
+  opacity: 0.92;
 }
 
 .slide-about__contacts {
-  margin: 0 0 2rem;
+  margin: 0 0 2.25rem;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.8rem;
+  font-size: clamp(1rem, 1.25vw, 1.1rem);
 }
 
 .slide-about__contacts a {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   text-decoration: none;
-  opacity: 0.9;
+  opacity: 0.92;
+}
+
+.slide-about__icon {
+  font-size: 1.15em;
 }
 
 .slide-about__contacts a:hover {
@@ -634,12 +642,18 @@ button {
   .slide-about__grid {
     justify-content: center;
     align-items: flex-end;
+    padding-left: var(--slide-pad-x);
     padding-bottom: clamp(2rem, 6vh, 3.5rem);
   }
 
   .slide-about__content {
     width: 100%;
+    max-width: 640px;
     margin-left: 0;
+  }
+
+  .slide-about__bio {
+    font-size: 1.08rem;
   }
 }
 
