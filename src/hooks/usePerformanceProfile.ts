@@ -33,15 +33,16 @@ function getSaveData() {
 }
 
 export interface PerformanceProfile {
-  /** Нет WebGL fluid / упрощённые эффекты */
+  /** Упрощённые эффекты (Aurora CSS, без shading) */
   reducedEffects: boolean;
-  /** Fluid cursor выключен */
+  /** Fluid выключен только при reduced motion / save-data */
   disableFluid: boolean;
-  /** Aurora только CSS */
   auroraCssOnly: boolean;
   isCoarsePointer: boolean;
   isNarrow: boolean;
+  isMobile: boolean;
   fluidDyeResolution: number;
+  fluidSimResolution: number;
   pressureIterations: number;
 }
 
@@ -60,19 +61,21 @@ export function usePerformanceProfile(): PerformanceProfile {
   return useMemo(() => {
     const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
     const isNarrow = window.innerWidth < 900;
-    const lowPower =
-      reducedMotion || saveData || isCoarsePointer || isNarrow;
+    const isMobile = isCoarsePointer || window.innerWidth < 768;
+    const lowPower = reducedMotion || saveData;
 
     return {
-      reducedEffects: lowPower,
-      disableFluid: lowPower || window.innerWidth < 768,
-      auroraCssOnly: lowPower,
+      reducedEffects: lowPower || isMobile,
+      disableFluid: lowPower,
+      auroraCssOnly: lowPower || isMobile,
       isCoarsePointer,
       isNarrow,
-      fluidDyeResolution: lowPower
-        ? 384
+      isMobile,
+      fluidDyeResolution: isMobile
+        ? Math.min(360, Math.max(256, Math.floor(window.innerWidth * 0.65)))
         : Math.min(720, Math.floor(window.innerWidth * 0.45)),
-      pressureIterations: lowPower ? 6 : 12,
+      fluidSimResolution: isMobile ? 72 : 96,
+      pressureIterations: isMobile ? 5 : 12,
     };
   }, [reducedMotion, saveData]);
 }
