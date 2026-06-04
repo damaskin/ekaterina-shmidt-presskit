@@ -4,6 +4,7 @@ import { assetUrl } from '../lib/assetUrl';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
 import { usePerformanceProfile } from '../hooks/usePerformanceProfile';
 import { useSectionActive } from '../hooks/useSectionActive';
+import PlatformLinkButton from '../components/PlatformLinkButton';
 import { fadeUpHero, motion } from '../motion';
 
 const Aurora = lazy(() => import('../components/effects/Aurora'));
@@ -49,21 +50,13 @@ export default function SlideCover() {
 
         <aside className="slide-cover__platforms">
           {PRESSKIT.platforms.map((p, i) => (
-            <motion.a
+            <PlatformLinkButton
               key={p.url}
-              className="btn btn--pill-link"
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              variants={fadeUpHero}
-              initial="hidden"
-              animate="visible"
-              custom={i + 1}
-              whileHover={{ x: 6, transition: { duration: 0.2 } }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {p.label}
-            </motion.a>
+              id={p.id}
+              label={p.label}
+              url={p.url}
+              index={i}
+            />
           ))}
         </aside>
 

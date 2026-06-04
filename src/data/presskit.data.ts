@@ -1,4 +1,7 @@
+export type PlatformId = 'soundcloud' | 'youtube' | 'flat-audio';
+
 export interface PlatformLink {
+  id: PlatformId;
   label: string;
   url: string;
 }
@@ -29,9 +32,21 @@ export const PRESSKIT = {
     'https://drive.google.com/drive/folders/1BTpAzhvlNU2HKWsj7E1EZQd4TdUc2IrX',
   bio: `Ekaterina Shmidt has been weaving stories through sound since 2013. Her sets move like landscapes — from the driving pulse of House music to the cinematic stillness of Downtempo and the deep relaxation of Chill Out. She doesn't just play tracks; she builds arcs, taking listeners from sunrise energy to late-night reflection.`,
   platforms: [
-    { label: 'SoundCloud', url: 'https://on.soundcloud.com/lMr88mI34Xhkk1N3NS' },
-    { label: 'Flat Audio', url: 'https://flat.audio/id33527' },
-    { label: 'YouTube', url: 'https://youtube.com/@shmidt001?si=D-nT3Z3WV6e2hpYe' },
+    {
+      id: 'soundcloud',
+      label: 'SoundCloud',
+      url: 'https://on.soundcloud.com/lMr88mI34Xhkk1N3NS',
+    },
+    {
+      id: 'flat-audio',
+      label: 'Flat Audio',
+      url: 'https://flat.audio/id33527',
+    },
+    {
+      id: 'youtube',
+      label: 'YouTube',
+      url: 'https://youtube.com/@shmidt001?si=D-nT3Z3WV6e2hpYe',
+    },
   ] as PlatformLink[],
   musicStyles: [
     'House',

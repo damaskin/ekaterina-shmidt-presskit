@@ -101,16 +101,131 @@ button {
   border: 1px solid rgb(255 255 255 / 18%);
 }
 
-.btn--pill-link {
+/* Cover — platform links with outline icons */
+.platform-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   width: 100%;
   max-width: 220px;
-  background: var(--color-accent-muted);
+  padding: 0.72rem 1.15rem;
+  border-radius: var(--pill-radius);
+  border: 1px solid rgb(255 255 255 / 0.28);
+  background: rgb(255 255 255 / 0.06);
   color: var(--color-text-on-dark);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease;
 }
 
-.btn--pill-link:hover {
-  background: var(--color-accent-deep);
+.platform-btn__icon {
+  position: relative;
+  z-index: 2;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+.platform-btn__label {
+  position: relative;
+  z-index: 2;
+}
+
+.platform-btn__shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.22) 50%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.65s ease;
+  pointer-events: none;
+}
+
+.platform-btn__ring {
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: conic-gradient(
+    from 120deg,
+    transparent,
+    rgb(255 255 255 / 0.45),
+    transparent 55%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.platform-btn:hover .platform-btn__shine {
+  transform: translateX(130%);
+}
+
+.platform-btn:hover .platform-btn__ring {
+  opacity: 1;
+  animation: platform-ring-spin 2.8s linear infinite;
+}
+
+@keyframes platform-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.platform-btn--soundcloud:hover {
+  border-color: rgb(255 119 0 / 0.75);
+  color: #ffb07a;
+  box-shadow:
+    0 0 0 1px rgb(255 85 0 / 0.2),
+    0 8px 28px rgb(255 85 0 / 0.28);
+}
+
+.platform-btn--flat-audio:hover {
+  border-color: rgb(120 220 255 / 0.7);
+  color: #b8ecff;
+  box-shadow:
+    0 0 0 1px rgb(80 200 255 / 0.18),
+    0 8px 28px rgb(64 180 255 / 0.25);
+}
+
+.platform-btn--youtube:hover {
+  border-color: rgb(255 80 80 / 0.75);
+  color: #ff9a9a;
+  box-shadow:
+    0 0 0 1px rgb(255 40 40 / 0.2),
+    0 8px 28px rgb(255 48 48 / 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-btn:hover .platform-btn__ring {
+    animation: none;
+  }
+
+  .platform-btn__shine {
+    display: none;
+  }
 }
 
 .section-title {
@@ -447,10 +562,11 @@ button {
     max-width: 100%;
   }
 
-  .btn--pill-link {
+  .platform-btn {
     max-width: none;
     flex: 1 1 auto;
-    min-width: 140px;
+    min-width: 148px;
+    justify-content: center;
   }
 
   .slide-cover__hero {
