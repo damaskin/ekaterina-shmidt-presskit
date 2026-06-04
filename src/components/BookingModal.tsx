@@ -209,7 +209,7 @@ export default function BookingModal() {
                     <textarea
                       className="booking-field__input booking-field__input--area"
                       name="message"
-                      rows={3}
+                      rows={2}
                       value={form.message}
                       onChange={update('message')}
                       placeholder="Set time, rider, travel, special requests…"
