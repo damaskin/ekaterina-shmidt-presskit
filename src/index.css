@@ -26,6 +26,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
 }
 
 html,
@@ -142,6 +143,12 @@ button {
   overflow: hidden;
 }
 
+.slide:not(.slide-cover) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100vh;
+  contain: layout style paint;
+}
+
 .slide__inner {
   position: relative;
   z-index: 2;
@@ -150,14 +157,6 @@ button {
   justify-content: center;
   min-height: inherit;
   padding: var(--slide-pad-y) var(--slide-pad-x);
-}
-
-.presskit-scroll {
-  height: 100vh;
-  height: 100dvh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
 }
 
 /* Nav dots */
@@ -187,6 +186,16 @@ button {
   inset: -3px;
   border-radius: 50%;
   background: var(--color-accent);
+  opacity: 0;
+  transform: scale(0.65);
+  transition:
+    opacity 0.2s ease,
+    transform 0.22s ease;
+}
+
+.nav-dots__dot--active .nav-dots__active {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* Modal */
@@ -276,9 +285,16 @@ button {
   }
 }
 
-/* Cover */
+/* Cover — шапка: фото → Aurora → лёгкий overlay → контент */
 .slide-cover {
   color: var(--color-text-on-dark);
+}
+
+.slide-cover__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
 }
 
 .slide-cover__bg {
@@ -292,19 +308,33 @@ button {
   transform: scale(1.08);
 }
 
-.slide-cover__overlay {
+.slide-cover__aurora {
   position: absolute;
   inset: 0;
   z-index: 1;
+}
+
+.slide-cover__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   background: linear-gradient(
     115deg,
-    rgb(13 10 15 / 88%) 0%,
-    rgb(26 18 32 / 72%) 45%,
-    rgb(194 24 122 / 22%) 100%
+    rgb(13 10 15 / 55%) 0%,
+    rgb(26 18 32 / 42%) 50%,
+    rgb(194 24 122 / 18%) 100%
   );
+  pointer-events: none;
+}
+
+/* SplashCursor (fixed) — между overlay и контентом */
+.splash-cursor canvas {
+  mix-blend-mode: screen;
 }
 
 .slide-cover__layout {
+  position: relative;
+  z-index: 10;
   display: grid;
   grid-template-columns: minmax(140px, 220px) 1fr;
   grid-template-rows: auto 1fr;
@@ -379,12 +409,34 @@ button {
   line-height: 1.6;
 }
 
+@keyframes scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
 .slide-cover__scroll {
   align-self: flex-end;
   margin-top: 1rem;
   font-size: 1.5rem;
   text-decoration: none;
   opacity: 0.75;
+  animation: scroll-bounce 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-cover__scroll {
+    animation: none;
+  }
+
+  .aurora-css-fallback__layer {
+    animation: none !important;
+  }
 }
 
 @media (max-width: 900px) {
@@ -408,9 +460,63 @@ button {
   }
 }
 
-/* About */
+/* About — портрет на всю секцию, текст справа */
 .slide-about {
-  background: var(--color-dark-section);
+  background: var(--color-dark);
+}
+
+.slide-about__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.slide-about__picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.slide-about__bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+@media (min-width: 861px) {
+  .slide-about__bg {
+    object-fit: cover;
+    object-position: left center;
+  }
+
+  .slide-about__overlay {
+    background: linear-gradient(
+      90deg,
+      rgb(13 10 15 / 8%) 0%,
+      rgb(13 10 15 / 18%) 42%,
+      rgb(26 18 32 / 78%) 58%,
+      rgb(13 10 15 / 94%) 100%
+    );
+  }
+}
+
+.slide-about__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgb(13 10 15 / 15%) 0%,
+    rgb(13 10 15 / 35%) 38%,
+    rgb(26 18 32 / 82%) 58%,
+    rgb(13 10 15 / 92%) 100%
+  );
+  pointer-events: none;
 }
 
 .slide-about__wave {
@@ -418,7 +524,7 @@ button {
   left: 0;
   right: 0;
   height: 56px;
-  z-index: 1;
+  z-index: 2;
   opacity: 0.12;
   background: repeating-linear-gradient(
     90deg,
@@ -440,31 +546,17 @@ button {
 }
 
 .slide-about__grid {
-  display: grid;
-  grid-template-columns: minmax(260px, 42%) 1fr;
-  gap: clamp(1.5rem, 4vw, 4rem);
-  align-items: center;
-}
-
-.slide-about__photo-wrap {
   position: relative;
-  max-height: min(78vh, 720px);
-  overflow: hidden;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: inherit;
 }
 
-.slide-about__photo-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 55%, var(--color-dark-section));
-  pointer-events: none;
-}
-
-.slide-about__photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
+.slide-about__content {
+  width: min(100%, 520px);
+  margin-left: auto;
 }
 
 .slide-about__name {
@@ -532,16 +624,24 @@ button {
 }
 
 @media (max-width: 860px) {
+  .slide-about__overlay {
+    background: linear-gradient(
+      180deg,
+      rgb(13 10 15 / 10%) 0%,
+      rgb(13 10 15 / 55%) 45%,
+      rgb(13 10 15 / 92%) 100%
+    );
+  }
+
   .slide-about__grid {
-    grid-template-columns: 1fr;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: clamp(2rem, 6vh, 3.5rem);
   }
 
-  .slide-about__photo-wrap {
-    max-height: 52vh;
-  }
-
-  .slide-about__photo-wrap::after {
-    background: linear-gradient(180deg, transparent 50%, var(--color-dark-section));
+  .slide-about__content {
+    width: 100%;
+    margin-left: 0;
   }
 }
 
@@ -813,21 +913,13 @@ button {
 
 /* Rider */
 .slide-rider {
-  background: #2a2428;
+  background: #120c14;
   color: var(--color-text-on-dark);
 }
 
-.slide-rider__grain {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.45;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
 .slide-rider__inner {
+  position: relative;
+  z-index: 2;
   max-width: 720px;
 }
 

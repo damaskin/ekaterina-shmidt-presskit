@@ -1,32 +1,35 @@
-import { motion } from 'framer-motion';
+import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
-import { fadeUp, staggerContainer, staggerItem } from '../motion';
+import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideReleases() {
   return (
     <section id="releases" className="slide slide-releases" aria-label="Releases">
       <div className="slide-releases__ribs" aria-hidden="true" />
 
-      <motion.div
-        className="slide-releases__inner slide__inner"
-        variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
+      <div className="slide-releases__inner slide__inner">
         <motion.h2
           className="section-title section-title--dark section-title--mega slide-releases__title"
-          variants={fadeUp}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           Releases
         </motion.h2>
 
-        <div className="slide-releases__grid">
+        <motion.div
+          className="slide-releases__grid"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewport}
+        >
           {PRESSKIT.releases.map((r) => (
             <motion.article
               key={r.url}
               className="release-card"
-              variants={staggerItem}
+              variants={itemVariants}
             >
               <p className="release-card__year">{r.year}</p>
               <h3 className="release-card__name">{r.title}</h3>
@@ -35,7 +38,8 @@ export default function SlideReleases() {
                 href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <span className="release-card__cover-inner">
                   <span className="release-card__play" aria-hidden="true">
@@ -57,8 +61,8 @@ export default function SlideReleases() {
               </a>
             </motion.article>
           ))}
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </section>
   );
 }

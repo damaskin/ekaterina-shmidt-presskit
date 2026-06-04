@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from '../motion';
 import { useEffect, useState } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
 import { useBooking } from '../context/BookingContext';

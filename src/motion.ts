@@ -1,35 +1,33 @@
-import type { Variants } from 'framer-motion';
+/**
+ * LazyMotion: лёгкий бандл анимаций (domAnimation).
+ * Импортируй motion отсюда, не из framer-motion напрямую.
+ */
+export { domAnimation } from 'framer-motion';
+export { m as motion, AnimatePresence } from 'framer-motion';
 
-export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
+export const viewport = { once: true, amount: 0.2 } as const;
+
+export const easeOut = [0.22, 1, 0.36, 1] as const;
+
+export const fadeUpHero = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.08,
+      duration: 0.45,
+      ease: easeOut,
+    },
+  }),
+};
+
+export const fadeInView = {
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-export const fadeIn: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.5, ease: 'easeOut' },
-  },
-};
-
-export const staggerContainer: Variants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.12 },
-  },
-};
-
-export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.45, ease: easeOut },
   },
 };
 
@@ -40,12 +38,29 @@ export const modalBackdrop = {
 };
 
 export const modalPanel = {
-  hidden: { opacity: 0, y: 24, scale: 0.96 },
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: 'spring' as const, damping: 26, stiffness: 320 },
+    transition: { duration: 0.35, ease: easeOut },
   },
-  exit: { opacity: 0, y: 16, scale: 0.98 },
+  exit: { opacity: 0, y: 12, scale: 0.99 },
+};
+
+/** Один whileInView на контейнер — дети без отдельных motion-узлов */
+export const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.05, delayChildren: 0.04 },
+  },
+};
+
+export const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.38, ease: easeOut },
+  },
 };

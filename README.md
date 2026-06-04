@@ -25,6 +25,12 @@ npm run build
 
 Output: `dist/`
 
+## GitHub Pages
+
+Сайт: **https://damaskin.github.io/ekaterina-shmidt-presskit/**
+
+Деплой через GitHub Actions при push в `master` / `main`. В Settings → Pages источник: **GitHub Actions**.
+
 ## Assets
 
 - `public/assets/logo-reference.png`

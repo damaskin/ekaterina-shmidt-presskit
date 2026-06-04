@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDocumentVisible } from '../../hooks/useDocumentVisible';
 import './Aurora.css';
-
-/**
- * Aurora — animated gradient background using WebGL simplex noise.
- * Falls back to CSS animation when WebGL is unavailable.
- * Matching h2-pro.ru aurora effect with project color scheme.
- */
 
 const vertexShaderSource = `
   attribute vec2 aPosition;
@@ -45,7 +40,7 @@ const fragmentShaderSource = `
     vec3 a0 = x - ox;
     m *= 1.79284291400159 - 0.85373472095314 * (a0*a0+h*h);
     vec3 g;
-    g.x = a0.x * x0.x + h.x * x0.y;
+    g.x  = a0.x * x0.x + h.x * x0.y;
     g.yz = a0.yz * x12.xz + h.yz * x12.yw;
     return 130.0 * dot(m, g);
   }
@@ -57,11 +52,10 @@ const fragmentShaderSource = `
     float n2 = snoise(vec2(uv.x * 3.0 - uTime * 0.15, uv.y * 2.0 + uTime * 0.2)) * uAmplitude;
     float n3 = snoise(vec2(uv.x * 1.5 + uTime * 0.08, uv.y * 2.5 - uTime * 0.18)) * uAmplitude;
 
-    // Shmidt presskit palette — magenta / plum / violet
-    vec3 color1 = vec3(1.0, 0.176, 0.541);    // #FF2D8A
-    vec3 color2 = vec3(0.761, 0.094, 0.478);  // #C2187A
-    vec3 color3 = vec3(0.608, 0.302, 0.416);  // #9B4D6A
-    vec3 color4 = vec3(0.322, 0.071, 0.251);  // #521240
+    vec3 color1 = vec3(1.0, 0.176, 0.541);
+    vec3 color2 = vec3(0.761, 0.094, 0.478);
+    vec3 color3 = vec3(0.608, 0.302, 0.416);
+    vec3 color4 = vec3(0.322, 0.071, 0.251);
 
     float t = uv.x;
     vec3 colorA = mix(color3, color1, smoothstep(0.0, 0.4, t));
@@ -77,19 +71,35 @@ const fragmentShaderSource = `
     float edgeFade = smoothstep(0.0, 0.1, uv.x) * smoothstep(1.0, 0.9, uv.x);
     intensity *= edgeFade;
 
-    vec3 finalColor = baseColor * intensity;
-    float alpha = intensity * 0.7;
-
-    gl_FragColor = vec4(finalColor, alpha);
+    gl_FragColor = vec4(baseColor * intensity, intensity * 0.84);
   }
 `;
 
-export default function Aurora() {
+interface AuroraProps {
+  active?: boolean;
+  cssOnly?: boolean;
+}
+
+export default function Aurora({ active = true, cssOnly = false }: AuroraProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
-  const [useFallback, setUseFallback] = useState(false);
+  const animRef = useRef(0);
+  const runRef = useRef(false);
+  const glBundleRef = useRef<{
+    gl: WebGLRenderingContext;
+    uTime: WebGLUniformLocation;
+    resize: () => void;
+  } | null>(null);
+  const startTimeRef = useRef(0);
+  const [useFallback, setUseFallback] = useState(cssOnly);
+  const documentVisible = useDocumentVisible();
+  const shouldRun = active && documentVisible && !cssOnly;
 
   useEffect(() => {
+    if (cssOnly) {
+      setUseFallback(true);
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -97,6 +107,7 @@ export default function Aurora() {
       alpha: true,
       premultipliedAlpha: false,
       antialias: false,
+      powerPreference: 'low-power',
     });
 
     if (!gl) {
@@ -156,49 +167,71 @@ export default function Aurora() {
     const uResolution = gl.getUniformLocation(program, 'uResolution');
     const uAmplitude = gl.getUniformLocation(program, 'uAmplitude');
     const uBlend = gl.getUniformLocation(program, 'uBlend');
+    if (!uTime || !uResolution) {
+      setUseFallback(true);
+      return;
+    }
 
-    gl.uniform1f(uAmplitude, 1.0);
-    gl.uniform1f(uBlend, 0.55);
-
+    gl.uniform1f(uAmplitude, 1.2);
+    gl.uniform1f(uBlend, 0.86);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio, 2);
+      const dpr = Math.min(window.devicePixelRatio, window.innerWidth < 900 ? 1.25 : 1.75);
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = Math.max(1, Math.floor(w * dpr));
+      canvas.height = Math.max(1, Math.floor(h * dpr));
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uResolution, canvas.width, canvas.height);
     };
 
     resize();
     window.addEventListener('resize', resize);
-
-    const startTime = Date.now();
-    function animate() {
-      const elapsed = (Date.now() - startTime) / 1000;
-      gl!.uniform1f(uTime, elapsed);
-      gl!.clearColor(0, 0, 0, 0);
-      gl!.clear(gl!.COLOR_BUFFER_BIT);
-      gl!.drawArrays(gl!.TRIANGLES, 0, 6);
-      animRef.current = requestAnimationFrame(animate);
-    }
-    animate();
+    startTimeRef.current = Date.now();
+    glBundleRef.current = { gl, uTime, resize };
 
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
+      glBundleRef.current = null;
+      runRef.current = false;
     };
-  }, []);
+  }, [cssOnly]);
+
+  useEffect(() => {
+    runRef.current = shouldRun && !useFallback;
+
+    const tick = () => {
+      if (!runRef.current) return;
+      const bundle = glBundleRef.current;
+      const canvas = canvasRef.current;
+      if (bundle && canvas) {
+        const elapsed = (Date.now() - startTimeRef.current) / 1000;
+        const { gl, uTime } = bundle;
+        gl.uniform1f(uTime, elapsed);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+      animRef.current = requestAnimationFrame(tick);
+    };
+
+    cancelAnimationFrame(animRef.current);
+    if (runRef.current) {
+      tick();
+    }
+
+    return () => cancelAnimationFrame(animRef.current);
+  }, [shouldRun, useFallback]);
+
+  const showCss = cssOnly || useFallback;
 
   return (
     <div className="aurora-container" aria-hidden="true">
-      {!useFallback && (
-        <canvas ref={canvasRef} className="aurora-canvas" />
-      )}
-      {useFallback && (
+      {!showCss && <canvas ref={canvasRef} className="aurora-canvas" />}
+      {showCss && (
         <div className="aurora-css-fallback">
           <div className="aurora-css-fallback__layer aurora-css-fallback__layer--1" />
           <div className="aurora-css-fallback__layer aurora-css-fallback__layer--2" />

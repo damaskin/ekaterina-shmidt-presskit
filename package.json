@@ -4,9 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build:pages": "cross-env GITHUB_PAGES=true npm run build",
+    "preview": "vite preview",
+    "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.24",
@@ -17,6 +19,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.0.4",
+    "sharp": "^0.34.5",
     "typescript": "~5.9.3",
     "vite": "^7.1.12"
   }

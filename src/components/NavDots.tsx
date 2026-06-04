@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { SLIDE_IDS } from '../data/presskit.data';
 
 interface NavDotsProps {
@@ -13,18 +12,12 @@ export default function NavDots({ activeIndex, onNavigate }: NavDotsProps) {
         <button
           key={id}
           type="button"
-          className="nav-dots__dot"
+          className={`nav-dots__dot${activeIndex === i ? ' nav-dots__dot--active' : ''}`}
           aria-label={`Go to ${id}`}
           aria-current={activeIndex === i ? true : undefined}
           onClick={() => onNavigate(i)}
         >
-          {activeIndex === i && (
-            <motion.span
-              className="nav-dots__active"
-              layoutId="nav-active"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
+          <span className="nav-dots__active" aria-hidden="true" />
         </button>
       ))}
     </nav>

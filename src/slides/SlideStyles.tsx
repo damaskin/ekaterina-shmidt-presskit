@@ -1,20 +1,20 @@
-import { motion } from 'framer-motion';
+import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
-import { fadeUp, staggerContainer, staggerItem } from '../motion';
+import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideStyles() {
   return (
     <section id="styles" className="slide slide-styles" aria-label="Music style">
       <div className="slide-styles__pattern" aria-hidden="true" />
 
-      <motion.div
-        className="slide-styles__inner slide__inner"
-        variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <motion.header className="slide-styles__header" variants={fadeUp}>
+      <div className="slide-styles__inner slide__inner">
+        <motion.header
+          className="slide-styles__header"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
           <h2 className="section-title section-title--light section-title--mega">
             Music Style
           </h2>
@@ -28,19 +28,25 @@ export default function SlideStyles() {
           />
         </motion.header>
 
-        <motion.ul className="slide-styles__tags" variants={staggerContainer}>
+        <motion.ul
+          className="slide-styles__tags"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewport}
+        >
           {PRESSKIT.musicStyles.map((style) => (
             <motion.li
               key={style}
               className="slide-styles__tag"
-              variants={staggerItem}
-              whileHover={{ scale: 1.04 }}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05, y: -2 }}
             >
               {style}
             </motion.li>
           ))}
         </motion.ul>
-      </motion.div>
+      </div>
     </section>
   );
 }
