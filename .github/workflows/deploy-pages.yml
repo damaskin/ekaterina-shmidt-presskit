@@ -28,7 +28,7 @@ jobs:
       - run: npm ci
 
       - name: Build for GitHub Pages
-        run: npm run build -- --mode ghpages
+        run: npm run build:ghpages
 
       - uses: actions/upload-pages-artifact@v3
         with:

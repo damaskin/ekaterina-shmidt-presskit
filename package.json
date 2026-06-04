@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "build:pages": "cross-env GITHUB_PAGES=true npm run build",
+    "build:ghpages": "tsc -b && vite build --mode ghpages",
     "preview": "vite preview",
     "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs"
   },
