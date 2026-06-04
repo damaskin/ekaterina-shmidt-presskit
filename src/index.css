@@ -1021,13 +1021,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: space-between;
   gap: 1rem;
-}
-
-.slide-styles__logo-mark {
-  width: 72px;
-  opacity: 0.85;
 }
 
 .slide-styles__tags {

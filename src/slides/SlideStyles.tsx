@@ -1,6 +1,5 @@
 import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
-import { assetUrl } from '../lib/assetUrl';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideStyles() {
@@ -19,14 +18,6 @@ export default function SlideStyles() {
           <h2 className="section-title section-title--light section-title--mega">
             Music Style
           </h2>
-          <img
-            className="slide-styles__logo-mark"
-            src={assetUrl('assets/logo-reference.png')}
-            alt=""
-            width={80}
-            height={80}
-            aria-hidden="true"
-          />
         </motion.header>
 
         <motion.ul
