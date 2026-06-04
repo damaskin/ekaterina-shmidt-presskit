@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "build:ghpages": "tsc -b && vite build --mode ghpages",
     "preview": "vite preview",
-    "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs"
+    "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs",
+    "assets:logo-transparent": "node scripts/remove-logo-background.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.24",

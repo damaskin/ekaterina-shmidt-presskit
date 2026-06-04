@@ -727,7 +727,6 @@ button {
 
 .slide-cover__logo {
   width: min(100%, 520px);
-  filter: invert(1);
   margin-bottom: 1.5rem;
 }
 
