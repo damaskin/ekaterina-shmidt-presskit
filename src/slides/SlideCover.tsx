@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
+import { assetUrl } from '../lib/assetUrl';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
 import { usePerformanceProfile } from '../hooks/usePerformanceProfile';
 import { useSectionActive } from '../hooks/useSectionActive';
@@ -43,7 +44,12 @@ export default function SlideCover() {
       )}
 
       <div className="slide-cover__backdrop" aria-hidden="true">
-        <div className="slide-cover__bg" />
+        <div
+          className="slide-cover__bg"
+          style={{
+            backgroundImage: `url(${assetUrl('assets/portrait-hero.jpg')})`,
+          }}
+        />
         <div className="slide-cover__aurora">
           <Suspense fallback={null}>
             <Aurora active={runEffects} cssOnly={profile.auroraCssOnly} />
@@ -92,7 +98,7 @@ export default function SlideCover() {
           >
             <motion.img
               className="slide-cover__logo"
-              src="/assets/logo-reference.png"
+              src={assetUrl('assets/logo-reference.png')}
               alt="SHMIDT"
               width={640}
               height={200}

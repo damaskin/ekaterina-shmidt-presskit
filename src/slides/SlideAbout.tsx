@@ -1,5 +1,6 @@
 import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
+import { assetUrl } from '../lib/assetUrl';
 import { useBooking } from '../context/BookingContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
@@ -12,11 +13,11 @@ export default function SlideAbout() {
         <picture className="slide-about__picture">
           <source
             media="(min-width: 861px)"
-            srcSet="/assets/portrait-hero-desktop.jpg"
+            srcSet={assetUrl('assets/portrait-hero-desktop.jpg')}
           />
           <img
             className="slide-about__bg"
-            src="/assets/portrait-hero.jpg"
+            src={assetUrl('assets/portrait-hero.jpg')}
             alt="Ekaterina Shmidt"
           />
         </picture>

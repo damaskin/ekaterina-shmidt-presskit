@@ -301,9 +301,7 @@ button {
   position: absolute;
   inset: -10%;
   z-index: 0;
-  background:
-    url('/assets/portrait-hero.jpg') center 30% / cover no-repeat,
-    var(--color-dark);
+  background: var(--color-dark) center 30% / cover no-repeat;
   filter: blur(18px) saturate(1.2);
   transform: scale(1.08);
 }
