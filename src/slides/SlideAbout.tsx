@@ -27,7 +27,7 @@ export default function SlideAbout() {
       <div className="slide-about__wave slide-about__wave--top" aria-hidden="true" />
       <div className="slide-about__wave slide-about__wave--bottom" aria-hidden="true" />
 
-      <div className="slide-about__grid slide__inner">
+      <div className="slide-about__grid">
         <motion.div
           className="slide-about__content"
           variants={containerVariants}

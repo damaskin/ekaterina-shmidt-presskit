@@ -39,3 +39,10 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+.dev.vars
+.wrangler/

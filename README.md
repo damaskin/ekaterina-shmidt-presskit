@@ -31,6 +31,11 @@ Output: `dist/`
 
 Деплой через GitHub Actions при push в `master` / `main`. В Settings → Pages источник: **GitHub Actions**.
 
+## Booking → Telegram
+
+Форма букинга шлёт заявки через Cloudflare Worker (токен бота только на сервере).
+Инструкция: [`docs/BOOKING_TELEGRAM.md`](docs/BOOKING_TELEGRAM.md).
+
 ## Assets
 
 - `public/assets/logo-reference.png`
