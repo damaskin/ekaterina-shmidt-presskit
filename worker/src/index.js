@@ -66,7 +66,15 @@ function formatTelegramMessage(data) {
 }
 
 function validateBody(body) {
-  const required = ['name', 'email', 'eventDate', 'venue'];
+  const required = [
+    'name',
+    'email',
+    'phone',
+    'eventDate',
+    'venue',
+    'city',
+    'message',
+  ];
   for (const key of required) {
     if (!body?.[key] || !String(body[key]).trim()) {
       return `Missing field: ${key}`;
@@ -75,6 +83,10 @@ function validateBody(body) {
   const email = String(body.email).trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return 'Invalid email';
+  }
+  const phoneDigits = String(body.phone).replace(/\D/g, '');
+  if (phoneDigits.length < 10) {
+    return 'Invalid phone';
   }
   return null;
 }

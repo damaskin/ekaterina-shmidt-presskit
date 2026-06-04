@@ -60,13 +60,19 @@ function buildCalendarDays(year: number, month: number) {
 interface BookingDatePickerProps {
   value: string;
   onChange: (iso: string) => void;
+  onBlur?: () => void;
   required?: boolean;
+  error?: string;
+  touched?: boolean;
 }
 
 export default function BookingDatePicker({
   value,
   onChange,
+  onBlur,
   required,
+  error,
+  touched,
 }: BookingDatePickerProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -120,6 +126,7 @@ export default function BookingDatePicker({
   };
 
   const displayText = selected ? displayFormatter.format(selected) : '';
+  const showError = Boolean(touched && error);
 
   return (
     <div className="booking-date" ref={rootRef}>
@@ -131,18 +138,29 @@ export default function BookingDatePicker({
         type="hidden"
         name="eventDate"
         value={value}
-        required={required}
         tabIndex={-1}
         aria-hidden="true"
       />
 
       <button
         type="button"
-        className={`booking-date__trigger${open ? ' booking-date__trigger--open' : ''}${!displayText ? ' booking-date__trigger--empty' : ''}`}
+        className={[
+          'booking-date__trigger',
+          open ? 'booking-date__trigger--open' : '',
+          !displayText ? 'booking-date__trigger--empty' : '',
+          showError ? 'booking-field__input--invalid' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-labelledby={`${listId}-label`}
+        aria-invalid={showError}
+        aria-describedby={showError ? `${listId}-error` : undefined}
         onClick={() => setOpen((o) => !o)}
+        onBlur={() => {
+          if (!open) onBlur?.();
+        }}
       >
         <span>{displayText || 'Select date'}</span>
         <svg
@@ -255,6 +273,12 @@ export default function BookingDatePicker({
             </button>
           </div>
         </div>
+      )}
+
+      {showError && (
+        <span id={`${listId}-error`} className="booking-field__error" role="alert">
+          {error}
+        </span>
       )}
     </div>
   );
