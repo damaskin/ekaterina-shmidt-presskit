@@ -6,7 +6,7 @@ export default function SlideExperience() {
     <section id="experience" className="slide slide-experience" aria-label="Work experience">
       <div className="slide-experience__inner slide__inner">
         <motion.h2
-          className="section-title section-title--light"
+          className="section-title section-title--dark"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewport}

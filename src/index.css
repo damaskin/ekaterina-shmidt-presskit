@@ -994,21 +994,27 @@ button {
 
 /* Styles */
 .slide-styles {
-  background: var(--color-light);
-  color: var(--color-text-on-light);
+  background: var(--color-dark-section);
+  color: var(--color-text-on-dark);
 }
 
 .slide-styles__pattern {
   position: absolute;
   inset: 0;
-  opacity: 0.35;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 18px,
-    rgb(20 16 20 / 6%) 18px,
-    rgb(20 16 20 / 6%) 19px
-  );
+  opacity: 0.45;
+  background:
+    radial-gradient(
+      ellipse 70% 55% at 85% 15%,
+      rgb(255 45 138 / 0.12),
+      transparent 62%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 18px,
+      rgb(255 255 255 / 4%) 18px,
+      rgb(255 255 255 / 4%) 19px
+    );
   pointer-events: none;
 }
 
@@ -1035,8 +1041,10 @@ button {
 
 .slide-styles__tag {
   padding: 0.55rem 1.1rem;
-  border: 1px solid rgb(20 16 20 / 12%);
+  border: 1px solid rgb(255 255 255 / 0.18);
   border-radius: var(--pill-radius);
+  background: rgb(255 255 255 / 0.04);
+  color: var(--color-text-on-dark);
   font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 700;
@@ -1046,7 +1054,8 @@ button {
   transition:
     background 0.2s ease,
     color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .slide-styles__tag:hover {
@@ -1058,8 +1067,8 @@ button {
 
 /* Experience */
 .slide-experience {
-  background: var(--color-light-muted);
-  color: var(--color-text-on-light);
+  background: var(--color-dark);
+  color: var(--color-text-on-dark);
 }
 
 .slide-experience__inner {
@@ -1071,6 +1080,7 @@ button {
 .slide-experience .section-title {
   margin-bottom: 2rem;
   font-size: clamp(2rem, 6vw, 3.5rem);
+  color: var(--color-text-on-dark);
 }
 
 .timeline {
@@ -1085,14 +1095,14 @@ button {
   grid-template-columns: 5.5rem 1fr;
   gap: 1.25rem;
   padding: 1.1rem 0;
-  border-bottom: 1px solid rgb(20 16 20 / 10%);
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
 }
 
 .timeline__year {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 0.95rem;
-  color: var(--color-accent-deep);
+  color: var(--color-accent);
   letter-spacing: 0.06em;
 }
 
@@ -1140,7 +1150,7 @@ button {
 .slide-experience__geo .label-caps {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--color-accent-deep);
+  color: var(--color-accent);
 }
 
 @media (max-width: 560px) {

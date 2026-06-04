@@ -15,7 +15,7 @@ export default function SlideStyles() {
           viewport={viewport}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <h2 className="section-title section-title--light section-title--mega">
+          <h2 className="section-title section-title--dark section-title--mega">
             Music Style
           </h2>
         </motion.header>
