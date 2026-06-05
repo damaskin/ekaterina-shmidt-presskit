@@ -5,6 +5,7 @@
 export { domAnimation } from 'framer-motion';
 export { m as motion, AnimatePresence } from 'framer-motion';
 
+/** whileInView + once — remount via key={locale} on motion roots when language changes */
 export const viewport = { once: true, amount: 0.2 } as const;
 
 export const easeOut = [0.22, 1, 0.36, 1] as const;

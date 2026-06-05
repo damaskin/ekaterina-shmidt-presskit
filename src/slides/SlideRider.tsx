@@ -4,13 +4,14 @@ import { useI18n } from '../context/LocaleContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideRider() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <section id="rider" className="slide slide-rider" aria-label={t.rider.aria}>
       <RiderBackdrop />
 
       <motion.div
+        key={locale}
         className="slide-rider__inner slide__inner"
         variants={containerVariants}
         initial="hidden"

@@ -11,7 +11,7 @@ import { fadeUpHero, motion } from '../motion';
 const Aurora = lazy(() => import('../components/effects/Aurora'));
 
 export default function SlideCover() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { ref, isActive } = useSectionActive<HTMLElement>(0.15);
   const profile = usePerformanceProfile();
   const documentVisible = useDocumentVisible();
@@ -41,6 +41,7 @@ export default function SlideCover() {
 
       <div className="slide-cover__layout slide__inner">
         <motion.p
+          key={locale}
           className="slide-cover__badge label-caps"
           variants={fadeUpHero}
           initial="hidden"
@@ -80,6 +81,7 @@ export default function SlideCover() {
               transition={{ delay: 0.45, duration: 0.55, ease: 'easeOut' }}
             />
             <motion.p
+              key={locale}
               className="slide-cover__tagline label-caps"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

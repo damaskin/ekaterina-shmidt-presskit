@@ -165,6 +165,7 @@ export default function BookingModal() {
           />
           <div className="modal-shell">
             <motion.div
+              key={locale}
               className="modal modal--booking"
               role="dialog"
               aria-labelledby="booking-title"

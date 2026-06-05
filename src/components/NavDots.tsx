@@ -9,10 +9,10 @@ interface NavDotsProps {
 const NAV_KEYS = ['cover', 'about', 'styles', 'experience', 'releases', 'rider'] as const;
 
 export default function NavDots({ activeIndex, onNavigate }: NavDotsProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
-    <nav className="nav-dots" aria-label={t.nav.sections}>
+    <nav key={locale} className="nav-dots" aria-label={t.nav.sections}>
       {SLIDE_IDS.map((id, i) => {
         const label = t.nav[NAV_KEYS[i]];
         return (

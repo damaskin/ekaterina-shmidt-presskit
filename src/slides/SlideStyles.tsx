@@ -4,7 +4,7 @@ import { useI18n } from '../context/LocaleContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideStyles() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <section id="styles" className="slide slide-styles" aria-label={t.styles.aria}>
@@ -13,6 +13,7 @@ export default function SlideStyles() {
 
       <div className="slide-styles__inner slide__inner">
         <motion.header
+          key={`styles-header-${locale}`}
           className="slide-styles__header"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -25,6 +26,7 @@ export default function SlideStyles() {
         </motion.header>
 
         <motion.ul
+          key={`styles-tags-${locale}`}
           className="slide-styles__tags"
           variants={containerVariants}
           initial="hidden"

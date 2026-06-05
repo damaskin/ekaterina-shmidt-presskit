@@ -7,7 +7,7 @@ import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideAbout() {
   const { open } = useBooking();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <section id="about" className="slide slide-about" aria-label={t.about.aria}>
@@ -31,6 +31,7 @@ export default function SlideAbout() {
 
       <div className="slide-about__grid">
         <motion.div
+          key={locale}
           className="slide-about__content"
           variants={containerVariants}
           initial="hidden"

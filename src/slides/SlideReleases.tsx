@@ -4,7 +4,7 @@ import { useI18n } from '../context/LocaleContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideReleases() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <section id="releases" className="slide slide-releases" aria-label={t.releases.aria}>
@@ -12,6 +12,7 @@ export default function SlideReleases() {
 
       <div className="slide-releases__inner slide__inner">
         <motion.h2
+          key={`releases-title-${locale}`}
           className="section-title section-title--dark section-title--mega slide-releases__title"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -22,6 +23,7 @@ export default function SlideReleases() {
         </motion.h2>
 
         <motion.div
+          key={`releases-grid-${locale}`}
           className="slide-releases__grid"
           variants={containerVariants}
           initial="hidden"
