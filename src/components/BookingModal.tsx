@@ -135,16 +135,17 @@ export default function BookingModal() {
             exit="exit"
             onClick={close}
           />
-          <motion.div
-            className="modal modal--booking"
-            role="dialog"
-            aria-labelledby="booking-title"
-            aria-modal="true"
-            variants={modalPanel}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
+          <div className="modal-shell">
+            <motion.div
+              className="modal modal--booking"
+              role="dialog"
+              aria-labelledby="booking-title"
+              aria-modal="true"
+              variants={modalPanel}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
             <div className="modal__glow" aria-hidden="true" />
 
             <button
@@ -355,6 +356,7 @@ export default function BookingModal() {
               </>
             )}
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

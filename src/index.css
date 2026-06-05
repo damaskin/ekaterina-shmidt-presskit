@@ -325,18 +325,30 @@ button {
   backdrop-filter: blur(8px);
 }
 
-.modal {
+.modal-shell {
   position: fixed;
+  inset: 0;
   z-index: 1001;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  pointer-events: none;
+}
+
+.modal {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
   width: min(92vw, 420px);
   padding: 2rem 1.75rem 1.5rem;
   border: 1px solid rgb(255 255 255 / 12%);
   background: var(--color-dark-section);
   color: var(--color-text-on-dark);
   box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+  pointer-events: auto;
+  max-height: calc(100dvh - 2.5rem);
 }
 
 .modal__close {
@@ -597,18 +609,19 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .modal-shell {
+    align-items: flex-end;
+    justify-content: stretch;
+    padding: 0;
+  }
+
   .modal {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    transform: none;
     width: 100%;
+    max-height: 94dvh;
     border-radius: 1rem 1rem 0 0;
   }
 
   .modal--booking {
-    max-height: none;
-    overflow: hidden;
     border-radius: 1.25rem 1.25rem 0 0;
   }
 
