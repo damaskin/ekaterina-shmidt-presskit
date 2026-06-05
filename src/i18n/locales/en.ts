@@ -196,7 +196,7 @@ export const en: LocaleMessages = {
     successClose: 'Close',
     submitError: 'Could not send. Try again or email us directly.',
     apiError:
-      'Booking is not connected to the server. Deploy the API and set VITE_BOOKING_API_URL.',
+      'Booking is not connected to the server. Please try again later.',
     mainButton: 'BOOKING',
     mainButtonSubmit: 'SEND REQUEST',
   },

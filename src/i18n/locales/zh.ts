@@ -177,7 +177,7 @@ export const zh: LocaleMessages = {
     city: '城市 *',
     message: '留言 *',
     namePlaceholder: 'Ekaterina Shmidt',
-    emailPlaceholder: 'you@email.com',
+    emailPlaceholder: 'ni@email.com',
     phonePlaceholder: '+86 138 0000 0000',
     venuePlaceholder: '俱乐部 / 活动名称',
     cityPlaceholder: '城市，国家',
@@ -196,7 +196,7 @@ export const zh: LocaleMessages = {
     successClose: '关闭',
     submitError: '无法发送。请重试或直接给我们发送电子邮件。',
     apiError:
-      '预订尚未连接到服务器。请部署 API 并设置 VITE_BOOKING_API_URL。',
+      '预订尚未连接到服务器。请稍后再试。',
     mainButton: '预订',
     mainButtonSubmit: '发送请求',
   },

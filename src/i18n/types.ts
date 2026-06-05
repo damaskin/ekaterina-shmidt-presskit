@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'de' | 'ar' | 'hi' | 'es' | 'fr' | 'zh';
+export type Locale = 'en' | 'ru' | 'de' | 'ar' | 'hi' | 'es' | 'fr' | 'zh';
 
 export interface ExperienceEntry {
   id: string;

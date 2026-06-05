@@ -102,8 +102,8 @@ export const fr: LocaleMessages = {
   about: {
     aria: 'À propos',
     bio: `Ekaterina Shmidt tisse des histoires par le son depuis 2013. Ses sets évoluent comme des paysages — du pouls entraînant de la musique House au calme cinématographique du Downtempo et à la relaxation profonde du Chill Out. Elle ne se contente pas de jouer des tracks ; elle construit des arcs et emmène les auditeurs de l'énergie du lever du soleil à la réflexion de fin de nuit.`,
-    booking: 'Booking 🔗',
-    pressbook: 'Pressbook',
+    booking: 'Réservation 🔗',
+    pressbook: 'Dossier de presse',
   },
   styles: {
     aria: 'Style musical',
@@ -166,14 +166,14 @@ export const fr: LocaleMessages = {
   },
   booking: {
     close: 'Fermer',
-    eyebrow: 'Booking',
+    eyebrow: 'Réservation',
     title: 'Demander un set',
     lead: 'Remplissez les détails — nous répondrons par e-mail.',
     name: 'Nom *',
     email: 'E-mail *',
     phone: 'Téléphone *',
     eventDate: 'Date de l’événement *',
-    venue: 'Venue *',
+    venue: 'Lieu *',
     city: 'Ville *',
     message: 'Message *',
     namePlaceholder: 'Ekaterina Shmidt',
@@ -196,8 +196,8 @@ export const fr: LocaleMessages = {
     successClose: 'Fermer',
     submitError: 'Impossible d’envoyer. Réessayez ou écrivez-nous directement par e-mail.',
     apiError:
-      'Le booking n’est pas connecté au serveur. Déployez l’API et définissez VITE_BOOKING_API_URL.',
-    mainButton: 'BOOKING',
+      'La réservation n’est pas connectée au serveur. Veuillez réessayer plus tard.',
+    mainButton: 'RÉSERVER',
     mainButtonSubmit: 'ENVOYER LA DEMANDE',
   },
   validation: {
@@ -211,7 +211,7 @@ export const fr: LocaleMessages = {
     eventDateRequired: 'Sélectionnez la date de l’événement',
     eventDateInvalid: 'Date invalide',
     eventDatePast: 'La date ne peut pas être dans le passé',
-    venueRequired: 'Saisissez le venue ou le nom de l’événement',
+    venueRequired: 'Saisissez le lieu ou le nom de l’événement',
     venueInvalid: 'Utilisez 2 à 120 caractères',
     cityRequired: 'Saisissez la ville',
     cityInvalid: 'Utilisez 2 à 80 lettres',

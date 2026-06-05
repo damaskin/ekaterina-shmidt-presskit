@@ -2,6 +2,7 @@ import type { Locale } from './types';
 
 export const INTL_LOCALES: Record<Locale, string> = {
   en: 'en',
+  ru: 'ru',
   de: 'de',
   ar: 'ar',
   hi: 'hi',

@@ -177,7 +177,7 @@ export const ar: LocaleMessages = {
     city: 'المدينة *',
     message: 'الرسالة *',
     namePlaceholder: 'Ekaterina Shmidt',
-    emailPlaceholder: 'you@email.com',
+    emailPlaceholder: 'tu@email.com',
     phonePlaceholder: '+971 50 123 4567',
     venuePlaceholder: 'اسم النادي / الفعالية',
     cityPlaceholder: 'المدينة، البلد',
@@ -196,7 +196,7 @@ export const ar: LocaleMessages = {
     successClose: 'إغلاق',
     submitError: 'تعذر الإرسال. حاول مرة أخرى أو راسلنا مباشرة عبر البريد الإلكتروني.',
     apiError:
-      'الحجز غير متصل بالخادم. انشر واجهة API واضبط VITE_BOOKING_API_URL.',
+      'الحجز غير متصل بالخادم. يرجى المحاولة مرة أخرى لاحقاً.',
     mainButton: 'حجز',
     mainButtonSubmit: 'إرسال الطلب',
   },

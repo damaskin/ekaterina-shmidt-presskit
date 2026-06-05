@@ -102,8 +102,8 @@ export const es: LocaleMessages = {
   about: {
     aria: 'Sobre',
     bio: `Ekaterina Shmidt cuenta historias a través del sonido desde 2013. Sus sets se mueven como paisajes — desde el pulso intenso de la música House hasta la quietud cinematográfica del Downtempo y la relajación profunda del Chill Out. No solo reproduce tracks; construye arcos que llevan al público de la energía del amanecer a la reflexión de la madrugada.`,
-    booking: 'Booking 🔗',
-    pressbook: 'Pressbook',
+    booking: 'Reserva 🔗',
+    pressbook: 'Dossier de prensa',
   },
   styles: {
     aria: 'Estilo musical',
@@ -166,14 +166,14 @@ export const es: LocaleMessages = {
   },
   booking: {
     close: 'Cerrar',
-    eyebrow: 'Booking',
+    eyebrow: 'Reserva',
     title: 'Solicitar un set',
     lead: 'Completa los datos — responderemos por email.',
     name: 'Nombre *',
     email: 'Email *',
     phone: 'Teléfono *',
     eventDate: 'Fecha del evento *',
-    venue: 'Venue *',
+    venue: 'Lugar *',
     city: 'Ciudad *',
     message: 'Mensaje *',
     namePlaceholder: 'Ekaterina Shmidt',
@@ -196,8 +196,8 @@ export const es: LocaleMessages = {
     successClose: 'Cerrar',
     submitError: 'No se pudo enviar. Inténtalo de nuevo o escríbenos directamente por email.',
     apiError:
-      'El booking no está conectado al servidor. Despliega la API y define VITE_BOOKING_API_URL.',
-    mainButton: 'BOOKING',
+      'La reserva no está conectada al servidor. Inténtalo de nuevo más tarde.',
+    mainButton: 'RESERVAR',
     mainButtonSubmit: 'ENVIAR SOLICITUD',
   },
   validation: {
@@ -211,7 +211,7 @@ export const es: LocaleMessages = {
     eventDateRequired: 'Selecciona la fecha del evento',
     eventDateInvalid: 'Fecha inválida',
     eventDatePast: 'La fecha no puede estar en el pasado',
-    venueRequired: 'Introduce el venue o nombre del evento',
+    venueRequired: 'Introduce el lugar o nombre del evento',
     venueInvalid: 'Usa de 2 a 120 caracteres',
     cityRequired: 'Introduce la ciudad',
     cityInvalid: 'Usa de 2 a 80 letras',

@@ -5,6 +5,7 @@ export const LOCALE_STORAGE_KEY = 'presskit-locale';
 
 const SUPPORTED_LOCALES = new Set<Locale>([
   'en',
+  'ru',
   'de',
   'ar',
   'hi',

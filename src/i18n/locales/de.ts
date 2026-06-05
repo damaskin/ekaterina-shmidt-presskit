@@ -77,7 +77,7 @@ export const de: LocaleMessages = {
   meta: {
     title: 'Ekaterina Shmidt — DJ-Presskit',
     description:
-      'Internationale DJ und Produzentin Ekaterina Shmidt — Presskit, Booking, Releases, Technical Rider.',
+      'Internationale DJ und Produzentin Ekaterina Shmidt — Presskit, Buchung, Veröffentlichungen, technischer Rider.',
   },
   nav: {
     sections: 'Bereiche',
@@ -86,7 +86,7 @@ export const de: LocaleMessages = {
     about: 'Über',
     styles: 'Stile',
     experience: 'Erfahrung',
-    releases: 'Releases',
+    releases: 'Veröffentlichungen',
     rider: 'Rider',
   },
   lang: {
@@ -102,8 +102,8 @@ export const de: LocaleMessages = {
   about: {
     aria: 'Über',
     bio: `Ekaterina Shmidt erzählt seit 2013 Geschichten durch Klang. Ihre Sets bewegen sich wie Landschaften — vom treibenden Puls der House-Musik bis zur filmischen Stille von Downtempo und der tiefen Entspannung von Chill-out. Sie spielt nicht einfach Tracks; sie baut Spannungsbögen und führt die Zuhörer von der Energie des Sonnenaufgangs bis zur Reflexion spät in der Nacht.`,
-    booking: 'Booking 🔗',
-    pressbook: 'Pressbook',
+    booking: 'Buchung 🔗',
+    pressbook: 'Pressemappe',
   },
   styles: {
     aria: 'Musikstil',
@@ -127,14 +127,14 @@ export const de: LocaleMessages = {
   experience: {
     aria: 'Berufserfahrung',
     title: 'Berufserfahrung',
-    resident: 'Resident',
+    resident: 'Residentin',
     geography: 'Geografie',
     geographyList: ['Indien', 'Russland', 'Saudi-Arabien', 'Malediven', 'Thailand', 'Deutschland'],
     items: [...experienceItems],
   },
   releases: {
-    aria: 'Releases',
-    title: 'Releases',
+    aria: 'Veröffentlichungen',
+    title: 'Veröffentlichungen',
     beatport: 'Beatport',
     listen: 'Auf Beatport anhören',
     items: [
@@ -147,8 +147,8 @@ export const de: LocaleMessages = {
     ],
   },
   rider: {
-    aria: 'Technical Rider',
-    title: 'Technical Rider',
+    aria: 'Technischer Rider',
+    title: 'Technischer Rider',
     items: [
       '2× verlinkte CDJ 3000/2000 NX2',
       '1× DJM-900 V10/V6/NX2 Mixer (aktualisierte Firmware)',
@@ -157,7 +157,7 @@ export const de: LocaleMessages = {
       'Restliche 50% der Künstlergage vor dem Event',
       'Bei Absage des Events fällt eine Stornogebühr von 100% an',
       'Flüge müssen auf den Namen Miss Ekaterina Shmidt gebucht werden',
-      'Lokaler Bodentransport (Flughafen – Hotel – Venue – Hotel – Flughafen)',
+      'Lokaler Bodentransport (Flughafen – Hotel – Veranstaltungsort – Hotel – Flughafen)',
       'Mindestens 4-Sterne-Unterkunft mit spätem Check-out (Doppel- / Deluxe-Zimmer)',
       'Die Unterkunft muss vom Promoter für die gesamte Dauer der Tour gebucht und bezahlt werden',
       'Artist F&B muss vom Promoter für die gesamte Dauer der Tour bezahlt werden',
@@ -166,14 +166,14 @@ export const de: LocaleMessages = {
   },
   booking: {
     close: 'Schließen',
-    eyebrow: 'Booking',
+    eyebrow: 'Buchung',
     title: 'Set anfragen',
     lead: 'Fülle die Details aus — wir antworten per E-Mail.',
     name: 'Name *',
     email: 'E-Mail *',
     phone: 'Telefon *',
     eventDate: 'Eventdatum *',
-    venue: 'Venue *',
+    venue: 'Veranstaltungsort *',
     city: 'Stadt *',
     message: 'Nachricht *',
     namePlaceholder: 'Ekaterina Shmidt',
@@ -196,8 +196,8 @@ export const de: LocaleMessages = {
     successClose: 'Schließen',
     submitError: 'Konnte nicht gesendet werden. Versuche es erneut oder schreibe uns direkt per E-Mail.',
     apiError:
-      'Booking ist nicht mit dem Server verbunden. Deploye die API und setze VITE_BOOKING_API_URL.',
-    mainButton: 'BOOKING',
+      'Die Buchung ist nicht mit dem Server verbunden. Bitte versuche es später erneut.',
+    mainButton: 'BUCHUNG',
     mainButtonSubmit: 'ANFRAGE SENDEN',
   },
   validation: {
@@ -211,7 +211,7 @@ export const de: LocaleMessages = {
     eventDateRequired: 'Wähle ein Eventdatum',
     eventDateInvalid: 'Ungültiges Datum',
     eventDatePast: 'Das Datum darf nicht in der Vergangenheit liegen',
-    venueRequired: 'Gib Venue oder Eventnamen ein',
+    venueRequired: 'Gib den Veranstaltungsort oder Eventnamen ein',
     venueInvalid: 'Verwende 2–120 Zeichen',
     cityRequired: 'Gib die Stadt ein',
     cityInvalid: 'Verwende 2–80 Buchstaben',

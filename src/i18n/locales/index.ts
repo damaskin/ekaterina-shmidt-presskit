@@ -5,10 +5,12 @@ import { en } from './en';
 import { es } from './es';
 import { fr } from './fr';
 import { hi } from './hi';
+import { ru } from './ru';
 import { zh } from './zh';
 
 export const LOCALE_OPTIONS: LocaleOption[] = [
   { code: 'en', label: 'EN', nativeName: 'English', dir: 'ltr' },
+  { code: 'ru', label: 'RU', nativeName: 'Русский', dir: 'ltr' },
   { code: 'de', label: 'DE', nativeName: 'Deutsch', dir: 'ltr' },
   { code: 'ar', label: 'AR', nativeName: 'العربية', dir: 'rtl' },
   { code: 'hi', label: 'HI', nativeName: 'हिन्दी', dir: 'ltr' },
@@ -19,6 +21,7 @@ export const LOCALE_OPTIONS: LocaleOption[] = [
 
 export const MESSAGES: Record<Locale, LocaleMessages> = {
   en,
+  ru,
   de,
   ar,
   hi,
