@@ -30,7 +30,7 @@ jobs:
       - name: Build for GitHub Pages
         run: npm run build:ghpages
         env:
-          VITE_BOOKING_API_URL: ${{ vars.VITE_BOOKING_API_URL }}
+          VITE_BOOKING_API_URL: ${{ vars.VITE_BOOKING_API_URL != '' && vars.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking' }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

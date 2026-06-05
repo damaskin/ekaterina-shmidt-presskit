@@ -60,6 +60,7 @@ jobs:
             --exclude '.env' \
             --exclude 'data/' \
             infra/shmidt01/ "${TARGET}:${REMOTE_DIR}/infra/shmidt01/"
+          rsync -az -e "ssh $SSH_OPTS" scripts/ "${TARGET}:${REMOTE_DIR}/scripts/"
 
       - name: Rebuild booking API
         run: |
@@ -77,6 +78,8 @@ jobs:
           fi
           docker compose build
           docker compose up -d --force-recreate
+          docker cp /opt/ekaterina-shmidt/scripts/drain-telegram.mjs shmidt-booking-api:/tmp/drain-telegram.mjs
+          docker exec -e API_BASE=http://127.0.0.1:3002 shmidt-booking-api node /tmp/drain-telegram.mjs
           REMOTE
 
       - name: Reload nginx
