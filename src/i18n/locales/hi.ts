@@ -198,6 +198,7 @@ export const hi: LocaleMessages = {
     apiError:
       'बुकिंग सर्वर से कनेक्ट नहीं है। API डिप्लॉय करें और VITE_BOOKING_API_URL सेट करें।',
     mainButton: 'बुकिंग',
+    mainButtonSubmit: 'अनुरोध भेजें',
   },
   validation: {
     nameRequired: 'अपना नाम दर्ज करें',

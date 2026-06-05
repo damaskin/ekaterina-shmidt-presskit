@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from '../motion';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
 import { useBooking } from '../context/BookingContext';
 import { useI18n } from '../context/LocaleContext';
@@ -18,6 +18,7 @@ import {
 } from '../lib/bookingValidation';
 import { modalBackdrop, modalPanel } from '../motion';
 import { submitBooking, BookingSubmitError } from '../services/submitBooking';
+import { isTelegramWebApp } from '../hooks/useTelegramWebApp';
 import BookingDatePicker from './BookingDatePicker';
 import { emptyBookingForm, type BookingFormData } from '../types/booking';
 
@@ -38,10 +39,16 @@ function fieldClass(touched: boolean, error?: string) {
 }
 
 export default function BookingModal() {
-  const { isOpen, close } = useBooking();
+  const {
+    isOpen,
+    close,
+    setFormStatus,
+    registerSubmitHandler,
+  } = useBooking();
   const { locale, t } = useI18n();
   const b = t.booking;
   const v = t.validation;
+  const tgApp = isTelegramWebApp();
 
   const [form, setForm] = useState<BookingFormData>(emptyBookingForm);
   const [status, setStatus] = useState<FormStatus>('idle');
@@ -97,9 +104,11 @@ export default function BookingModal() {
     if (status === 'error') setStatus('idle');
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    setFormStatus(status);
+  }, [status, setFormStatus]);
 
+  const submitForm = useCallback(async () => {
     const errors = validateBookingForm(form, v);
     setFieldErrors(errors);
     setTouched(
@@ -127,6 +136,18 @@ export default function BookingModal() {
         setErrorMessage(b.submitError);
       }
     }
+  }, [form, v, b]);
+
+  useEffect(() => {
+    registerSubmitHandler(() => {
+      void submitForm();
+    });
+    return () => registerSubmitHandler(null);
+  }, [submitForm, registerSubmitHandler]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await submitForm();
   };
 
   return (
@@ -186,7 +207,12 @@ export default function BookingModal() {
                     );
                   })()}
                 </p>
-                <button type="button" className="btn btn--accent" onClick={close}>
+                <button
+                  type="button"
+                  className="btn btn--accent"
+                  onClick={close}
+                  hidden={tgApp}
+                >
                   {b.successClose}
                 </button>
               </div>
@@ -354,13 +380,15 @@ export default function BookingModal() {
                   )}
 
                   <div className="booking-form__actions">
-                    <button
-                      type="submit"
-                      className="btn btn--accent booking-form__submit"
-                      disabled={status === 'sending'}
-                    >
-                      {status === 'sending' ? b.sending : b.send}
-                    </button>
+                    {!tgApp && (
+                      <button
+                        type="submit"
+                        className="btn btn--accent booking-form__submit"
+                        disabled={status === 'sending'}
+                      >
+                        {status === 'sending' ? b.sending : b.send}
+                      </button>
+                    )}
                     <a
                       className="booking-form__mailto"
                       href={`mailto:${PRESSKIT.email}`}

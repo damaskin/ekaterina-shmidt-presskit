@@ -198,6 +198,7 @@ export const ar: LocaleMessages = {
     apiError:
       'الحجز غير متصل بالخادم. انشر واجهة API واضبط VITE_BOOKING_API_URL.',
     mainButton: 'حجز',
+    mainButtonSubmit: 'إرسال الطلب',
   },
   validation: {
     nameRequired: 'أدخل اسمك',

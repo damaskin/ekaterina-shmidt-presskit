@@ -126,6 +126,7 @@ export interface LocaleMessages {
     submitError: string;
     apiError: string;
     mainButton: string;
+    mainButtonSubmit: string;
   };
   validation: ValidationMessages;
 }

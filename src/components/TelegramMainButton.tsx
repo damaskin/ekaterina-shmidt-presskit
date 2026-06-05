@@ -11,9 +11,9 @@ function getWebApp() {
   return window.Telegram?.WebApp;
 }
 
-/** Розовая Main Button в Telegram — всегда видна, открывает booking */
+/** Main Button в Telegram: BOOKING → открыть форму, SEND REQUEST → отправить */
 export default function TelegramMainButton() {
-  const { open } = useBooking();
+  const { isOpen, open, close, formStatus, requestSubmit } = useBooking();
   const { t } = useI18n();
 
   useEffect(() => {
@@ -40,19 +40,13 @@ export default function TelegramMainButton() {
           });
         }
 
-        const label = t.booking.mainButton;
-        mainButton.setText(label);
         mainButton.color = ACCENT;
         mainButton.textColor = ACCENT_TEXT;
-        mainButton.enable();
         mainButton.show();
 
-        const onClick = () => open();
-        mainButton.onClick(onClick);
-
         cleanup = () => {
-          mainButton.offClick(onClick);
           mainButton.hide();
+          mainButton.hideProgress();
         };
       })
       .catch(() => {
@@ -63,7 +57,72 @@ export default function TelegramMainButton() {
       cancelled = true;
       cleanup?.();
     };
-  }, [open, t.booking.mainButton]);
+  }, []);
+
+  useEffect(() => {
+    if (!isTelegramWebApp()) return;
+
+    let cancelled = false;
+    let clickHandler: (() => void) | undefined;
+
+    loadTelegramSdk()
+      .then(() => {
+        if (cancelled) return;
+
+        const mainButton = getWebApp()?.MainButton;
+        if (!mainButton) return;
+
+        let label: string;
+        let action: () => void;
+
+        if (!isOpen) {
+          label = t.booking.mainButton;
+          action = open;
+        } else if (formStatus === 'success') {
+          label = t.booking.successClose;
+          action = close;
+        } else {
+          label = t.booking.mainButtonSubmit;
+          action = requestSubmit;
+        }
+
+        if (clickHandler) {
+          mainButton.offClick(clickHandler);
+        }
+
+        mainButton.setText(label);
+        clickHandler = action;
+        mainButton.onClick(clickHandler);
+
+        if (formStatus === 'sending') {
+          mainButton.showProgress(true);
+          mainButton.disable();
+        } else {
+          mainButton.hideProgress();
+          mainButton.enable();
+        }
+      })
+      .catch(() => {
+        /* вне Telegram */
+      });
+
+    return () => {
+      cancelled = true;
+      const mainButton = getWebApp()?.MainButton;
+      if (mainButton && clickHandler) {
+        mainButton.offClick(clickHandler);
+      }
+    };
+  }, [
+    isOpen,
+    formStatus,
+    open,
+    close,
+    requestSubmit,
+    t.booking.mainButton,
+    t.booking.mainButtonSubmit,
+    t.booking.successClose,
+  ]);
 
   return null;
 }
