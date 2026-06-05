@@ -8,7 +8,7 @@ RAYN_DEPLOY="/opt/rayn-repo/infra/deploy"
 
 echo "==> Build frontend"
 cd "$ROOT"
-VITE_BOOKING_API_URL="${VITE_BOOKING_API_URL:-https://shmidt01.ru/api}" npm run build
+VITE_BOOKING_API_URL="${VITE_BOOKING_API_URL:-https://shmidt01.ru/api/booking}" npm run build
 
 echo "==> Sync to server"
 ssh "$HOST" "mkdir -p $REMOTE_DIR/web $REMOTE_DIR/infra/shmidt01/data"
