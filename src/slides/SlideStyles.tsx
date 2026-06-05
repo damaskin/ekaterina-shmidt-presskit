@@ -1,4 +1,5 @@
 import { motion } from '../motion';
+import StylesWaveform from '../components/effects/StylesWaveform';
 import { PRESSKIT } from '../data/presskit.data';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
@@ -6,6 +7,7 @@ export default function SlideStyles() {
   return (
     <section id="styles" className="slide slide-styles" aria-label="Music style">
       <div className="slide-styles__pattern" aria-hidden="true" />
+      <StylesWaveform />
 
       <div className="slide-styles__inner slide__inner">
         <motion.header

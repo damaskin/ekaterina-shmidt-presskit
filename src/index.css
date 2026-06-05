@@ -1001,6 +1001,7 @@ button {
 .slide-styles__pattern {
   position: absolute;
   inset: 0;
+  z-index: 0;
   opacity: 0.45;
   background:
     radial-gradient(
@@ -1019,6 +1020,8 @@ button {
 }
 
 .slide-styles__inner {
+  position: relative;
+  z-index: 2;
   gap: 2rem;
 }
 
