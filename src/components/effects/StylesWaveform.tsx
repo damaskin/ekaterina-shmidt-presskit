@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useDocumentVisible } from '../hooks/useDocumentVisible';
-import { useSectionActive } from '../hooks/useSectionActive';
+import { useDocumentVisible } from '../../hooks/useDocumentVisible';
+import { useSectionActive } from '../../hooks/useSectionActive';
 import './StylesWaveform.css';
 
 interface BarSeed {
