@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { getDb } from './db.mjs';
 import { handleBooking } from './booking.mjs';
 import { handleTelegramUpdate } from './bot.mjs';
+import { startTelegramPolling } from './poll.mjs';
 import { handleRegister } from './register.mjs';
 
 const PORT = Number(process.env.PORT || 3002);
@@ -136,4 +137,5 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`booking-api listening on :${PORT}`);
+  void startTelegramPolling(env);
 });
