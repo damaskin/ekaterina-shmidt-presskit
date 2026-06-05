@@ -15,7 +15,7 @@ export async function submitBooking(data: BookingFormData): Promise<void> {
 
   if (!apiUrl) {
     throw new BookingSubmitError(
-      'Booking API is not configured. Set VITE_BOOKING_API_URL.',
+      'Форма не подключена к серверу. Нужно задеплоить Worker и задать VITE_BOOKING_API_URL (см. docs/BOOKING_TELEGRAM.md).',
     );
   }
 

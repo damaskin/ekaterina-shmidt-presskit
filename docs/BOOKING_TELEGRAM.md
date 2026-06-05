@@ -1,46 +1,106 @@
 # Booking → Telegram
 
-Токен бота **нельзя** хранить во фронтенде или в git. Используется Cloudflare Worker.
+Ошибка **«Booking API is not configured»** значит: при сборке сайта не был задан `VITE_BOOKING_API_URL`.  
+Токен бота **никогда** не кладём во фронт — только в Cloudflare Worker.
 
-## 1. Chat ID
+---
 
-1. Напишите боту в Telegram любое сообщение (например `/start`).
-2. Локально:
+## Быстрый фикс (5 шагов)
 
-```bash
-TELEGRAM_BOT_TOKEN=ваш_токен node scripts/get-telegram-chat-id.mjs
-```
+### 1. Chat ID
 
-Скопируйте `chat_id`.
-
-## 2. Деплой Worker
+Напишите боту в Telegram `/start`, затем локально:
 
 ```bash
-npm install -g wrangler
-wrangler login
-wrangler secret put TELEGRAM_BOT_TOKEN
-wrangler secret put TELEGRAM_CHAT_ID
-wrangler deploy
+TELEGRAM_BOT_TOKEN=ВАШ_ТОКЕН node scripts/get-telegram-chat-id.mjs
 ```
 
-Скопируйте URL вида `https://ekaterina-shmidt-booking.<subdomain>.workers.dev`.
+Скопируйте число `chat_id` (например `123456789`).
 
-## 3. GitHub Pages
+### 2. Cloudflare (бесплатно)
 
-В репозитории: **Settings → Secrets and variables → Actions → Variables**
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → Workers & Pages  
+2. **My Profile → API Tokens** → Create Token → шаблон **Edit Cloudflare Workers**  
+3. Скопируйте токен и **Account ID** (на главной Workers справа)
 
-- `VITE_BOOKING_API_URL` = URL worker (без слэша в конце)
+### 3. Секреты в GitHub
 
-Пересоберите сайт (push в `master`).
+Репозиторий → **Settings → Secrets and variables → Actions → Secrets**:
 
-## 4. Локальная разработка
+| Secret | Значение |
+|--------|----------|
+| `CLOUDFLARE_API_TOKEN` | токен из п.2 |
+| `CLOUDFLARE_ACCOUNT_ID` | Account ID |
+| `TELEGRAM_BOT_TOKEN` | токен бота |
+| `TELEGRAM_CHAT_ID` | chat_id из п.1 |
 
-Файл `.env.local`:
+### 4. Деплой Worker
+
+**Вариант A — через GitHub:**  
+Actions → **Deploy Booking Worker** → Run workflow.
+
+**Вариант B — локально:**
+
+```bash
+npx wrangler login
+npx wrangler secret put TELEGRAM_BOT_TOKEN
+npx wrangler secret put TELEGRAM_CHAT_ID
+npx wrangler deploy
+```
+
+После деплоя URL будет вида:
+
+`https://ekaterina-shmidt-booking.<ваш-subdomain>.workers.dev`
+
+Проверка в браузере: `POST` на этот URL из формы (или curl ниже).
+
+### 5. URL в сборку Pages
+
+**Settings → Secrets and variables → Actions → Variables** (не Secrets!):
+
+| Variable | Значение |
+|----------|----------|
+| `VITE_BOOKING_API_URL` | `https://ekaterina-shmidt-booking.<subdomain>.workers.dev` |
+
+Без слэша в конце.
+
+Пересборка сайта:
+
+```bash
+git commit --allow-empty -m "Rebuild Pages with booking API"
+git push
+```
+
+Или: Actions → **Deploy to GitHub Pages** → Run workflow.
+
+---
+
+## Локальная разработка
+
+Файл `.env.local` (не коммитить):
 
 ```
-VITE_BOOKING_API_URL=https://...
+VITE_BOOKING_API_URL=https://ekaterina-shmidt-booking.xxx.workers.dev
+```
+
+```bash
+npm run dev
 ```
 
 ---
 
-Если токен бота светился в чате — отзовите в [@BotFather](https://t.me/BotFather) и выпустите новый.
+## Проверка Worker (curl)
+
+```bash
+curl -X POST "https://ВАШ-WORKER.workers.dev" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Test\",\"email\":\"t@t.com\",\"phone\":\"+7999\",\"eventDate\":\"2026-12-01\",\"venue\":\"Club\",\"city\":\"Moscow\",\"message\":\"Test booking message here\"}"
+```
+
+Ответ `{"ok":true}` — в Telegram должно прийти сообщение.
+
+---
+
+## Откат / безопасность
+
+Токен, который светился в чате, лучше перевыпустить в [@BotFather](https://t.me/BotFather).
