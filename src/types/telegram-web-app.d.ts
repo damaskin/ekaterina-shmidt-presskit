@@ -1,5 +1,6 @@
 /** Telegram Mini App SDK (telegram-web-app.js) */
 interface TelegramWebApp {
+  initData: string;
   ready: () => void;
   expand: () => void;
   close: () => void;

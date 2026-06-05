@@ -1,9 +1,10 @@
-/* Telegram Mini App — фикс высоты и без pull-to-dismiss */
+/* Telegram Mini App — скролл на body, snap сохраняется */
 html.tg-webapp {
   position: fixed;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  scroll-snap-type: none;
 }
 
 html.tg-webapp body {
@@ -13,6 +14,7 @@ html.tg-webapp body {
   overflow-y: auto;
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: y mandatory;
 }
 
 html.tg-webapp #root {

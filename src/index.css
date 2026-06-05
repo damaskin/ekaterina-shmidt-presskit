@@ -402,6 +402,8 @@ button {
 
 /* Booking form modal */
 .modal--booking {
+  display: flex;
+  flex-direction: column;
   width: min(94vw, 540px);
   padding: 1.65rem 1.75rem 1.5rem;
   border-radius: 1.25rem;
@@ -451,11 +453,24 @@ button {
   font-size: 0.92rem;
 }
 
+.modal--booking > .modal__eyebrow,
+.modal--booking > .modal__title,
+.modal--booking > .modal__lead {
+  flex-shrink: 0;
+}
+
 .booking-form {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   gap: 0.7rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.22) transparent;
 }
 
 .booking-form__row {
@@ -548,11 +563,22 @@ button {
 }
 
 .booking-form__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0.65rem;
   margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  padding-bottom: max(0.15rem, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    180deg,
+    rgb(12 8 16 / 0) 0%,
+    rgb(12 8 16 / 0.94) 32%,
+    rgb(12 8 16 / 1) 100%
+  );
 }
 
 .booking-form__submit {
@@ -623,6 +649,11 @@ button {
 
   .modal--booking {
     border-radius: 1.25rem 1.25rem 0 0;
+    padding-bottom: 0.85rem;
+  }
+
+  .booking-form {
+    padding-bottom: 0.25rem;
   }
 
   .nav-dots {
