@@ -23,7 +23,7 @@ export async function handleRegister(env, body) {
     return { status: 400, body: { error: parsed.error } };
   }
 
-  const roles = resolveUserRoles(parsed.chat, env);
+  const roles = resolveUserRoles(parsed.chat, env, env.database);
 
   upsertUser(env.database, parsed.chat, {
     isAdmin: roles.isAdmin,

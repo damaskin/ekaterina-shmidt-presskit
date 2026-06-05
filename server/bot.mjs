@@ -1,4 +1,4 @@
-import { resolveUserRoles } from './admins.mjs';
+import { isOwnerChat as checkOwnerChat, resolveUserRoles } from './admins.mjs';
 import {
   getUser,
   listUsers,
@@ -7,13 +7,8 @@ import {
 } from './db.mjs';
 import { sendTelegramMessage, userLabel } from './telegram.mjs';
 
-function ownerId(env) {
-  return String(env.TELEGRAM_OWNER_ID || env.TELEGRAM_CHAT_ID || '');
-}
-
 function isOwnerChat(chatId, env) {
-  const owner = ownerId(env);
-  return owner.length > 0 && String(chatId) === owner;
+  return checkOwnerChat(chatId, env, env.database);
 }
 
 function parseCommand(text) {
@@ -38,11 +33,14 @@ async function reply(env, chatId, text) {
 }
 
 async function handleStart(env, chat) {
-  const owner = isOwnerChat(chat.id, env);
-  await upsertUser(env.database, chat, { isAdmin: owner, isOwner: owner });
+  const roles = resolveUserRoles(chat, env, env.database);
+  await upsertUser(env.database, chat, {
+    isAdmin: roles.isAdmin,
+    isOwner: roles.isOwner,
+  });
   const user = await getUser(env.database, chat.id);
 
-  if (owner) {
+  if (roles.isOwner) {
     return reply(
       env,
       chat.id,

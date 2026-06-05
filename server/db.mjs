@@ -108,6 +108,15 @@ export function setAdmin(database, chatId, isAdmin) {
   return result.changes > 0;
 }
 
+export function setOwner(database, chatId, isOwner = true) {
+  database
+    .prepare(
+      `UPDATE users SET is_owner = ?, is_admin = CASE WHEN ? = 1 THEN 1 ELSE is_admin END,
+       updated_at = datetime('now') WHERE chat_id = ?`,
+    )
+    .run(isOwner ? 1 : 0, isOwner ? 1 : 0, chatId);
+}
+
 export function saveBooking(database, data) {
   const result = database
     .prepare(

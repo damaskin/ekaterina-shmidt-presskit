@@ -1,8 +1,34 @@
+import { getUser } from './db.mjs';
+
+function parseIdList(value) {
+  return String(value ?? '')
+    .split(/[,\s]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function parseList(value) {
   return String(value ?? '')
     .split(/[,\s]+/)
     .map((item) => item.trim().toLowerCase().replace(/^@/, ''))
     .filter(Boolean);
+}
+
+export function ownerIds(env) {
+  const ids = new Set(parseIdList(env.TELEGRAM_OWNER_ID));
+  for (const id of parseIdList(env.TELEGRAM_CHAT_ID)) ids.add(id);
+  return ids;
+}
+
+export function isOwnerInEnv(chatId, env) {
+  return ownerIds(env).has(String(chatId));
+}
+
+export function isOwnerChat(chatId, env, database) {
+  if (isOwnerInEnv(chatId, env)) return true;
+  if (!database) return false;
+  const user = getUser(database, chatId);
+  return Boolean(user?.is_owner);
 }
 
 export function autoAdminUsernames(env) {
@@ -29,17 +55,13 @@ export function isAutoAdmin(chat, env) {
   return autoAdminIds(env).has(Number(chat.id));
 }
 
-export function resolveUserRoles(chat, env) {
-  const owner = isOwnerChat(chat.id, env);
+export function resolveUserRoles(chat, env, database) {
+  const existing = database ? getUser(database, chat.id) : null;
+  const isOwner = isOwnerInEnv(chat.id, env) || Boolean(existing?.is_owner);
   const autoAdmin = isAutoAdmin(chat, env);
 
   return {
-    isOwner: owner,
-    isAdmin: owner || autoAdmin,
+    isOwner,
+    isAdmin: isOwner || autoAdmin || Boolean(existing?.is_admin),
   };
-}
-
-function isOwnerChat(chatId, env) {
-  const owner = String(env.TELEGRAM_OWNER_ID || env.TELEGRAM_CHAT_ID || '');
-  return owner.length > 0 && String(chatId) === owner;
 }
