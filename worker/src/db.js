@@ -1,16 +1,21 @@
-export async function upsertUser(db, chat, { isAdmin = false, isOwner = false } = {}) {
+export async function upsertUser(
+  db,
+  chat,
+  { isAdmin = false, isOwner = false, touchVisit = false } = {},
+) {
   const chatId = chat.id;
   await db
     .prepare(
-      `INSERT INTO users (chat_id, username, first_name, last_name, is_admin, is_owner, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+      `INSERT INTO users (chat_id, username, first_name, last_name, is_admin, is_owner, updated_at, last_seen_at)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'), CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END)
        ON CONFLICT(chat_id) DO UPDATE SET
          username = excluded.username,
          first_name = excluded.first_name,
          last_name = excluded.last_name,
          is_admin = CASE WHEN excluded.is_owner = 1 THEN 1 WHEN users.is_admin = 1 THEN 1 WHEN excluded.is_admin = 1 THEN 1 ELSE users.is_admin END,
          is_owner = CASE WHEN excluded.is_owner = 1 THEN 1 ELSE users.is_owner END,
-         updated_at = datetime('now')`,
+         updated_at = datetime('now'),
+         last_seen_at = CASE WHEN ? = 1 THEN datetime('now') ELSE users.last_seen_at END`,
     )
     .bind(
       chatId,
@@ -19,6 +24,8 @@ export async function upsertUser(db, chat, { isAdmin = false, isOwner = false } 
       chat.last_name ?? null,
       isAdmin ? 1 : 0,
       isOwner ? 1 : 0,
+      touchVisit ? 1 : 0,
+      touchVisit ? 1 : 0,
     )
     .run();
 }
@@ -26,7 +33,7 @@ export async function upsertUser(db, chat, { isAdmin = false, isOwner = false } 
 export async function getUser(db, chatId) {
   return db
     .prepare(
-      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, registered_at
+      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, registered_at, last_seen_at
        FROM users WHERE chat_id = ?`,
     )
     .bind(chatId)
@@ -36,7 +43,7 @@ export async function getUser(db, chatId) {
 export async function listUsers(db) {
   const { results } = await db
     .prepare(
-      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, registered_at
+      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, registered_at, last_seen_at
        FROM users ORDER BY registered_at ASC`,
     )
     .all();

@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { getDb } from './db.mjs';
 import { handleBooking } from './booking.mjs';
 import { handleTelegramUpdate } from './bot.mjs';
+import { handleRegister } from './register.mjs';
 
 const PORT = Number(process.env.PORT || 3002);
 const DB_PATH = process.env.DB_PATH || '/data/booking.sqlite';
@@ -101,7 +102,25 @@ const server = createServer(async (req, res) => {
 
   if (
     req.method === 'POST' &&
-    (path === '' || path === '/' || path === '/api' || path === '/api/booking')
+    (path === '/register' || path === '/api/register')
+  ) {
+    try {
+      const body = await readJson(req);
+      const result = await handleRegister(env, body);
+      json(res, result.status, result.body, cors);
+    } catch {
+      json(res, 400, { error: 'Invalid JSON' }, cors);
+    }
+    return;
+  }
+
+  if (
+    req.method === 'POST' &&
+    (path === '' ||
+      path === '/' ||
+      path === '/api' ||
+      path === '/booking' ||
+      path === '/api/booking')
   ) {
     try {
       const result = await handleBooking(req, env, readJson);

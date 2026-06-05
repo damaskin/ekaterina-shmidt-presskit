@@ -28,7 +28,8 @@ function formatUserRow(user) {
   if (user.is_owner) roles.push('owner');
   else if (user.is_admin) roles.push('admin');
   else roles.push('user');
-  return `• <code>${user.chat_id}</code> — ${userLabel(user)} [${roles.join(', ')}]`;
+  const seen = user.last_seen_at ? ` · seen ${user.last_seen_at}` : '';
+  return `• <code>${user.chat_id}</code> — ${userLabel(user)} [${roles.join(', ')}]${seen}`;
 }
 
 async function reply(env, chatId, text) {
@@ -96,7 +97,10 @@ async function handleMe(env, chatId) {
       `chat_id: <code>${user.chat_id}</code>`,
       `роль: <b>${role}</b>`,
       `с: ${user.registered_at}`,
-    ].join('\n'),
+      user.last_seen_at ? `последний визит: ${user.last_seen_at}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n'),
   );
 }
 

@@ -1,7 +1,10 @@
 import { handleBooking } from './booking.js';
 import { handleTelegramUpdate } from './bot.js';
+import { handleRegister } from './register.js';
 
 const ALLOWED_ORIGINS = [
+  'https://shmidt01.ru',
+  'https://www.shmidt01.ru',
   'https://damaskin.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -66,7 +69,21 @@ export default {
       return json(result.body, result.status);
     }
 
-    if (request.method === 'POST' && (pathname === '' || pathname === '/')) {
+    if (request.method === 'POST' && pathname === '/register') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return json({ error: 'Invalid JSON' }, 400, cors);
+      }
+      const result = await handleRegister(env, body);
+      return json(result.body, result.status, cors);
+    }
+
+    if (
+      request.method === 'POST' &&
+      (pathname === '' || pathname === '/' || pathname === '/booking')
+    ) {
       const result = await handleBooking(request, env);
       return json(result.body, result.status, cors);
     }

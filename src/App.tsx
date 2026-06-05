@@ -3,6 +3,7 @@ import './telegram-webapp.css';
 import ActiveSplashCursor from './components/ActiveSplashCursor';
 import BookingModal from './components/BookingModal';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import TelegramMainButton from './components/TelegramMainButton';
 import NavDots from './components/NavDots';
 import { BookingProvider } from './context/BookingContext';
 import { LocaleProvider } from './context/LocaleContext';
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <LocaleProvider>
     <BookingProvider>
+      <TelegramMainButton />
       <LanguageSwitcher />
       <ActiveSplashCursor activeIndex={activeIndex} />
       <NavDots activeIndex={activeIndex} onNavigate={goToSlide} />

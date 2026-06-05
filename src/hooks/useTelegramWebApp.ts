@@ -22,7 +22,7 @@ export function isTelegramWebApp(): boolean {
   return Boolean(platform && platform !== 'unknown' && platform !== 'web');
 }
 
-function loadTelegramSdk(): Promise<void> {
+export function loadTelegramSdk(): Promise<void> {
   if (getWebApp()) return Promise.resolve();
 
   const existing = document.querySelector<HTMLScriptElement>(

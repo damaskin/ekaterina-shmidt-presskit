@@ -1,3 +1,4 @@
+import { getBookingApiUrl } from '../lib/bookingApi';
 import type { BookingFormData } from '../types/booking';
 
 export class BookingSubmitError extends Error {
@@ -11,7 +12,7 @@ export class BookingSubmitError extends Error {
 }
 
 export async function submitBooking(data: BookingFormData): Promise<void> {
-  const apiUrl = import.meta.env.VITE_BOOKING_API_URL as string | undefined;
+  const apiUrl = getBookingApiUrl();
 
   if (!apiUrl) {
     throw new BookingSubmitError(

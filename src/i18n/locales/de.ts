@@ -197,6 +197,7 @@ export const de: LocaleMessages = {
     submitError: 'Konnte nicht gesendet werden. Versuche es erneut oder schreibe uns direkt per E-Mail.',
     apiError:
       'Booking ist nicht mit dem Server verbunden. Deploye die API und setze VITE_BOOKING_API_URL.',
+    mainButton: 'Booking',
   },
   validation: {
     nameRequired: 'Gib deinen Namen ein',

@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   is_admin INTEGER NOT NULL DEFAULT 0,
   is_owner INTEGER NOT NULL DEFAULT 0,
   registered_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_seen_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_admin ON users (is_admin);

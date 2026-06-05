@@ -32,7 +32,7 @@ jobs:
       - name: Build frontend
         run: npm run build
         env:
-          VITE_BOOKING_API_URL: ${{ env.VITE_BOOKING_API_URL != '' && env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api' }}
+          VITE_BOOKING_API_URL: ${{ env.VITE_BOOKING_API_URL != '' && env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking' }}
 
       - name: Configure SSH
         run: |

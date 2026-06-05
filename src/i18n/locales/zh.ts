@@ -197,6 +197,7 @@ export const zh: LocaleMessages = {
     submitError: '无法发送。请重试或直接给我们发送电子邮件。',
     apiError:
       '预订尚未连接到服务器。请部署 API 并设置 VITE_BOOKING_API_URL。',
+    mainButton: '预订',
   },
   validation: {
     nameRequired: '请输入你的姓名',

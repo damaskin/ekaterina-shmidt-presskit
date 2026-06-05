@@ -63,6 +63,17 @@ npm run bot:webhook
 
 (URL webhook: `https://shmidt01.ru/webhook`)
 
+### Пользователи и админы букинга
+
+| Действие | Как |
+|----------|-----|
+| Открыли Mini App | chat_id сохраняется автоматически (`POST /api/register`) |
+| Написали боту | `/start` — регистрация в SQLite |
+| Список всех id | владелец: `/users` |
+| Кто получает заявки | владелец: `/admins` |
+| Выдать права | `/promote <chat_id>` |
+| Снять права | `/demote <chat_id>` |
+
 ---
 
 ## SSL (после DNS)
@@ -103,7 +114,7 @@ docker exec rayn-prod-nginx-1 nginx -s reload
 |----------|--------------|
 | `SHMIDT01_SSH_HOST` | `91.201.54.196` |
 | `SHMIDT01_SSH_USER` | `root` |
-| `VITE_BOOKING_API_URL` | `https://shmidt01.ru/api` |
+| `VITE_BOOKING_API_URL` | `https://shmidt01.ru/api/booking` |
 
 На сервере `.env` **не перезаписывается** при деплое.
 
@@ -112,7 +123,7 @@ docker exec rayn-prod-nginx-1 nginx -s reload
 ## Обновление вручную (с локальной машины)
 
 ```bash
-VITE_BOOKING_API_URL=https://shmidt01.ru/api npm run build
+VITE_BOOKING_API_URL=https://shmidt01.ru/api/booking npm run build
 scp -r dist/* root@91.201.54.196:/opt/ekaterina-shmidt/web/
 ```
 
