@@ -7,4 +7,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   publicDir: 'public',
   base: mode === 'ghpages' ? `/${REPO_NAME}/` : '/',
+  build: {
+    cssCodeSplit: false,
+  },
 }));
