@@ -178,7 +178,7 @@ export const hi: LocaleMessages = {
     message: 'संदेश *',
     namePlaceholder: 'Ekaterina Shmidt',
     emailPlaceholder: 'you@email.com',
-    phonePlaceholder: '+7 (999) 123-45-67',
+    phonePlaceholder: '+91 98765 43210',
     venuePlaceholder: 'क्लब / इवेंट का नाम',
     cityPlaceholder: 'शहर, देश',
     messagePlaceholder: 'सेट का समय, राइडर, यात्रा, विशेष अनुरोध…',

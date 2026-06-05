@@ -27,21 +27,11 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
   zh,
 };
 
-export const DEFAULT_LOCALE: Locale = 'en';
-export const LOCALE_STORAGE_KEY = 'presskit-locale';
-
-export function isLocale(value: string | null | undefined): value is Locale {
-  return value != null && value in MESSAGES;
-}
-
-export function detectLocale(): Locale {
-  if (typeof window === 'undefined') return DEFAULT_LOCALE;
-
-  const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-  if (isLocale(stored)) return stored;
-
-  const browser = navigator.language.slice(0, 2).toLowerCase();
-  if (isLocale(browser)) return browser;
-
-  return DEFAULT_LOCALE;
-}
+export {
+  DEFAULT_LOCALE,
+  detectLocale,
+  detectSystemLocale,
+  isLocale,
+  LOCALE_STORAGE_KEY,
+  readStoredLocale,
+} from '../detectLocale';

@@ -10,9 +10,12 @@ import {
 import {
   DEFAULT_LOCALE,
   detectLocale,
+  detectSystemLocale,
   LOCALE_STORAGE_KEY,
   MESSAGES,
+  readStoredLocale,
 } from '../i18n/locales';
+import { isTelegramWebApp, loadTelegramSdk } from '../hooks/useTelegramWebApp';
 import type { Locale, LocaleMessages } from '../i18n/types';
 
 interface LocaleContextValue {
@@ -30,6 +33,23 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     localStorage.setItem(LOCALE_STORAGE_KEY, next);
+  }, []);
+
+  useEffect(() => {
+    if (readStoredLocale()) return;
+
+    const applySystemLocale = () => {
+      if (readStoredLocale()) return;
+      setLocaleState(detectSystemLocale());
+    };
+
+    if (!isTelegramWebApp()) return;
+
+    loadTelegramSdk()
+      .then(applySystemLocale)
+      .catch(() => {
+        /* ignore */
+      });
   }, []);
 
   const t = MESSAGES[locale] ?? MESSAGES[DEFAULT_LOCALE];

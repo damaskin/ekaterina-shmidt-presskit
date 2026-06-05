@@ -14,7 +14,31 @@ export function phoneDigits(value: string): string {
   return value.replace(/\D/g, '');
 }
 
-/** Маска телефона: +7 (XXX) XXX-XX-XX или международный +XXXXXXXX */
+function formatRussianPhone(digits: string): string {
+  let d = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
+  if (!d.startsWith('7')) d = `7${d}`;
+  d = d.slice(0, 11);
+  const a = d.slice(1, 4);
+  const b = d.slice(4, 7);
+  const c = d.slice(7, 9);
+  const e = d.slice(9, 11);
+  let out = '+7';
+  if (a.length) out += ` (${a}`;
+  if (a.length === 3) out += ')';
+  if (b.length) out += ` ${b}`;
+  if (c.length) out += `-${c}`;
+  if (e.length) out += `-${e}`;
+  return out;
+}
+
+function isRussianLocalEntry(digits: string): boolean {
+  return (
+    digits.startsWith('8') ||
+    (digits.startsWith('7') && digits.length === 11)
+  );
+}
+
+/** Международный номер (+XXXXXXXX). Маска +7 только при явном вводе RU-номера. */
 export function formatPhoneInput(raw: string): string {
   const trimmed = raw.trimStart();
   if (!trimmed) return '';
@@ -24,32 +48,19 @@ export function formatPhoneInput(raw: string): string {
 
   if (!digits) return hasPlus ? '+' : '';
 
-  if (hasPlus && (digits.startsWith('7') || digits.startsWith('8'))) {
-    let d = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
-    d = d.slice(0, 11);
-    const a = d.slice(1, 4);
-    const b = d.slice(4, 7);
-    const c = d.slice(7, 9);
-    const e = d.slice(9, 11);
-    let out = '+7';
-    if (a.length) out += ` (${a}`;
-    if (a.length === 3) out += ')';
-    if (b.length) out += ` ${b}`;
-    if (c.length) out += `-${c}`;
-    if (e.length) out += `-${e}`;
-    return out;
+  if (hasPlus && digits.startsWith('7') && digits.length <= 11) {
+    return formatRussianPhone(digits);
   }
 
   if (hasPlus) {
     return `+${digits.slice(0, 15)}`;
   }
 
-  if (digits.startsWith('8') || digits.startsWith('7')) {
-    const normalized = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
-    return formatPhoneInput(`+${normalized}`);
+  if (isRussianLocalEntry(digits)) {
+    return formatRussianPhone(digits);
   }
 
-  return formatPhoneInput(`+7${digits.slice(0, 10)}`);
+  return digits.slice(0, 15);
 }
 
 export function sanitizeName(value: string): string {

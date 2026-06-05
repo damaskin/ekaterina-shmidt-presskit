@@ -31,6 +31,8 @@ interface TelegramWebApp {
   initDataUnsafe?: {
     user?: TelegramWebAppUser;
   };
+  /** Язык интерфейса Telegram-клиента (IETF tag) */
+  languageCode?: string;
   MainButton: TelegramMainButton;
   ready: () => void;
   expand: () => void;

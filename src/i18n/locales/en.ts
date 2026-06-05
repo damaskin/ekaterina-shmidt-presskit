@@ -178,7 +178,7 @@ export const en: LocaleMessages = {
     message: 'Message *',
     namePlaceholder: 'Ekaterina Shmidt',
     emailPlaceholder: 'you@email.com',
-    phonePlaceholder: '+7 (999) 123-45-67',
+    phonePlaceholder: '+1 555 123 4567',
     venuePlaceholder: 'Club / event name',
     cityPlaceholder: 'City, country',
     messagePlaceholder: 'Set time, rider, travel, special requests…',

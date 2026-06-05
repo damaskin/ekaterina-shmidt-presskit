@@ -178,7 +178,7 @@ export const zh: LocaleMessages = {
     message: '留言 *',
     namePlaceholder: 'Ekaterina Shmidt',
     emailPlaceholder: 'you@email.com',
-    phonePlaceholder: '+7 (999) 123-45-67',
+    phonePlaceholder: '+86 138 0000 0000',
     venuePlaceholder: '俱乐部 / 活动名称',
     cityPlaceholder: '城市，国家',
     messagePlaceholder: '演出时长、技术需求、差旅、特殊要求…',

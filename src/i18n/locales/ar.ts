@@ -178,7 +178,7 @@ export const ar: LocaleMessages = {
     message: 'الرسالة *',
     namePlaceholder: 'Ekaterina Shmidt',
     emailPlaceholder: 'you@email.com',
-    phonePlaceholder: '+7 (999) 123-45-67',
+    phonePlaceholder: '+971 50 123 4567',
     venuePlaceholder: 'اسم النادي / الفعالية',
     cityPlaceholder: 'المدينة، البلد',
     messagePlaceholder: 'وقت المجموعة، المتطلبات التقنية، السفر، الطلبات الخاصة…',
