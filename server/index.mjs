@@ -64,6 +64,9 @@ const env = {
   TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
   TELEGRAM_OWNER_ID: process.env.TELEGRAM_OWNER_ID,
   TELEGRAM_WEBHOOK_SECRET: process.env.TELEGRAM_WEBHOOK_SECRET,
+  TELEGRAM_AUTO_ADMIN_USERNAMES: process.env.TELEGRAM_AUTO_ADMIN_USERNAMES,
+  TELEGRAM_AUTO_ADMIN_IDS: process.env.TELEGRAM_AUTO_ADMIN_IDS,
+  TELEGRAM_USE_POLLING: process.env.TELEGRAM_USE_POLLING,
 };
 
 const server = createServer(async (req, res) => {
@@ -93,8 +96,11 @@ const server = createServer(async (req, res) => {
 
     try {
       const update = await readJson(req);
-      const result = await handleTelegramUpdate(env, update);
-      json(res, result.status, result.body);
+      // Telegram ждёт быстрый 200 — ответы боту шлём асинхронно
+      json(res, 200, { ok: true });
+      void handleTelegramUpdate(env, update).catch((err) => {
+        console.error('telegram update failed', err);
+      });
     } catch {
       json(res, 400, { error: 'Invalid JSON' });
     }
