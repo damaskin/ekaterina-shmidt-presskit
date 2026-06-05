@@ -39,17 +39,26 @@ dig +short shmidt01.ru A @8.8.8.8
 На сервере: `/opt/ekaterina-shmidt/infra/shmidt01/.env`
 
 ```env
-TELEGRAM_BOT_TOKEN=...
-TELEGRAM_OWNER_ID=...      # ваш chat_id — владелец, /promote
-TELEGRAM_CHAT_ID=...       # fallback до появления админов
-TELEGRAM_WEBHOOK_SECRET=... # опционально
+TELEGRAM_BOT_TOKEN=123456789:AA...   # без кавычек, Unix LF
+TELEGRAM_OWNER_ID=987654321          # ваш chat_id — владелец, /promote
+TELEGRAM_CHAT_ID=987654321           # fallback до появления админов
+TELEGRAM_WEBHOOK_SECRET=...          # опционально
+```
+
+Проверка (токен не должен быть пустым):
+
+```bash
+grep '^TELEGRAM_BOT_TOKEN=.' /opt/ekaterina-shmidt/infra/shmidt01/.env
+docker exec shmidt-booking-api printenv TELEGRAM_BOT_TOKEN | wc -c
+# должно быть > 1
 ```
 
 После правок:
 
 ```bash
 cd /opt/ekaterina-shmidt/infra/shmidt01
-docker compose up -d
+sed -i 's/\r$//' .env
+docker compose up -d --force-recreate
 ```
 
 Webhook:

@@ -70,8 +70,13 @@ jobs:
           set -euo pipefail
           cd /opt/ekaterina-shmidt/infra/shmidt01
           test -f .env || { echo "Missing .env on server"; exit 1; }
+          sed -i 's/\r$//' .env
+          if ! grep -q '^TELEGRAM_BOT_TOKEN=.\+' .env; then
+            echo "TELEGRAM_BOT_TOKEN is empty in /opt/ekaterina-shmidt/infra/shmidt01/.env"
+            exit 1
+          fi
           docker compose build
-          docker compose up -d
+          docker compose up -d --force-recreate
           REMOTE
 
       - name: Reload nginx
@@ -84,4 +89,16 @@ jobs:
           cd /opt/rayn-repo/infra/deploy
           docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -t
           docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -s reload
+          REMOTE
+
+      - name: Smoke test
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          HOST="${SSH_HOST:-91.201.54.196}"
+          USER="${SSH_USER:-root}"
+          ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
+          set -euo pipefail
+          curl -sf -H 'Host: shmidt01.ru' http://127.0.0.1/api/health >/dev/null
+          test -n "$(docker exec shmidt-booking-api printenv TELEGRAM_BOT_TOKEN)"
+          curl -sf -H 'Host: shmidt01.ru' http://127.0.0.1/ | grep -q 'id="root"'
           REMOTE

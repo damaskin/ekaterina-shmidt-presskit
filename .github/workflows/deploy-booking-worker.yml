@@ -1,14 +1,8 @@
 name: Deploy Booking Worker
 
+# Опционально: прод на VPS (shmidt01.ru/api). Worker — только вручную после настройки Cloudflare secrets.
 on:
   workflow_dispatch:
-  push:
-    branches: [master, main]
-    paths:
-      - worker/**
-      - migrations/**
-      - wrangler.toml
-      - .github/workflows/deploy-booking-worker.yml
 
 jobs:
   deploy:
@@ -25,12 +19,16 @@ jobs:
         run: npm install wrangler@4 --no-save
 
       - name: Inject D1 database id
-        if: ${{ secrets.D1_DATABASE_ID != '' }}
         run: |
-          sed -i "s/REPLACE_WITH_D1_DATABASE_ID/${{ secrets.D1_DATABASE_ID }}/" wrangler.toml
+          if [ -z "${D1_DATABASE_ID}" ]; then
+            echo "Set GitHub secret D1_DATABASE_ID before deploying the Worker."
+            exit 1
+          fi
+          sed -i "s/REPLACE_WITH_D1_DATABASE_ID/${D1_DATABASE_ID}/" wrangler.toml
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
 
       - name: Apply D1 migrations
-        if: ${{ secrets.D1_DATABASE_ID != '' }}
         run: npx wrangler d1 migrations apply ekaterina-shmidt-booking --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
