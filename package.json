@@ -10,7 +10,12 @@
     "preview": "vite preview",
     "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs",
     "assets:logo-transparent": "node scripts/remove-logo-background.mjs",
-    "deploy:booking": "wrangler deploy"
+    "deploy:booking": "wrangler deploy",
+    "worker:dev": "wrangler dev",
+    "d1:create": "wrangler d1 create ekaterina-shmidt-booking",
+    "d1:migrate:local": "wrangler d1 migrations apply ekaterina-shmidt-booking --local",
+    "d1:migrate:remote": "wrangler d1 migrations apply ekaterina-shmidt-booking --remote",
+    "bot:webhook": "node scripts/setup-telegram-webhook.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.24",
@@ -18,6 +23,7 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "wrangler": "^4.0.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.0.4",

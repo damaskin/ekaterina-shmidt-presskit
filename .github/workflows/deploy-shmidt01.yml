@@ -1,0 +1,87 @@
+name: Deploy to shmidt01.ru
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: shmidt01-prod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ vars.SHMIDT01_SSH_HOST }}
+      SSH_USER: ${{ vars.SHMIDT01_SSH_USER }}
+      REMOTE_DIR: /opt/ekaterina-shmidt
+      VITE_BOOKING_API_URL: ${{ vars.VITE_BOOKING_API_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_BOOKING_API_URL: ${{ env.VITE_BOOKING_API_URL != '' && env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api' }}
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SHMIDT01_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          HOST="${SSH_HOST:-91.201.54.196}"
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync files
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          HOST="${SSH_HOST:-91.201.54.196}"
+          USER="${SSH_USER:-root}"
+          TARGET="${USER}@${HOST}"
+
+          ssh $SSH_OPTS "$TARGET" "mkdir -p ${REMOTE_DIR}/web ${REMOTE_DIR}/server ${REMOTE_DIR}/infra/shmidt01/data"
+
+          rsync -az --delete -e "ssh $SSH_OPTS" dist/ "${TARGET}:${REMOTE_DIR}/web/"
+          rsync -az -e "ssh $SSH_OPTS" \
+            --exclude '.env' \
+            --exclude 'data/' \
+            server/ "${TARGET}:${REMOTE_DIR}/server/"
+          rsync -az -e "ssh $SSH_OPTS" \
+            --exclude '.env' \
+            --exclude 'data/' \
+            infra/shmidt01/ "${TARGET}:${REMOTE_DIR}/infra/shmidt01/"
+
+      - name: Rebuild booking API
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          HOST="${SSH_HOST:-91.201.54.196}"
+          USER="${SSH_USER:-root}"
+          ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
+          set -euo pipefail
+          cd /opt/ekaterina-shmidt/infra/shmidt01
+          test -f .env || { echo "Missing .env on server"; exit 1; }
+          docker compose build
+          docker compose up -d
+          REMOTE
+
+      - name: Reload nginx
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          HOST="${SSH_HOST:-91.201.54.196}"
+          USER="${SSH_USER:-root}"
+          ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
+          set -euo pipefail
+          cd /opt/rayn-repo/infra/deploy
+          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -t
+          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -s reload
+          REMOTE

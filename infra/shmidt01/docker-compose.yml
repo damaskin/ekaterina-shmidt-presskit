@@ -1,0 +1,18 @@
+services:
+  booking-api:
+    build:
+      context: ../../server
+      dockerfile: Dockerfile
+    image: ekaterina-shmidt-booking-api:latest
+    container_name: shmidt-booking-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data
+    networks:
+      - rayn-prod_default
+
+networks:
+  rayn-prod_default:
+    external: true

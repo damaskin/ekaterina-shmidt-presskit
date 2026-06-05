@@ -1,0 +1,9 @@
+{
+  "name": "ekaterina-shmidt-booking-api",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
+  }
+}
