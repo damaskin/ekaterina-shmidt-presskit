@@ -1356,7 +1356,8 @@ button {
 .lang-switcher {
   position: fixed;
   top: max(0.85rem, env(safe-area-inset-top, 0px));
-  left: max(0.85rem, env(safe-area-inset-left, 0px));
+  right: max(0.85rem, env(safe-area-inset-right, 0px));
+  left: auto;
   z-index: 60;
   display: flex;
   align-items: center;
@@ -1401,8 +1402,8 @@ html[dir='rtl'] .nav-dots {
 }
 
 html[dir='rtl'] .lang-switcher {
-  left: auto;
-  right: max(0.85rem, env(safe-area-inset-right, 0px));
+  right: auto;
+  left: max(0.85rem, env(safe-area-inset-left, 0px));
 }
 
 html[dir='rtl'] .slide-rider__list {

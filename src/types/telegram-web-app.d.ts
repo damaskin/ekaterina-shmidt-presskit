@@ -26,6 +26,13 @@ interface TelegramMainButton {
   hideProgress: () => void;
 }
 
+interface TelegramSafeAreaInset {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
 interface TelegramWebApp {
   initData: string;
   initDataUnsafe?: {
@@ -45,6 +52,10 @@ interface TelegramWebApp {
   disableClosingConfirmation?: () => void;
   setHeaderColor?: (color: string) => void;
   setBackgroundColor?: (color: string) => void;
+  onEvent?: (eventType: string, callback: () => void) => void;
+  offEvent?: (eventType: string, callback: () => void) => void;
+  safeAreaInset?: TelegramSafeAreaInset;
+  contentSafeAreaInset?: TelegramSafeAreaInset;
   isExpanded?: boolean;
   isFullscreen?: boolean;
   isVerticalSwipesEnabled?: boolean;

@@ -45,6 +45,42 @@ export function loadTelegramSdk(): Promise<void> {
   });
 }
 
+type AreaInset = { top: number; bottom: number; left: number; right: number };
+
+const TG_HEADER_FALLBACK = 52;
+const TG_SIDE_FALLBACK = 56;
+
+function readInset(value: Partial<AreaInset> | undefined): AreaInset {
+  return {
+    top: value?.top ?? 0,
+    bottom: value?.bottom ?? 0,
+    left: value?.left ?? 0,
+    right: value?.right ?? 0,
+  };
+}
+
+function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
+  const root = document.documentElement.style;
+  const safe = readInset(tg.safeAreaInset);
+  const content = readInset(tg.contentSafeAreaInset);
+
+  const headerBarHeight = Math.max(content.top, TG_HEADER_FALLBACK);
+
+  root.setProperty('--tg-safe-area-inset-top', `${safe.top}px`);
+  root.setProperty('--tg-safe-area-inset-bottom', `${safe.bottom}px`);
+  root.setProperty('--tg-safe-area-inset-left', `${safe.left}px`);
+  root.setProperty('--tg-safe-area-inset-right', `${safe.right}px`);
+  root.setProperty('--tg-content-safe-area-inset-top', `${content.top}px`);
+  root.setProperty('--tg-content-safe-area-inset-bottom', `${content.bottom}px`);
+  root.setProperty('--tg-content-safe-area-inset-left', `${content.left}px`);
+  root.setProperty('--tg-content-safe-area-inset-right', `${content.right}px`);
+  root.setProperty('--tg-header-bar-height', `${headerBarHeight}px`);
+  root.setProperty(
+    '--tg-header-side-inset',
+    `${Math.max(content.left, content.right, TG_SIDE_FALLBACK)}px`,
+  );
+}
+
 function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
   document.documentElement.classList.add('tg-webapp');
 
@@ -61,6 +97,8 @@ function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
     /* старые клиенты без fullscreen API */
   }
 
+  applyTelegramSafeArea(tg);
+
   const onViewportChanged = () => {
     if (!tg.isExpanded) tg.expand();
     if (tg.isFullscreen === false) {
@@ -70,13 +108,30 @@ function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
         /* ignore */
       }
     }
+    applyTelegramSafeArea(tg);
   };
 
   window.addEventListener('resize', onViewportChanged);
+  tg.onEvent?.('safeAreaChanged', onViewportChanged);
+  tg.onEvent?.('contentSafeAreaChanged', onViewportChanged);
 
   return () => {
     window.removeEventListener('resize', onViewportChanged);
+    tg.offEvent?.('safeAreaChanged', onViewportChanged);
+    tg.offEvent?.('contentSafeAreaChanged', onViewportChanged);
     document.documentElement.classList.remove('tg-webapp');
+    [
+      '--tg-safe-area-inset-top',
+      '--tg-safe-area-inset-bottom',
+      '--tg-safe-area-inset-left',
+      '--tg-safe-area-inset-right',
+      '--tg-content-safe-area-inset-top',
+      '--tg-content-safe-area-inset-bottom',
+      '--tg-content-safe-area-inset-left',
+      '--tg-content-safe-area-inset-right',
+      '--tg-header-bar-height',
+      '--tg-header-side-inset',
+    ].forEach((name) => document.documentElement.style.removeProperty(name));
     tg.enableVerticalSwipes?.();
     try {
       tg.exitFullscreen?.();
