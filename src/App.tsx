@@ -1,3 +1,5 @@
+import { useTelegramWebApp } from './hooks/useTelegramWebApp';
+import './telegram-webapp.css';
 import ActiveSplashCursor from './components/ActiveSplashCursor';
 import BookingModal from './components/BookingModal';
 import NavDots from './components/NavDots';
@@ -12,6 +14,7 @@ import SlideStyles from './slides/SlideStyles';
 
 export default function App() {
   const [activeIndex, goToSlide] = useScrollSpy();
+  useTelegramWebApp();
 
   return (
     <BookingProvider>
