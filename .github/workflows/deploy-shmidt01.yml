@@ -101,7 +101,7 @@ jobs:
           USER="${SSH_USER:-root}"
           ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
           set -euo pipefail
-          curl -sf -H 'Host: shmidt01.ru' http://127.0.0.1/api/health >/dev/null
+          curl -sfk -H 'Host: shmidt01.ru' https://127.0.0.1/api/health >/dev/null
           test -n "$(docker exec shmidt-booking-api printenv TELEGRAM_BOT_TOKEN)"
-          curl -sf -H 'Host: shmidt01.ru' http://127.0.0.1/ | grep -q 'id="root"'
+          curl -sfk -H 'Host: shmidt01.ru' https://127.0.0.1/ | grep -q 'id="root"'
           REMOTE
