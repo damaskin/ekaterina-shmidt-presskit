@@ -1,3 +1,4 @@
+import { resolveUserRoles } from './admins.mjs';
 import { upsertUser } from './db.mjs';
 
 function parseUser(body) {
@@ -22,13 +23,11 @@ export async function handleRegister(env, body) {
     return { status: 400, body: { error: parsed.error } };
   }
 
-  const ownerId = String(env.TELEGRAM_OWNER_ID || env.TELEGRAM_CHAT_ID || '');
-  const isOwner =
-    ownerId.length > 0 && String(parsed.chat.id) === ownerId;
+  const roles = resolveUserRoles(parsed.chat, env);
 
   upsertUser(env.database, parsed.chat, {
-    isAdmin: isOwner,
-    isOwner,
+    isAdmin: roles.isAdmin,
+    isOwner: roles.isOwner,
     touchVisit: true,
   });
 

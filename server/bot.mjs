@@ -1,3 +1,4 @@
+import { resolveUserRoles } from './admins.mjs';
 import {
   getUser,
   listUsers,
@@ -64,7 +65,12 @@ async function handleStart(env, chat) {
     return reply(
       env,
       chat.id,
-      '✅ Вы админ. Уведомления о новых заявках с presskit будут приходить сюда.\n\n/me — статус',
+      [
+        '✅ Вы админ. Уведомления о новых заявках с presskit будут приходить сюда.',
+        '',
+        `/me — статус`,
+        `chat_id: <code>${chat.id}</code>`,
+      ].join('\n'),
     );
   }
 
