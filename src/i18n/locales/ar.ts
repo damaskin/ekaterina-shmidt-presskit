@@ -75,9 +75,9 @@ export const ar: LocaleMessages = {
   dir: 'rtl',
   nativeName: 'العربية',
   meta: {
-    title: 'Ekaterina Shmidt — ملف DJ الصحفي',
+    title: 'Ekaterina Shmidt — DJ دولية | حجز وملف صحفي',
     description:
-      'Ekaterina Shmidt، DJ ومنتجة دولية — ملف صحفي، حجوزات، إصدارات، ومتطلبات تقنية.',
+      'احجز DJ Ekaterina Shmidt للنوادي والمهرجانات. House, Organic House, Afro House, Downtempo. ملف صحفي، إصدارات، متطلبات تقنية.',
   },
   nav: {
     sections: 'الأقسام',

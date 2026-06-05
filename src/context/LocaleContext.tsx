@@ -16,6 +16,7 @@ import {
   readStoredLocale,
 } from '../i18n/locales';
 import { isTelegramWebApp, loadTelegramSdk } from '../hooks/useTelegramWebApp';
+import { applyDocumentSeo } from '../lib/seo';
 import type { Locale, LocaleMessages } from '../i18n/types';
 
 interface LocaleContextValue {
@@ -33,6 +34,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     localStorage.setItem(LOCALE_STORAGE_KEY, next);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', next);
+    window.history.replaceState(null, '', url);
   }, []);
 
   useEffect(() => {
@@ -58,11 +63,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = dir;
-    document.title = t.meta.title;
+    applyDocumentSeo(locale, t);
 
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    if (meta) meta.content = t.meta.description;
-  }, [locale, dir, t.meta.description, t.meta.title]);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('lang') !== locale) {
+      url.searchParams.set('lang', locale);
+      window.history.replaceState(null, '', url);
+    }
+  }, [locale, dir, t]);
 
   const value = useMemo(
     () => ({ locale, setLocale, t, dir }),

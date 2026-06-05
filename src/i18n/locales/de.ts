@@ -75,9 +75,9 @@ export const de: LocaleMessages = {
   dir: 'ltr',
   nativeName: 'Deutsch',
   meta: {
-    title: 'Ekaterina Shmidt — DJ-Presskit',
+    title: 'Ekaterina Shmidt — Internationale DJ & Producerin | Booking',
     description:
-      'Internationale DJ und Produzentin Ekaterina Shmidt — Presskit, Buchung, Veröffentlichungen, technischer Rider.',
+      'Buche die internationale DJ Ekaterina Shmidt für Festivals und Clubs. House, Organic House, Afro House, Downtempo. Presskit, Releases, Technical Rider.',
   },
   nav: {
     sections: 'Bereiche',

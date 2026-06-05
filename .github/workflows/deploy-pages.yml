@@ -31,6 +31,7 @@ jobs:
         run: npm run build:ghpages
         env:
           VITE_BOOKING_API_URL: ${{ vars.VITE_BOOKING_API_URL != '' && vars.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking' }}
+          VITE_SITE_URL: https://damaskin.github.io/ekaterina-shmidt-presskit
 
       - uses: actions/upload-pages-artifact@v3
         with:

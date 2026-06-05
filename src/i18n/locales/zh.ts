@@ -75,9 +75,9 @@ export const zh: LocaleMessages = {
   dir: 'ltr',
   nativeName: '中文',
   meta: {
-    title: 'Ekaterina Shmidt — DJ 媒体资料包',
+    title: 'Ekaterina Shmidt — 国际 DJ | 预订与媒体资料包',
     description:
-      '国际 DJ 与制作人 Ekaterina Shmidt — 媒体资料包、预订、发行作品和技术需求。',
+      '预订国际 DJ Ekaterina Shmidt 参与俱乐部与音乐节演出。House、Organic House、Afro House、Downtempo。媒体资料包、发行作品、技术需求。',
   },
   nav: {
     sections: '章节',

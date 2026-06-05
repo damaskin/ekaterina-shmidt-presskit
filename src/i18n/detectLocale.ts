@@ -56,6 +56,12 @@ function detectBrowserLocale(): Locale | null {
   return null;
 }
 
+function detectUrlLocale(): Locale | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  return localeFromTag(params.get('lang'));
+}
+
 /** Telegram → браузер → English */
 export function detectSystemLocale(): Locale {
   return detectTelegramLocale() ?? detectBrowserLocale() ?? DEFAULT_LOCALE;
@@ -67,6 +73,7 @@ export function readStoredLocale(): Locale | null {
   return isLocale(stored) ? stored : null;
 }
 
+/** localStorage → URL ?lang= → Telegram → браузер → English */
 export function detectLocale(): Locale {
-  return readStoredLocale() ?? detectSystemLocale();
+  return readStoredLocale() ?? detectUrlLocale() ?? detectSystemLocale();
 }

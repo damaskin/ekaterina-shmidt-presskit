@@ -75,9 +75,9 @@ export const ru: LocaleMessages = {
   dir: 'ltr',
   nativeName: 'Русский',
   meta: {
-    title: 'Ekaterina Shmidt — DJ Presskit',
+    title: 'Ekaterina Shmidt — DJ и продюсер | Букинг',
     description:
-      'Международная DJ и продюсер Ekaterina Shmidt — пресс-кит, букинг, релизы, технический райдер.',
+      'Букинг DJ Ekaterina Shmidt для клубов и фестивалей. House, Organic House, Afro House, Downtempo. Пресс-кит, релизы, технический райдер.',
   },
   nav: {
     sections: 'Разделы',

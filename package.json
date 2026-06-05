@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
-    "build:ghpages": "tsc -b && vite build --mode ghpages",
+    "build": "tsc -b && vite build && node scripts/generate-sitemap.mjs",
+    "build:ghpages": "tsc -b && vite build --mode ghpages && node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs",
     "assets:logo-transparent": "node scripts/remove-logo-background.mjs",

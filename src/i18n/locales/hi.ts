@@ -75,9 +75,9 @@ export const hi: LocaleMessages = {
   dir: 'ltr',
   nativeName: 'हिन्दी',
   meta: {
-    title: 'Ekaterina Shmidt — DJ प्रेसकिट',
+    title: 'Ekaterina Shmidt — अंतरराष्ट्रीय DJ | बुकिंग',
     description:
-      'अंतरराष्ट्रीय DJ और प्रोड्यूसर Ekaterina Shmidt — प्रेस किट, बुकिंग, रिलीज़ और टेक्निकल राइडर।',
+      'Ekaterina Shmidt को क्लब और फेस्टिवल के लिए बुक करें। House, Organic House, Afro House, Downtempo. प्रेस किट, रिलीज़, टेक्निकल राइडर।',
   },
   nav: {
     sections: 'सेक्शन',
