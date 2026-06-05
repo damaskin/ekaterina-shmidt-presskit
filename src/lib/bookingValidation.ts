@@ -1,3 +1,4 @@
+import type { ValidationMessages } from '../i18n/types';
 import type { BookingFormData } from '../types/booking';
 
 export type BookingField = keyof BookingFormData;
@@ -82,48 +83,52 @@ function isFutureOrToday(iso: string): boolean {
 export function validateBookingField(
   field: BookingField,
   value: string,
+  messages: ValidationMessages,
 ): string | undefined {
   const v = value.trim();
 
   switch (field) {
     case 'name':
-      if (!v) return 'Enter your name';
-      if (!NAME_RE.test(v)) return 'Use 2–80 letters';
+      if (!v) return messages.nameRequired;
+      if (!NAME_RE.test(v)) return messages.nameInvalid;
       return undefined;
     case 'email':
-      if (!v) return 'Enter your email';
-      if (!EMAIL_RE.test(v)) return 'Invalid email format';
+      if (!v) return messages.emailRequired;
+      if (!EMAIL_RE.test(v)) return messages.emailInvalid;
       return undefined;
     case 'phone': {
-      if (!v) return 'Enter your phone number';
+      if (!v) return messages.phoneRequired;
       const digits = phoneDigits(v);
-      if (digits.length < 10) return 'Enter a valid phone number';
-      if (digits.length > 15) return 'Phone number is too long';
+      if (digits.length < 10) return messages.phoneInvalid;
+      if (digits.length > 15) return messages.phoneTooLong;
       return undefined;
     }
     case 'eventDate':
-      if (!v) return 'Select event date';
-      if (!ISO_DATE_RE.test(v)) return 'Invalid date';
-      if (!isFutureOrToday(v)) return 'Date cannot be in the past';
+      if (!v) return messages.eventDateRequired;
+      if (!ISO_DATE_RE.test(v)) return messages.eventDateInvalid;
+      if (!isFutureOrToday(v)) return messages.eventDatePast;
       return undefined;
     case 'venue':
-      if (!v) return 'Enter venue or event name';
-      if (!VENUE_RE.test(v)) return 'Use 2–120 characters';
+      if (!v) return messages.venueRequired;
+      if (!VENUE_RE.test(v)) return messages.venueInvalid;
       return undefined;
     case 'city':
-      if (!v) return 'Enter city';
-      if (!CITY_RE.test(v)) return 'Use 2–80 letters';
+      if (!v) return messages.cityRequired;
+      if (!CITY_RE.test(v)) return messages.cityInvalid;
       return undefined;
     case 'message':
-      if (!v) return 'Add a short message';
-      if (v.length < 10) return 'At least 10 characters';
+      if (!v) return messages.messageRequired;
+      if (v.length < 10) return messages.messageTooShort;
       return undefined;
     default:
       return undefined;
   }
 }
 
-export function validateBookingForm(data: BookingFormData): BookingFieldErrors {
+export function validateBookingForm(
+  data: BookingFormData,
+  messages: ValidationMessages,
+): BookingFieldErrors {
   const fields: BookingField[] = [
     'name',
     'email',
@@ -135,7 +140,7 @@ export function validateBookingForm(data: BookingFormData): BookingFieldErrors {
   ];
   const errors: BookingFieldErrors = {};
   for (const field of fields) {
-    const err = validateBookingField(field, data[field]);
+    const err = validateBookingField(field, data[field], messages);
     if (err) errors[field] = err;
   }
   return errors;

@@ -1,11 +1,13 @@
 import { motion } from '../motion';
 import StylesWaveform from '../components/effects/StylesWaveform';
-import { PRESSKIT } from '../data/presskit.data';
+import { useI18n } from '../context/LocaleContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideStyles() {
+  const { t } = useI18n();
+
   return (
-    <section id="styles" className="slide slide-styles" aria-label="Music style">
+    <section id="styles" className="slide slide-styles" aria-label={t.styles.aria}>
       <div className="slide-styles__pattern" aria-hidden="true" />
       <StylesWaveform />
 
@@ -18,7 +20,7 @@ export default function SlideStyles() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <h2 className="section-title section-title--dark section-title--mega">
-            Music Style
+            {t.styles.title}
           </h2>
         </motion.header>
 
@@ -29,7 +31,7 @@ export default function SlideStyles() {
           whileInView="visible"
           viewport={viewport}
         >
-          {PRESSKIT.musicStyles.map((style) => (
+          {t.styles.genres.map((style) => (
             <motion.li
               key={style}
               className="slide-styles__tag"

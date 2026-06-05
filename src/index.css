@@ -1351,3 +1351,69 @@ button {
   margin-top: 2.5rem;
   opacity: 0.55;
 }
+
+/* Language switcher */
+.lang-switcher {
+  position: fixed;
+  top: max(0.85rem, env(safe-area-inset-top, 0px));
+  left: max(0.85rem, env(safe-area-inset-left, 0px));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--pill-radius);
+  border: 1px solid rgb(255 255 255 / 18%);
+  background: rgb(13 10 15 / 72%);
+  backdrop-filter: blur(8px);
+}
+
+.lang-switcher__label {
+  opacity: 0.72;
+  font-size: 0.62rem;
+}
+
+.lang-switcher__select {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  max-width: 7.5rem;
+}
+
+.lang-switcher__select:focus {
+  outline: none;
+}
+
+.lang-switcher__select option {
+  color: #141014;
+  background: #f0edf2;
+}
+
+/* RTL */
+html[dir='rtl'] .nav-dots {
+  right: auto;
+  left: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+html[dir='rtl'] .lang-switcher {
+  left: auto;
+  right: max(0.85rem, env(safe-area-inset-right, 0px));
+}
+
+html[dir='rtl'] .slide-rider__list {
+  padding-left: 0;
+  padding-right: 1.15rem;
+}
+
+html[dir='rtl'] .timeline__year {
+  text-align: end;
+}
+
+html[dir='rtl'] .booking-field__hint {
+  text-align: left;
+}

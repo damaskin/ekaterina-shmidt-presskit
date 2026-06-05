@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
+import { useI18n } from '../context/LocaleContext';
 import { assetUrl } from '../lib/assetUrl';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
 import { usePerformanceProfile } from '../hooks/usePerformanceProfile';
@@ -10,6 +11,7 @@ import { fadeUpHero, motion } from '../motion';
 const Aurora = lazy(() => import('../components/effects/Aurora'));
 
 export default function SlideCover() {
+  const { t } = useI18n();
   const { ref, isActive } = useSectionActive<HTMLElement>(0.15);
   const profile = usePerformanceProfile();
   const documentVisible = useDocumentVisible();
@@ -20,7 +22,7 @@ export default function SlideCover() {
       ref={ref}
       id="cover"
       className="slide slide-cover"
-      aria-label="Cover"
+      aria-label={t.cover.aria}
     >
       <div className="slide-cover__backdrop" aria-hidden="true">
         <div
@@ -45,7 +47,7 @@ export default function SlideCover() {
           animate="visible"
           custom={0}
         >
-          DJ Presskit
+          {t.cover.badge}
         </motion.p>
 
         <aside className="slide-cover__platforms">
@@ -83,14 +85,14 @@ export default function SlideCover() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55, duration: 0.5, ease: 'easeOut' }}
             >
-              International DJ and Producer
+              {t.cover.tagline}
             </motion.p>
           </motion.div>
 
           <motion.a
             className="slide-cover__scroll"
             href="#about"
-            aria-label="Scroll to about"
+            aria-label={t.cover.scrollToAbout}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.85 }}
             transition={{ opacity: { delay: 0.7, duration: 0.4 } }}

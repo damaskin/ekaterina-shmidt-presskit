@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from '../motion';
 import { useEffect, useState, type FormEvent } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
 import { useBooking } from '../context/BookingContext';
+import { useI18n } from '../context/LocaleContext';
 import {
   formatPhoneInput,
   hasBookingErrors,
@@ -38,6 +39,10 @@ function fieldClass(touched: boolean, error?: string) {
 
 export default function BookingModal() {
   const { isOpen, close } = useBooking();
+  const { locale, t } = useI18n();
+  const b = t.booking;
+  const v = t.validation;
+
   const [form, setForm] = useState<BookingFormData>(emptyBookingForm);
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -77,7 +82,7 @@ export default function BookingModal() {
     setTouched((prev) => ({ ...prev, [field]: true }));
     setFieldErrors((prev) => ({
       ...prev,
-      [field]: validateBookingField(field, form[field]),
+      [field]: validateBookingField(field, form[field], v),
     }));
   };
 
@@ -86,7 +91,7 @@ export default function BookingModal() {
     if (touched[field]) {
       setFieldErrors((prev) => ({
         ...prev,
-        [field]: validateBookingField(field, value),
+        [field]: validateBookingField(field, value, v),
       }));
     }
     if (status === 'error') setStatus('idle');
@@ -95,7 +100,7 @@ export default function BookingModal() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const errors = validateBookingForm(form);
+    const errors = validateBookingForm(form, v);
     setFieldErrors(errors);
     setTouched(
       ALL_FIELDS.reduce(
@@ -115,9 +120,11 @@ export default function BookingModal() {
     } catch (err) {
       setStatus('error');
       if (err instanceof BookingSubmitError) {
-        setErrorMessage(err.message);
+        setErrorMessage(
+          err.message.includes('VITE_BOOKING_API_URL') ? b.apiError : err.message,
+        );
       } else {
-        setErrorMessage('Could not send. Try again or email us directly.');
+        setErrorMessage(b.submitError);
       }
     }
   };
@@ -151,7 +158,7 @@ export default function BookingModal() {
             <button
               type="button"
               className="modal__close"
-              aria-label="Close"
+              aria-label={b.close}
               onClick={close}
             >
               ×
@@ -163,30 +170,38 @@ export default function BookingModal() {
                   ✓
                 </div>
                 <h2 id="booking-title" className="modal__title">
-                  Request sent
+                  {b.successTitle}
                 </h2>
                 <p className="booking-success__text">
-                  Thank you! We will get back to you at{' '}
-                  <strong>{form.email}</strong> soon.
+                  {(() => {
+                    const msg = b.successText(form.email);
+                    const idx = msg.indexOf(form.email);
+                    if (idx < 0) return msg;
+                    return (
+                      <>
+                        {msg.slice(0, idx)}
+                        <strong>{form.email}</strong>
+                        {msg.slice(idx + form.email.length)}
+                      </>
+                    );
+                  })()}
                 </p>
                 <button type="button" className="btn btn--accent" onClick={close}>
-                  Close
+                  {b.successClose}
                 </button>
               </div>
             ) : (
               <>
-                <p className="modal__eyebrow label-caps">Booking</p>
+                <p className="modal__eyebrow label-caps">{b.eyebrow}</p>
                 <h2 id="booking-title" className="modal__title">
-                  Request a set
+                  {b.title}
                 </h2>
-                <p className="modal__lead">
-                  Fill in the details — we will reply via email.
-                </p>
+                <p className="modal__lead">{b.lead}</p>
 
                 <form className="booking-form" onSubmit={handleSubmit} noValidate>
                   <div className="booking-form__row booking-form__row--2">
                     <label className="booking-field">
-                      <span className="booking-field__label">Name *</span>
+                      <span className="booking-field__label">{b.name}</span>
                       <input
                         className={`booking-field__input${fieldClass(Boolean(touched.name), fieldErrors.name)}`}
                         type="text"
@@ -195,7 +210,7 @@ export default function BookingModal() {
                         value={form.name}
                         onChange={(e) => setField('name', sanitizeName(e.target.value))}
                         onBlur={() => touch('name')}
-                        placeholder="Ekaterina Shmidt"
+                        placeholder={b.namePlaceholder}
                         aria-invalid={Boolean(touched.name && fieldErrors.name)}
                       />
                       {touched.name && fieldErrors.name && (
@@ -205,7 +220,7 @@ export default function BookingModal() {
                       )}
                     </label>
                     <label className="booking-field">
-                      <span className="booking-field__label">Email *</span>
+                      <span className="booking-field__label">{b.email}</span>
                       <input
                         className={`booking-field__input${fieldClass(Boolean(touched.email), fieldErrors.email)}`}
                         type="email"
@@ -220,7 +235,7 @@ export default function BookingModal() {
                           setField('email', sanitizeEmail(form.email).toLowerCase());
                           touch('email');
                         }}
-                        placeholder="you@email.com"
+                        placeholder={b.emailPlaceholder}
                         aria-invalid={Boolean(touched.email && fieldErrors.email)}
                       />
                       {touched.email && fieldErrors.email && (
@@ -233,7 +248,7 @@ export default function BookingModal() {
 
                   <div className="booking-form__row booking-form__row--2">
                     <label className="booking-field">
-                      <span className="booking-field__label">Phone *</span>
+                      <span className="booking-field__label">{b.phone}</span>
                       <input
                         className={`booking-field__input${fieldClass(Boolean(touched.phone), fieldErrors.phone)}`}
                         type="tel"
@@ -245,7 +260,7 @@ export default function BookingModal() {
                           setField('phone', formatPhoneInput(e.target.value))
                         }
                         onBlur={() => touch('phone')}
-                        placeholder="+7 (999) 123-45-67"
+                        placeholder={b.phonePlaceholder}
                         aria-invalid={Boolean(touched.phone && fieldErrors.phone)}
                       />
                       {touched.phone && fieldErrors.phone && (
@@ -255,18 +270,19 @@ export default function BookingModal() {
                       )}
                     </label>
                     <BookingDatePicker
+                      locale={locale}
                       value={form.eventDate}
                       onChange={(iso) => setField('eventDate', iso)}
                       onBlur={() => touch('eventDate')}
                       error={fieldErrors.eventDate}
                       touched={Boolean(touched.eventDate)}
-                      required
+                      labels={b}
                     />
                   </div>
 
                   <div className="booking-form__row booking-form__row--2">
                     <label className="booking-field">
-                      <span className="booking-field__label">Venue *</span>
+                      <span className="booking-field__label">{b.venue}</span>
                       <input
                         className={`booking-field__input${fieldClass(Boolean(touched.venue), fieldErrors.venue)}`}
                         type="text"
@@ -276,7 +292,7 @@ export default function BookingModal() {
                           setField('venue', sanitizeVenue(e.target.value))
                         }
                         onBlur={() => touch('venue')}
-                        placeholder="Club / event name"
+                        placeholder={b.venuePlaceholder}
                         aria-invalid={Boolean(touched.venue && fieldErrors.venue)}
                       />
                       {touched.venue && fieldErrors.venue && (
@@ -286,7 +302,7 @@ export default function BookingModal() {
                       )}
                     </label>
                     <label className="booking-field">
-                      <span className="booking-field__label">City *</span>
+                      <span className="booking-field__label">{b.city}</span>
                       <input
                         className={`booking-field__input${fieldClass(Boolean(touched.city), fieldErrors.city)}`}
                         type="text"
@@ -294,7 +310,7 @@ export default function BookingModal() {
                         value={form.city}
                         onChange={(e) => setField('city', sanitizeCity(e.target.value))}
                         onBlur={() => touch('city')}
-                        placeholder="City, country"
+                        placeholder={b.cityPlaceholder}
                         aria-invalid={Boolean(touched.city && fieldErrors.city)}
                       />
                       {touched.city && fieldErrors.city && (
@@ -306,7 +322,7 @@ export default function BookingModal() {
                   </div>
 
                   <label className="booking-field">
-                    <span className="booking-field__label">Message *</span>
+                    <span className="booking-field__label">{b.message}</span>
                     <textarea
                       className={`booking-field__input booking-field__input--area${fieldClass(Boolean(touched.message), fieldErrors.message)}`}
                       name="message"
@@ -317,7 +333,7 @@ export default function BookingModal() {
                         setField('message', sanitizeMessage(e.target.value))
                       }
                       onBlur={() => touch('message')}
-                      placeholder="Set time, rider, travel, special requests…"
+                      placeholder={b.messagePlaceholder}
                       aria-invalid={Boolean(touched.message && fieldErrors.message)}
                     />
                     {touched.message && fieldErrors.message ? (
@@ -343,13 +359,13 @@ export default function BookingModal() {
                       className="btn btn--accent booking-form__submit"
                       disabled={status === 'sending'}
                     >
-                      {status === 'sending' ? 'Sending…' : 'Send request'}
+                      {status === 'sending' ? b.sending : b.send}
                     </button>
                     <a
                       className="booking-form__mailto"
                       href={`mailto:${PRESSKIT.email}`}
                     >
-                      or {PRESSKIT.email}
+                      {b.orEmail} {PRESSKIT.email}
                     </a>
                   </div>
                 </form>

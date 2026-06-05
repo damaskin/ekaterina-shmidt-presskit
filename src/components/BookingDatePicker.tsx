@@ -1,18 +1,10 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { INTL_LOCALES, weekdayLabels } from '../i18n/intl';
+import type { Locale } from '../i18n/types';
+import type { LocaleMessages } from '../i18n/types';
 import './BookingDatePicker.css';
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const;
-
-const monthFormatter = new Intl.DateTimeFormat('en', {
-  month: 'long',
-  year: 'numeric',
-});
-
-const displayFormatter = new Intl.DateTimeFormat('en', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+type BookingLabels = LocaleMessages['booking'];
 
 function toIso(date: Date): string {
   const y = date.getFullYear();
@@ -58,26 +50,44 @@ function buildCalendarDays(year: number, month: number) {
 }
 
 interface BookingDatePickerProps {
+  locale: Locale;
   value: string;
   onChange: (iso: string) => void;
   onBlur?: () => void;
-  required?: boolean;
   error?: string;
   touched?: boolean;
+  labels: BookingLabels;
 }
 
 export default function BookingDatePicker({
+  locale,
   value,
   onChange,
   onBlur,
-  required,
   error,
   touched,
+  labels,
 }: BookingDatePickerProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => startOfDay(new Date()), []);
   const selected = useMemo(() => (value ? parseIso(value) : null), [value]);
+  const intlLocale = INTL_LOCALES[locale];
+
+  const monthFormatter = useMemo(
+    () => new Intl.DateTimeFormat(intlLocale, { month: 'long', year: 'numeric' }),
+    [intlLocale],
+  );
+  const displayFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(intlLocale, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
+    [intlLocale],
+  );
+  const weekdays = useMemo(() => weekdayLabels(locale), [locale]);
 
   const initialView = selected ?? today;
   const [open, setOpen] = useState(false);
@@ -131,7 +141,7 @@ export default function BookingDatePicker({
   return (
     <div className="booking-date" ref={rootRef}>
       <span className="booking-field__label" id={`${listId}-label`}>
-        Event date {required ? '*' : ''}
+        {labels.eventDate}
       </span>
 
       <input
@@ -162,7 +172,7 @@ export default function BookingDatePicker({
           if (!open) onBlur?.();
         }}
       >
-        <span>{displayText || 'Select date'}</span>
+        <span>{displayText || labels.selectDate}</span>
         <svg
           className="booking-date__icon"
           width="18"
@@ -182,7 +192,7 @@ export default function BookingDatePicker({
         <div
           className="booking-date__popover"
           role="dialog"
-          aria-label="Choose event date"
+          aria-label={labels.chooseDate}
         >
           <div className="booking-date__header">
             <p className="booking-date__month">{monthLabel}</p>
@@ -190,7 +200,7 @@ export default function BookingDatePicker({
               <button
                 type="button"
                 className="booking-date__nav-btn"
-                aria-label="Previous month"
+                aria-label={labels.prevMonth}
                 disabled={!canPrev}
                 onClick={() => {
                   const next = addMonths(viewYear, viewMonth, -1);
@@ -203,7 +213,7 @@ export default function BookingDatePicker({
               <button
                 type="button"
                 className="booking-date__nav-btn"
-                aria-label="Next month"
+                aria-label={labels.nextMonth}
                 onClick={() => {
                   const next = addMonths(viewYear, viewMonth, 1);
                   setViewYear(next.year);
@@ -216,7 +226,7 @@ export default function BookingDatePicker({
           </div>
 
           <div className="booking-date__weekdays">
-            {WEEKDAYS.map((d) => (
+            {weekdays.map((d) => (
               <span key={d} className="booking-date__weekday">
                 {d}
               </span>
@@ -238,8 +248,7 @@ export default function BookingDatePicker({
               const date = new Date(viewYear, viewMonth, cell.day);
               const isPast = date < today;
               const isToday = date.getTime() === today.getTime();
-              const isSelected =
-                selected?.getTime() === date.getTime();
+              const isSelected = selected?.getTime() === date.getTime();
 
               return (
                 <button
@@ -269,7 +278,7 @@ export default function BookingDatePicker({
               className="booking-date__today-btn"
               onClick={goToday}
             >
-              Today
+              {labels.today}
             </button>
           </div>
         </div>

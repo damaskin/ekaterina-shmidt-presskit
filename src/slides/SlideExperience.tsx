@@ -1,9 +1,11 @@
-import { PRESSKIT } from '../data/presskit.data';
+import { useI18n } from '../context/LocaleContext';
 import { containerVariants, motion, viewport } from '../motion';
 
 export default function SlideExperience() {
+  const { t } = useI18n();
+
   return (
-    <section id="experience" className="slide slide-experience" aria-label="Work experience">
+    <section id="experience" className="slide slide-experience" aria-label={t.experience.aria}>
       <div className="slide-experience__inner slide__inner">
         <motion.h2
           className="section-title section-title--dark"
@@ -12,7 +14,7 @@ export default function SlideExperience() {
           viewport={viewport}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          Work Experience
+          {t.experience.title}
         </motion.h2>
 
         <motion.ol
@@ -22,17 +24,14 @@ export default function SlideExperience() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-          {PRESSKIT.experience.map((item) => (
-            <li
-              key={`${item.year}-${item.title}-${item.location}`}
-              className="timeline__item"
-            >
+          {t.experience.items.map((item) => (
+            <li key={item.id} className="timeline__item">
               <span className="timeline__year">{item.year}</span>
               <div className="timeline__body">
                 <div className="timeline__head">
                   <h3 className="timeline__title">{item.title}</h3>
                   {item.resident && (
-                    <span className="timeline__badge">Resident</span>
+                    <span className="timeline__badge">{t.experience.resident}</span>
                   )}
                 </div>
                 <p className="timeline__location">{item.location}</p>
@@ -49,8 +48,8 @@ export default function SlideExperience() {
           viewport={viewport}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <span className="label-caps">Geography</span>
-          {PRESSKIT.geography.join(' · ')}
+          <span className="label-caps">{t.experience.geography}</span>
+          {t.experience.geographyList.join(' · ')}
         </motion.p>
       </div>
     </section>

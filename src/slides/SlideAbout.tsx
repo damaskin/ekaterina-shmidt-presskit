@@ -1,14 +1,16 @@
 import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
-import { assetUrl } from '../lib/assetUrl';
 import { useBooking } from '../context/BookingContext';
+import { useI18n } from '../context/LocaleContext';
+import { assetUrl } from '../lib/assetUrl';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideAbout() {
   const { open } = useBooking();
+  const { t } = useI18n();
 
   return (
-    <section id="about" className="slide slide-about" aria-label="About">
+    <section id="about" className="slide slide-about" aria-label={t.about.aria}>
       <div className="slide-about__backdrop" aria-hidden="true">
         <picture className="slide-about__picture">
           <source
@@ -18,7 +20,7 @@ export default function SlideAbout() {
           <img
             className="slide-about__bg"
             src={assetUrl('assets/portrait-hero.jpg')}
-            alt="Ekaterina Shmidt"
+            alt={PRESSKIT.artist}
           />
         </picture>
         <div className="slide-about__overlay" />
@@ -41,7 +43,7 @@ export default function SlideAbout() {
           </motion.h2>
           <motion.div className="slide-about__rule" aria-hidden="true" variants={itemVariants} />
           <motion.p className="slide-about__bio" variants={itemVariants}>
-            {PRESSKIT.bio}
+            {t.about.bio}
           </motion.p>
 
           <motion.ul className="slide-about__contacts" variants={containerVariants}>
@@ -75,7 +77,7 @@ export default function SlideAbout() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
             >
-              Booking 🔗
+              {t.about.booking}
             </motion.button>
             <motion.a
               className="btn btn--accent"
@@ -85,7 +87,7 @@ export default function SlideAbout() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
             >
-              Pressbook
+              {t.about.pressbook}
             </motion.a>
           </motion.div>
         </motion.div>

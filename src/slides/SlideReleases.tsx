@@ -1,10 +1,13 @@
 import { motion } from '../motion';
 import { PRESSKIT } from '../data/presskit.data';
+import { useI18n } from '../context/LocaleContext';
 import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideReleases() {
+  const { t } = useI18n();
+
   return (
-    <section id="releases" className="slide slide-releases" aria-label="Releases">
+    <section id="releases" className="slide slide-releases" aria-label={t.releases.aria}>
       <div className="slide-releases__ribs" aria-hidden="true" />
 
       <div className="slide-releases__inner slide__inner">
@@ -15,7 +18,7 @@ export default function SlideReleases() {
           viewport={viewport}
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
-          Releases
+          {t.releases.title}
         </motion.h2>
 
         <motion.div
@@ -25,42 +28,39 @@ export default function SlideReleases() {
           whileInView="visible"
           viewport={viewport}
         >
-          {PRESSKIT.releases.map((r) => (
-            <motion.article
-              key={r.url}
-              className="release-card"
-              variants={itemVariants}
-            >
-              <p className="release-card__year">{r.year}</p>
-              <h3 className="release-card__name">{r.title}</h3>
-              <motion.a
-                className="release-card__cover"
-                href={r.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="release-card__cover-inner">
-                  <span className="release-card__play" aria-hidden="true">
-                    ▶
+          {t.releases.items.map((r, index) => {
+            const link = PRESSKIT.releases[index]?.url ?? '#';
+            return (
+              <motion.article key={r.title} className="release-card" variants={itemVariants}>
+                <p className="release-card__year">{r.year}</p>
+                <h3 className="release-card__name">{r.title}</h3>
+                <motion.a
+                  className="release-card__cover"
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="release-card__cover-inner">
+                    <span className="release-card__play" aria-hidden="true">
+                      ▶
+                    </span>
+                    <span className="release-card__label">{t.releases.beatport}</span>
                   </span>
-                  <span className="release-card__label">Beatport</span>
-                </span>
-              </motion.a>
-              {r.description && (
+                </motion.a>
                 <p className="release-card__desc">{r.description}</p>
-              )}
-              <a
-                className="btn btn--accent release-card__link"
-                href={r.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Listen on Beatport
-              </a>
-            </motion.article>
-          ))}
+                <a
+                  className="btn btn--accent release-card__link"
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.releases.listen}
+                </a>
+              </motion.article>
+            );
+          })}
         </motion.div>
       </div>
     </section>
