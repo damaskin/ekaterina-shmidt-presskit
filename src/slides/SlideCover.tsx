@@ -5,7 +5,9 @@ import { assetUrl } from '../lib/assetUrl';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
 import { usePerformanceProfile } from '../hooks/usePerformanceProfile';
 import { useSectionActive } from '../hooks/useSectionActive';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import PlatformLinkButton from '../components/PlatformLinkButton';
+import { isTelegramWebApp } from '../hooks/useTelegramWebApp';
 import { fadeUpHero, motion } from '../motion';
 
 const Aurora = lazy(() => import('../components/effects/Aurora'));
@@ -16,6 +18,20 @@ export default function SlideCover() {
   const profile = usePerformanceProfile();
   const documentVisible = useDocumentVisible();
   const runEffects = isActive && documentVisible;
+  const inTelegram = isTelegramWebApp();
+
+  const badge = (
+    <motion.p
+      key={locale}
+      className="slide-cover__badge label-caps"
+      variants={fadeUpHero}
+      initial="hidden"
+      animate="visible"
+      custom={0}
+    >
+      {t.cover.badge}
+    </motion.p>
+  );
 
   return (
     <section
@@ -40,16 +56,14 @@ export default function SlideCover() {
       </div>
 
       <div className="slide-cover__layout slide__inner">
-        <motion.p
-          key={locale}
-          className="slide-cover__badge label-caps"
-          variants={fadeUpHero}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-        >
-          {t.cover.badge}
-        </motion.p>
+        {inTelegram ? (
+          <header className="slide-cover__tg-top">
+            {badge}
+            <LanguageSwitcher />
+          </header>
+        ) : (
+          badge
+        )}
 
         <aside className="slide-cover__platforms">
           {PRESSKIT.platforms.map((p, i) => (

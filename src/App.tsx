@@ -1,4 +1,4 @@
-import { useTelegramWebApp } from './hooks/useTelegramWebApp';
+import { isTelegramWebApp, useTelegramWebApp } from './hooks/useTelegramWebApp';
 import './telegram-webapp.css';
 import ActiveSplashCursor from './components/ActiveSplashCursor';
 import BookingModal from './components/BookingModal';
@@ -23,7 +23,7 @@ export default function App() {
     <LocaleProvider>
     <BookingProvider>
       <TelegramMainButton />
-      <LanguageSwitcher />
+      {!isTelegramWebApp() && <LanguageSwitcher />}
       <ActiveSplashCursor activeIndex={activeIndex} />
       <NavDots activeIndex={activeIndex} onNavigate={goToSlide} />
       <SlideCover />

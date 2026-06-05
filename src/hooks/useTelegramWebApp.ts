@@ -65,6 +65,8 @@ function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
   const content = readInset(tg.contentSafeAreaInset);
 
   const headerBarHeight = Math.max(content.top, TG_HEADER_FALLBACK);
+  const coverTopInset =
+    content.top > 0 ? content.top : safe.top + TG_HEADER_FALLBACK;
 
   root.setProperty('--tg-safe-area-inset-top', `${safe.top}px`);
   root.setProperty('--tg-safe-area-inset-bottom', `${safe.bottom}px`);
@@ -75,6 +77,7 @@ function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
   root.setProperty('--tg-content-safe-area-inset-left', `${content.left}px`);
   root.setProperty('--tg-content-safe-area-inset-right', `${content.right}px`);
   root.setProperty('--tg-header-bar-height', `${headerBarHeight}px`);
+  root.setProperty('--tg-cover-top-inset', `${coverTopInset}px`);
   root.setProperty(
     '--tg-header-side-inset',
     `${Math.max(content.left, content.right, TG_SIDE_FALLBACK)}px`,
@@ -130,6 +133,7 @@ function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
       '--tg-content-safe-area-inset-left',
       '--tg-content-safe-area-inset-right',
       '--tg-header-bar-height',
+      '--tg-cover-top-inset',
       '--tg-header-side-inset',
     ].forEach((name) => document.documentElement.style.removeProperty(name));
     tg.enableVerticalSwipes?.();

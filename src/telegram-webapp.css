@@ -15,7 +15,6 @@ html.tg-webapp body {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: y mandatory;
-  padding-top: var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px));
 }
 
 html.tg-webapp #root {
@@ -27,36 +26,42 @@ html.tg-webapp body {
   padding-bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + 72px);
 }
 
-/* «DJ PRESSKIT» — по центру между нативными кнопками Telegram */
-html.tg-webapp .slide-cover__badge {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 55;
+/* Cover: шапка + язык в потоке, ниже нативных кнопок Telegram */
+html.tg-webapp .slide-cover .slide__inner {
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+html.tg-webapp .slide-cover__tg-top {
+  grid-column: 1 / -1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: var(--tg-header-bar-height, 52px);
+  gap: 0.65rem;
+  padding-top: var(--tg-cover-top-inset, 52px);
+  padding-inline: calc(var(--tg-header-side-inset, 48px) + 0.35rem);
+  margin-bottom: 0.35rem;
+}
+
+html.tg-webapp .slide-cover__tg-top .slide-cover__badge {
+  width: 100%;
   margin: 0;
-  padding-inline: calc(var(--tg-header-side-inset, 56px) + 0.35rem);
   text-align: center;
-  pointer-events: none;
+}
+
+html.tg-webapp .slide-cover__tg-top .lang-switcher {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  z-index: auto;
 }
 
 html.tg-webapp .slide-cover__layout {
-  padding-top: calc(var(--tg-header-bar-height, 52px) + 0.35rem);
+  gap: 1.25rem 1.5rem;
 }
 
-/* язык — внизу слева, над Main Button */
-html.tg-webapp .lang-switcher {
-  top: auto;
-  bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + 84px);
-  left: max(0.85rem, var(--tg-safe-area-inset-left, env(safe-area-inset-left, 0px)));
-  right: auto;
-}
-
-html.tg-webapp[dir='rtl'] .lang-switcher {
-  left: auto;
-  right: max(0.85rem, var(--tg-safe-area-inset-right, env(safe-area-inset-right, 0px)));
+html.tg-webapp .slide-cover__platforms {
+  margin-top: 0.75rem;
 }
