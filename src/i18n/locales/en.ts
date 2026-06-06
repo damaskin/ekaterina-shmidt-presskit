@@ -200,6 +200,13 @@ export const en: LocaleMessages = {
     mainButton: 'BOOKING',
     mainButtonSubmit: 'SEND REQUEST',
   },
+  player: {
+    aria: 'Featured mix player',
+    play: 'Play',
+    pause: 'Pause',
+    tapToPlay: 'Tap to play',
+    progress: 'Playback progress',
+  },
   validation: {
     nameRequired: 'Enter your name',
     nameInvalid: 'Use 2–80 letters',

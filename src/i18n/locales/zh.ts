@@ -200,6 +200,13 @@ export const zh: LocaleMessages = {
     mainButton: '预订',
     mainButtonSubmit: '发送请求',
   },
+  player: {
+    aria: '精选混音播放器',
+    play: '播放',
+    pause: '暂停',
+    tapToPlay: '点击播放',
+    progress: '播放进度',
+  },
   validation: {
     nameRequired: '请输入你的姓名',
     nameInvalid: '请使用 2–80 个字符',

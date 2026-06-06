@@ -39,6 +39,12 @@ export const PRESSKIT = {
       url: 'https://www.beatport.com/release/afro-kiss/5042392',
     },
   ],
+  featuredTrack: {
+    title: 'Burning Inside',
+    subtitle: 'Downtempo Mix',
+    artist: 'DJ SHMIDT',
+    src: 'assets/DJ SHMIDT - Burning Inside mix downtempo.WAV',
+  },
 } as const;
 
 export const SLIDE_IDS = [

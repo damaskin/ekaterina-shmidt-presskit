@@ -200,6 +200,13 @@ export const de: LocaleMessages = {
     mainButton: 'BUCHUNG',
     mainButtonSubmit: 'ANFRAGE SENDEN',
   },
+  player: {
+    aria: 'Feature-Mix-Player',
+    play: 'Abspielen',
+    pause: 'Pause',
+    tapToPlay: 'Tippen zum Abspielen',
+    progress: 'Wiedergabefortschritt',
+  },
   validation: {
     nameRequired: 'Gib deinen Namen ein',
     nameInvalid: 'Verwende 2–80 Buchstaben',

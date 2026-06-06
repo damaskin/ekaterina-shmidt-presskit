@@ -200,6 +200,13 @@ export const ar: LocaleMessages = {
     mainButton: 'حجز',
     mainButtonSubmit: 'إرسال الطلب',
   },
+  player: {
+    aria: 'مشغّل المix المميز',
+    play: 'تشغيل',
+    pause: 'إيقاف',
+    tapToPlay: 'اضغط للتشغيل',
+    progress: 'تقدم التشغيل',
+  },
   validation: {
     nameRequired: 'أدخل اسمك',
     nameInvalid: 'استخدم من 2 إلى 80 حرفاً',

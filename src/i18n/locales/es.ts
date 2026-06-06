@@ -200,6 +200,13 @@ export const es: LocaleMessages = {
     mainButton: 'RESERVAR',
     mainButtonSubmit: 'ENVIAR SOLICITUD',
   },
+  player: {
+    aria: 'Reproductor del mix destacado',
+    play: 'Reproducir',
+    pause: 'Pausa',
+    tapToPlay: 'Toca para reproducir',
+    progress: 'Progreso de reproducción',
+  },
   validation: {
     nameRequired: 'Introduce tu nombre',
     nameInvalid: 'Usa de 2 a 80 letras',

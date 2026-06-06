@@ -200,6 +200,13 @@ export const fr: LocaleMessages = {
     mainButton: 'RÉSERVER',
     mainButtonSubmit: 'ENVOYER LA DEMANDE',
   },
+  player: {
+    aria: 'Lecteur du mix à la une',
+    play: 'Lecture',
+    pause: 'Pause',
+    tapToPlay: 'Appuyez pour écouter',
+    progress: 'Progression de lecture',
+  },
   validation: {
     nameRequired: 'Saisissez votre nom',
     nameInvalid: 'Utilisez 2 à 80 lettres',

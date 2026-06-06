@@ -199,6 +199,13 @@ export const ru: LocaleMessages = {
     mainButton: 'БУКИНГ',
     mainButtonSubmit: 'ОТПРАВИТЬ ЗАЯВКУ',
   },
+  player: {
+    aria: 'Плеер фирменного микса',
+    play: 'Воспроизвести',
+    pause: 'Пауза',
+    tapToPlay: 'Нажмите для воспроизведения',
+    progress: 'Прогресс воспроизведения',
+  },
   validation: {
     nameRequired: 'Введите имя',
     nameInvalid: 'Используйте 2–80 букв',

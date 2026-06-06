@@ -200,6 +200,13 @@ export const hi: LocaleMessages = {
     mainButton: 'बुकिंग',
     mainButtonSubmit: 'अनुरोध भेजें',
   },
+  player: {
+    aria: 'फ़ीचर्ड मिक्स प्लेयर',
+    play: 'चलाएँ',
+    pause: 'रोकें',
+    tapToPlay: 'चलाने के लिए टैप करें',
+    progress: 'प्लेबैक प्रगति',
+  },
   validation: {
     nameRequired: 'अपना नाम दर्ज करें',
     nameInvalid: '2–80 अक्षरों का उपयोग करें',

@@ -128,6 +128,13 @@ export interface LocaleMessages {
     mainButton: string;
     mainButtonSubmit: string;
   };
+  player: {
+    aria: string;
+    play: string;
+    pause: string;
+    tapToPlay: string;
+    progress: string;
+  };
   validation: ValidationMessages;
 }
 
