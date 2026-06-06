@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PRESSKIT } from '../data/presskit.data';
+import AudioPlayerViz from './AudioPlayerViz';
 import { useI18n } from '../context/LocaleContext';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
 import { assetUrl } from '../lib/assetUrl';
 
 const { featuredTrack } = PRESSKIT;
-const BAR_COUNT = 14;
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -141,6 +141,12 @@ export default function AudioPlayer() {
       <audio ref={audioRef} src={trackSrc} preload="auto" />
 
       <div className="audio-player__shell">
+        <AudioPlayerViz
+          audioRef={audioRef}
+          active={isPlaying && documentVisible}
+        />
+
+        <div className="audio-player__shell-front">
         <button
           type="button"
           className="audio-player__toggle"
@@ -154,19 +160,6 @@ export default function AudioPlayer() {
 
         <div className="audio-player__body">
           <div className="audio-player__meta">
-            <div
-              className="audio-player__waveform"
-              aria-hidden="true"
-            >
-              {Array.from({ length: BAR_COUNT }, (_, i) => (
-                <span
-                  key={i}
-                  className="audio-player__bar"
-                  style={{ '--bar-i': i } as CSSProperties}
-                />
-              ))}
-            </div>
-
             <div className="audio-player__info">
               <p className="audio-player__title">{featuredTrack.title}</p>
               <p className="audio-player__subtitle label-caps">
@@ -209,6 +202,7 @@ export default function AudioPlayer() {
             </div>
             <span className="audio-player__time">{formatTime(duration)}</span>
           </div>
+        </div>
         </div>
       </div>
 
