@@ -50,9 +50,7 @@ type AreaInset = { top: number; bottom: number; left: number; right: number };
 const TG_HEADER_FALLBACK = 52;
 const TG_SIDE_FALLBACK = 56;
 const TG_MAIN_BUTTON_HEIGHT = 48;
-const TG_PLAYER_CONTENT_GAP = 20;
 const TG_AUDIO_PLAYER_HEIGHT = 76;
-const TG_MAX_BOTTOM_RESERVE = 120;
 
 function readInset(value: Partial<AreaInset> | undefined): AreaInset {
   return {
@@ -61,6 +59,11 @@ function readInset(value: Partial<AreaInset> | undefined): AreaInset {
     left: value?.left ?? 0,
     right: value?.right ?? 0,
   };
+}
+
+function setInsetPx(root: CSSStyleDeclaration, name: string, value: number) {
+  if (value > 0) root.setProperty(name, `${value}px`);
+  else root.removeProperty(name);
 }
 
 function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
@@ -72,14 +75,14 @@ function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
   const coverTopInset =
     content.top > 0 ? content.top : safe.top + TG_HEADER_FALLBACK;
 
-  root.setProperty('--tg-safe-area-inset-top', `${safe.top}px`);
-  root.setProperty('--tg-safe-area-inset-bottom', `${safe.bottom}px`);
-  root.setProperty('--tg-safe-area-inset-left', `${safe.left}px`);
-  root.setProperty('--tg-safe-area-inset-right', `${safe.right}px`);
-  root.setProperty('--tg-content-safe-area-inset-top', `${content.top}px`);
-  root.setProperty('--tg-content-safe-area-inset-bottom', `${content.bottom}px`);
-  root.setProperty('--tg-content-safe-area-inset-left', `${content.left}px`);
-  root.setProperty('--tg-content-safe-area-inset-right', `${content.right}px`);
+  setInsetPx(root, '--tg-safe-area-inset-top', safe.top);
+  setInsetPx(root, '--tg-safe-area-inset-bottom', safe.bottom);
+  setInsetPx(root, '--tg-safe-area-inset-left', safe.left);
+  setInsetPx(root, '--tg-safe-area-inset-right', safe.right);
+  setInsetPx(root, '--tg-content-safe-area-inset-top', content.top);
+  setInsetPx(root, '--tg-content-safe-area-inset-bottom', content.bottom);
+  setInsetPx(root, '--tg-content-safe-area-inset-left', content.left);
+  setInsetPx(root, '--tg-content-safe-area-inset-right', content.right);
   root.setProperty('--tg-header-bar-height', `${headerBarHeight}px`);
   root.setProperty('--tg-cover-top-inset', `${coverTopInset}px`);
   root.setProperty(
@@ -87,23 +90,14 @@ function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
     `${Math.max(content.left, content.right, TG_SIDE_FALLBACK)}px`,
   );
 
-  const contentBottomRaw =
+  const contentBottomReserve =
     content.bottom > 0 ? content.bottom : safe.bottom + TG_MAIN_BUTTON_HEIGHT;
-  const contentBottomReserve = Math.min(
-    Math.max(contentBottomRaw, safe.bottom + TG_MAIN_BUTTON_HEIGHT),
-    TG_MAX_BOTTOM_RESERVE,
-  );
-
   const stableHeight =
     tg.viewportStableHeight ?? tg.viewportHeight ?? window.innerHeight;
-  const playerStack =
-    contentBottomReserve + TG_PLAYER_CONTENT_GAP + TG_AUDIO_PLAYER_HEIGHT;
-  const playerTop = Math.max(0, stableHeight - playerStack);
 
   root.setProperty('--tg-viewport-stable-height', `${stableHeight}px`);
   root.setProperty('--tg-content-bottom-reserve', `${contentBottomReserve}px`);
   root.setProperty('--tg-audio-player-height', `${TG_AUDIO_PLAYER_HEIGHT}px`);
-  root.setProperty('--tg-player-top', `${playerTop}px`);
 }
 
 function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
@@ -162,7 +156,6 @@ function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
       '--tg-content-bottom-reserve',
       '--tg-audio-player-height',
       '--tg-viewport-stable-height',
-      '--tg-player-top',
     ].forEach((name) => document.documentElement.style.removeProperty(name));
     tg.enableVerticalSwipes?.();
     try {
@@ -179,16 +172,6 @@ export function useTelegramWebApp(): void {
     if (!isTelegramWebApp()) return;
 
     document.documentElement.classList.add('tg-webapp');
-    const root = document.documentElement.style;
-    const stableHeight = window.innerHeight;
-    const reserve = 68;
-    root.setProperty('--tg-viewport-stable-height', `${stableHeight}px`);
-    root.setProperty('--tg-content-bottom-reserve', `${reserve}px`);
-    root.setProperty('--tg-audio-player-height', `${TG_AUDIO_PLAYER_HEIGHT}px`);
-    root.setProperty(
-      '--tg-player-top',
-      `${stableHeight - reserve - TG_PLAYER_CONTENT_GAP - TG_AUDIO_PLAYER_HEIGHT}px`,
-    );
 
     let cleanup: (() => void) | undefined;
     let cancelled = false;
@@ -208,12 +191,6 @@ export function useTelegramWebApp(): void {
       cancelled = true;
       cleanup?.();
       document.documentElement.classList.remove('tg-webapp');
-      [
-        '--tg-viewport-stable-height',
-        '--tg-content-bottom-reserve',
-        '--tg-audio-player-height',
-        '--tg-player-top',
-      ].forEach((name) => root.removeProperty(name));
     };
   }, []);
 }

@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { PRESSKIT } from '../data/presskit.data';
 import AudioPlayerViz from './AudioPlayerViz';
 import { useI18n } from '../context/LocaleContext';
 import { useDocumentVisible } from '../hooks/useDocumentVisible';
+import { useTelegramPlayerLayout } from '../hooks/useTelegramPlayerLayout';
+import { isTelegramWebApp } from '../hooks/useTelegramWebApp';
 import { assetUrl } from '../lib/assetUrl';
 
 const { featuredTrack } = PRESSKIT;
@@ -18,6 +21,7 @@ export default function AudioPlayer() {
   const { t } = useI18n();
   const documentVisible = useDocumentVisible();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playerRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const wasPlayingRef = useRef(false);
   const autoplayBlockedRef = useRef(false);
@@ -28,6 +32,7 @@ export default function AudioPlayer() {
   const [duration, setDuration] = useState(0);
 
   const trackSrc = assetUrl(featuredTrack.src);
+  useTelegramPlayerLayout(playerRef);
 
   const tryPlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -133,8 +138,9 @@ export default function AudioPlayer() {
     setCurrentTime(audio.currentTime);
   };
 
-  return (
+  const player = (
     <section
+      ref={playerRef}
       className={`audio-player${autoplayBlocked ? ' audio-player--blocked' : ''}${isPlaying ? ' audio-player--playing' : ''}`}
       aria-label={t.player.aria}
     >
@@ -217,4 +223,8 @@ export default function AudioPlayer() {
       )}
     </section>
   );
+
+  return isTelegramWebApp()
+    ? createPortal(player, document.body)
+    : player;
 }

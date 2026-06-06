@@ -1,34 +1,36 @@
-/* Telegram Mini App — скролл на body, snap сохраняется */
+/* Telegram Mini App — скролл на #root (не body), snap сохраняется */
 html.tg-webapp {
   position: fixed;
   width: 100%;
-  height: var(--tg-viewport-stable-height, 100%);
+  height: 100%;
   overflow: hidden;
   scroll-snap-type: none;
+  --tg-audio-player-height: 76px;
+  --tg-player-bottom-fallback: calc(
+    max(
+      var(--tg-content-safe-area-inset-bottom, 0px),
+      calc(var(--tg-safe-area-inset-bottom, 0px) + 48px)
+    ) + 20px
+  );
 }
 
 html.tg-webapp body {
   width: 100%;
-  min-height: var(--tg-viewport-stable-height, 100%);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* iOS WebKit: fixed внутри scrolling body ломается — скролл на #root, fixed UI в portal на body */
+html.tg-webapp #root {
+  height: 100%;
+  min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: y mandatory;
-}
-
-html.tg-webapp #root {
-  min-height: inherit;
-}
-
-html.tg-webapp {
-  --tg-audio-player-height: 76px;
-}
-
-html.tg-webapp body {
   padding-bottom: calc(
-    var(--tg-content-bottom-reserve, 68px) + var(--tg-audio-player-height) +
-      28px
+    var(--tg-content-bottom-reserve, 68px) + var(--tg-audio-player-height) + 28px
   );
 }
 
@@ -64,10 +66,6 @@ html.tg-webapp .slide-cover__tg-top .lang-switcher {
   z-index: auto;
 }
 
-html.tg-webapp .slide-cover {
-  max-height: var(--tg-viewport-stable-height, 100dvh);
-}
-
 html.tg-webapp .slide-cover__layout {
   gap: 1rem 1.5rem;
   padding-bottom: calc(
@@ -94,18 +92,18 @@ html.tg-webapp .slide-cover__tagline {
   font-size: 0.58rem;
 }
 
-/* fixed bottom через top + viewportStableHeight (не bottom + 100vh) */
+/* fallback до JS; плеер в portal на body — bottom от TG safe area + Main Button */
 html.tg-webapp .audio-player {
-  top: var(--tg-player-top, auto);
-  bottom: auto;
+  top: auto;
+  bottom: var(--tg-player-bottom-fallback);
 }
 
 html.tg-webapp .slide-cover__scroll {
   position: fixed;
   right: var(--slide-pad-x);
   left: auto;
-  top: calc(var(--tg-player-top, 80vh) - 2rem);
-  bottom: auto;
+  bottom: calc(var(--tg-player-bottom-fallback) + var(--tg-audio-player-height) + 12px);
+  top: auto;
   z-index: 57;
   margin: 0;
   transform: none;

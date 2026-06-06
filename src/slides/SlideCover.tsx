@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { PRESSKIT } from '../data/presskit.data';
 import { useI18n } from '../context/LocaleContext';
 import { assetUrl } from '../lib/assetUrl';
@@ -31,6 +32,19 @@ export default function SlideCover() {
     >
       {t.cover.badge}
     </motion.p>
+  );
+
+  const scrollArrow = (
+    <motion.a
+      className="slide-cover__scroll"
+      href="#about"
+      aria-label={t.cover.scrollToAbout}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 0.85 }}
+      transition={{ opacity: { delay: 0.7, duration: 0.4 } }}
+    >
+      ↓
+    </motion.a>
   );
 
   return (
@@ -105,16 +119,9 @@ export default function SlideCover() {
             </motion.p>
           </motion.div>
 
-          <motion.a
-            className="slide-cover__scroll"
-            href="#about"
-            aria-label={t.cover.scrollToAbout}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.85 }}
-            transition={{ opacity: { delay: 0.7, duration: 0.4 } }}
-          >
-            ↓
-          </motion.a>
+          {inTelegram
+            ? createPortal(scrollArrow, document.body)
+            : scrollArrow}
         </div>
       </div>
     </section>

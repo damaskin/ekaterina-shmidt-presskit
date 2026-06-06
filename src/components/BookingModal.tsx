@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from '../motion';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { PRESSKIT } from '../data/presskit.data';
 import { useBooking } from '../context/BookingContext';
 import { useI18n } from '../context/LocaleContext';
@@ -59,11 +60,15 @@ export default function BookingModal() {
   );
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
+    const scrollRoot = tgApp
+      ? document.getElementById('root')
+      : document.documentElement;
+    const target = scrollRoot ?? document.body;
+    target.style.overflow = isOpen ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = '';
+      target.style.overflow = '';
     };
-  }, [isOpen]);
+  }, [isOpen, tgApp]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -150,7 +155,7 @@ export default function BookingModal() {
     await submitForm();
   };
 
-  return (
+  const modal = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -406,4 +411,6 @@ export default function BookingModal() {
       )}
     </AnimatePresence>
   );
+
+  return tgApp ? createPortal(modal, document.body) : modal;
 }
