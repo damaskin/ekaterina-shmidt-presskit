@@ -21,9 +21,14 @@ html.tg-webapp #root {
   min-height: 100%;
 }
 
-/* место под розовую Main Button Telegram */
+/* место под розовую Main Button Telegram (~48px) + зазор */
+html.tg-webapp {
+  --tg-main-button-height: 48px;
+  --tg-player-gap: 10px;
+}
+
 html.tg-webapp body {
-  padding-bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + 72px);
+  padding-bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-main-button-height) + 16px);
 }
 
 /* Cover: шапка + язык в потоке, ниже нативных кнопок Telegram */
@@ -67,5 +72,8 @@ html.tg-webapp .slide-cover__platforms {
 }
 
 html.tg-webapp .audio-player {
-  bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + 84px);
+  bottom: calc(
+    var(--tg-safe-area-inset-bottom, 0px) + var(--tg-main-button-height) +
+      var(--tg-player-gap)
+  );
 }
