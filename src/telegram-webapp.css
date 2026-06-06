@@ -98,7 +98,7 @@ html.tg-webapp .slide-cover__scroll {
   position: fixed;
   left: 50%;
   right: auto;
-  bottom: calc(var(--tg-bottom-stack) + var(--tg-audio-player-height) + 0.35rem);
+  bottom: calc(var(--tg-bottom-stack) + var(--tg-audio-player-height) + 0.35rem + 20px);
   z-index: 57;
   margin: 0;
   transform: translateX(-50%);
