@@ -5,6 +5,9 @@ import { containerVariants, itemVariants, viewport } from '../motion';
 
 export default function SlideStyles() {
   const { t, locale } = useI18n();
+  const genres = [...t.styles.genres].sort((a, b) =>
+    a.localeCompare(b, locale, { sensitivity: 'base' }),
+  );
 
   return (
     <section id="styles" className="slide slide-styles" aria-label={t.styles.aria}>
@@ -33,7 +36,7 @@ export default function SlideStyles() {
           whileInView="visible"
           viewport={viewport}
         >
-          {t.styles.genres.map((style) => (
+          {genres.map((style) => (
             <motion.li
               key={style}
               className="slide-styles__tag"
