@@ -21,21 +21,17 @@ html.tg-webapp #root {
   min-height: 100%;
 }
 
-/* место под BOOKING + плеер */
+/* BOOKING + плеер: 20px от нижнего края контентной области */
 html.tg-webapp {
-  --tg-main-button-height: 48px;
   --tg-audio-player-height: 76px;
-  --tg-player-gap: 6px;
-  --tg-bottom-stack: calc(
-    var(--tg-safe-area-inset-bottom, 0px) + var(--tg-main-button-height) +
-      var(--tg-player-gap)
+  --tg-player-bottom: calc(
+    var(--tg-content-bottom-reserve, calc(var(--tg-safe-area-inset-bottom, 0px) + 48px)) +
+      20px
   );
 }
 
 html.tg-webapp body {
-  padding-bottom: calc(
-    var(--tg-bottom-stack) + var(--tg-audio-player-height) + 8px
-  );
+  padding-bottom: calc(var(--tg-player-bottom) + var(--tg-audio-player-height) + 8px);
 }
 
 /* Cover: шапка + язык в потоке, ниже нативных кнопок Telegram */
@@ -96,13 +92,13 @@ html.tg-webapp .slide-cover__tagline {
 
 html.tg-webapp .slide-cover__scroll {
   position: fixed;
-  left: 50%;
-  right: auto;
-  bottom: calc(var(--tg-bottom-stack) + var(--tg-audio-player-height) + 0.35rem + 20px);
+  right: var(--slide-pad-x);
+  left: auto;
+  bottom: calc(var(--tg-player-bottom) + var(--tg-audio-player-height) + 20px);
   z-index: 57;
   margin: 0;
-  transform: translateX(-50%);
-  animation: tg-scroll-bounce 2.2s ease-in-out infinite;
+  transform: none;
+  animation: scroll-bounce 2.2s ease-in-out infinite;
 }
 
 html.tg-webapp .slide-cover__platforms {
@@ -110,22 +106,11 @@ html.tg-webapp .slide-cover__platforms {
 }
 
 html.tg-webapp .audio-player {
-  bottom: var(--tg-bottom-stack);
+  bottom: var(--tg-player-bottom);
 }
 
 @media (prefers-reduced-motion: reduce) {
   html.tg-webapp .slide-cover__scroll {
     animation: none;
-  }
-}
-
-@keyframes tg-scroll-bounce {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  50% {
-    transform: translateX(-50%) translateY(8px);
   }
 }

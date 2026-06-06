@@ -49,6 +49,8 @@ type AreaInset = { top: number; bottom: number; left: number; right: number };
 
 const TG_HEADER_FALLBACK = 52;
 const TG_SIDE_FALLBACK = 56;
+const TG_MAIN_BUTTON_HEIGHT = 48;
+const TG_PLAYER_CONTENT_GAP = 20;
 
 function readInset(value: Partial<AreaInset> | undefined): AreaInset {
   return {
@@ -82,6 +84,13 @@ function applyTelegramSafeArea(tg: NonNullable<ReturnType<typeof getWebApp>>) {
     '--tg-header-side-inset',
     `${Math.max(content.left, content.right, TG_SIDE_FALLBACK)}px`,
   );
+
+  const contentBottomReserve =
+    content.bottom > 0 ? content.bottom : safe.bottom + TG_MAIN_BUTTON_HEIGHT;
+  const playerBottom = contentBottomReserve + TG_PLAYER_CONTENT_GAP;
+
+  root.setProperty('--tg-content-bottom-reserve', `${contentBottomReserve}px`);
+  root.setProperty('--tg-player-bottom', `${playerBottom}px`);
 }
 
 function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
@@ -135,6 +144,8 @@ function initTelegramWebApp(tg: NonNullable<ReturnType<typeof getWebApp>>) {
       '--tg-header-bar-height',
       '--tg-cover-top-inset',
       '--tg-header-side-inset',
+      '--tg-content-bottom-reserve',
+      '--tg-player-bottom',
     ].forEach((name) => document.documentElement.style.removeProperty(name));
     tg.enableVerticalSwipes?.();
     try {
