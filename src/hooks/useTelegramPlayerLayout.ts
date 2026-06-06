@@ -3,6 +3,7 @@ import { isTelegramWebApp, loadTelegramSdk } from './useTelegramWebApp';
 
 const TG_MAIN_BUTTON_HEIGHT = 48;
 const TG_PLAYER_GAP = 20;
+const TG_PLAYER_PLAYING_BOTTOM = 12;
 
 function getWebApp() {
   return window.Telegram?.WebApp;
@@ -17,6 +18,7 @@ function readBottomReserve(tg: NonNullable<ReturnType<typeof getWebApp>>) {
 /** Якорит плеер и стрелку cover к Main Button через bottom (плеер в portal на body). */
 export function useTelegramPlayerLayout(
   playerRef: RefObject<HTMLElement | null>,
+  isPlaying: boolean,
 ): void {
   useEffect(() => {
     if (!isTelegramWebApp()) return;
@@ -33,7 +35,9 @@ export function useTelegramPlayerLayout(
       if (!player || !tg) return;
 
       const reserve = readBottomReserve(tg);
-      const bottomPx = reserve + TG_PLAYER_GAP;
+      const bottomPx = player.classList.contains('audio-player--playing')
+        ? TG_PLAYER_PLAYING_BOTTOM
+        : reserve + TG_PLAYER_GAP;
       const playerHeight = player.offsetHeight;
 
       player.style.top = 'auto';
@@ -102,5 +106,5 @@ export function useTelegramPlayerLayout(
       scroll?.style.removeProperty('top');
       scroll?.style.removeProperty('bottom');
     };
-  }, [playerRef]);
+  }, [playerRef, isPlaying]);
 }

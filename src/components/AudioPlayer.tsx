@@ -32,7 +32,7 @@ export default function AudioPlayer() {
   const [duration, setDuration] = useState(0);
 
   const trackSrc = assetUrl(featuredTrack.src);
-  useTelegramPlayerLayout(playerRef);
+  useTelegramPlayerLayout(playerRef, isPlaying);
 
   const tryPlay = useCallback(async () => {
     const audio = audioRef.current;

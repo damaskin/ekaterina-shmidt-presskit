@@ -98,6 +98,10 @@ html.tg-webapp .audio-player {
   bottom: var(--tg-player-bottom-fallback);
 }
 
+html.tg-webapp .audio-player.audio-player--playing {
+  bottom: 12px;
+}
+
 html.tg-webapp .slide-cover__scroll {
   position: fixed;
   right: var(--slide-pad-x);
