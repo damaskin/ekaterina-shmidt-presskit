@@ -779,9 +779,18 @@ button {
   background: rgb(255 255 255 / 85%);
 }
 
-.slide-cover__logo {
+.slide-cover__logo-wrap {
   width: min(100%, 520px);
   margin-bottom: 1.5rem;
+  border-radius: clamp(1rem, 3vw, 1.75rem);
+  overflow: hidden;
+}
+
+.slide-cover__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
 }
 
 .slide-cover__tagline {

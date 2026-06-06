@@ -78,9 +78,14 @@ html.tg-webapp .slide-cover__frame {
   margin-top: 0.35rem;
 }
 
-html.tg-webapp .slide-cover__logo {
+html.tg-webapp .slide-cover__logo-wrap {
   width: min(82vw, 300px);
   margin-bottom: 0.4rem;
+}
+
+html.tg-webapp .slide-cover__logo {
+  width: 100%;
+  margin-bottom: 0;
 }
 
 html.tg-webapp .slide-cover__tagline {

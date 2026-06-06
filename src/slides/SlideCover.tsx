@@ -98,16 +98,18 @@ export default function SlideCover() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
           >
-            <motion.img
-              className="slide-cover__logo"
-              src={assetUrl('assets/logo-reference.png')}
-              alt="SHMIDT"
-              width={640}
-              height={200}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.55, ease: 'easeOut' }}
-            />
+            <div className="slide-cover__logo-wrap">
+              <motion.img
+                className="slide-cover__logo"
+                src={assetUrl('assets/logo-reference.svg')}
+                alt="SHMIDT"
+                width={640}
+                height={200}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.55, ease: 'easeOut' }}
+              />
+            </div>
             <motion.p
               key={locale}
               className="slide-cover__tagline label-caps"
