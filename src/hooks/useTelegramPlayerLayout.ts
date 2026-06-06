@@ -1,24 +1,15 @@
 import { useEffect, type RefObject } from 'react';
 import { isTelegramWebApp, loadTelegramSdk } from './useTelegramWebApp';
 
-const TG_MAIN_BUTTON_HEIGHT = 48;
-const TG_PLAYER_GAP = 20;
-const TG_PLAYER_PLAYING_BOTTOM = 12;
+const TG_PLAYER_BOTTOM = 12;
 
 function getWebApp() {
   return window.Telegram?.WebApp;
 }
 
-function readBottomReserve(tg: NonNullable<ReturnType<typeof getWebApp>>) {
-  const safeBottom = tg.safeAreaInset?.bottom ?? 0;
-  const contentBottom = tg.contentSafeAreaInset?.bottom ?? 0;
-  return contentBottom > 0 ? contentBottom : safeBottom + TG_MAIN_BUTTON_HEIGHT;
-}
-
-/** Якорит плеер и стрелку cover к Main Button через bottom (плеер в portal на body). */
+/** Якорит плеер и стрелку cover в Telegram (плеер в portal на body). */
 export function useTelegramPlayerLayout(
   playerRef: RefObject<HTMLElement | null>,
-  isPlaying: boolean,
 ): void {
   useEffect(() => {
     if (!isTelegramWebApp()) return;
@@ -31,27 +22,22 @@ export function useTelegramPlayerLayout(
       if (disposed) return;
 
       const player = playerRef.current;
-      const tg = getWebApp();
-      if (!player || !tg) return;
+      if (!player) return;
 
-      const reserve = readBottomReserve(tg);
-      const bottomPx = player.classList.contains('audio-player--playing')
-        ? TG_PLAYER_PLAYING_BOTTOM
-        : reserve + TG_PLAYER_GAP;
       const playerHeight = player.offsetHeight;
 
       player.style.top = 'auto';
-      player.style.bottom = `${bottomPx}px`;
+      player.style.bottom = `${TG_PLAYER_BOTTOM}px`;
 
       const scroll = document.querySelector<HTMLElement>('.slide-cover__scroll');
       if (scroll) {
         scroll.style.top = 'auto';
-        scroll.style.bottom = `${bottomPx + playerHeight + 12}px`;
+        scroll.style.bottom = `${TG_PLAYER_BOTTOM + playerHeight + 12}px`;
       }
 
       document.documentElement.style.setProperty(
-        '--tg-content-bottom-reserve',
-        `${reserve}px`,
+        '--tg-player-bottom',
+        `${TG_PLAYER_BOTTOM}px`,
       );
       if (playerHeight > 0) {
         document.documentElement.style.setProperty(
@@ -106,5 +92,5 @@ export function useTelegramPlayerLayout(
       scroll?.style.removeProperty('top');
       scroll?.style.removeProperty('bottom');
     };
-  }, [playerRef, isPlaying]);
+  }, [playerRef]);
 }
