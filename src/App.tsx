@@ -1,5 +1,4 @@
 import { isTelegramWebApp, useTelegramWebApp } from './hooks/useTelegramWebApp';
-import './telegram-webapp.css';
 import ActiveSplashCursor from './components/ActiveSplashCursor';
 import AudioPlayer from './components/AudioPlayer';
 import BookingModal from './components/BookingModal';

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { domAnimation } from './motion';
 import './index.css';
+import './telegram-webapp.css';
 
 createRoot(document.getElementById('root')!).render(
   <LazyMotion features={domAnimation} strict>
