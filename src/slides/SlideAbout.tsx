@@ -50,6 +50,7 @@ export default function SlideAbout() {
           <motion.ul className="slide-about__contacts" variants={containerVariants}>
             <motion.li variants={itemVariants}>
               <a
+                className="copyable"
                 href={PRESSKIT.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -61,7 +62,7 @@ export default function SlideAbout() {
               </a>
             </motion.li>
             <motion.li variants={itemVariants}>
-              <a href={`mailto:${PRESSKIT.email}`}>
+              <a className="copyable" href={`mailto:${PRESSKIT.email}`}>
                 <span className="slide-about__icon" aria-hidden="true">
                   ✉
                 </span>

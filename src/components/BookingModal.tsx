@@ -391,7 +391,7 @@ export default function BookingModal() {
                       </button>
                     )}
                     <a
-                      className="booking-form__mailto"
+                      className="booking-form__mailto copyable"
                       href={`mailto:${PRESSKIT.email}`}
                     >
                       {b.orEmail} {PRESSKIT.email}
