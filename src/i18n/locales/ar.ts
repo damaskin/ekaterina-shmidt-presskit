@@ -199,6 +199,7 @@ export const ar: LocaleMessages = {
       'الحجز غير متصل بالخادم. يرجى المحاولة مرة أخرى لاحقاً.',
     mainButton: 'حجز',
     mainButtonSubmit: 'إرسال الطلب',
+    shareTelegramPhone: 'مشاركة رقم الهاتف من Telegram',
   },
   player: {
     aria: 'مشغّل المix المميز',

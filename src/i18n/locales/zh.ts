@@ -199,6 +199,7 @@ export const zh: LocaleMessages = {
       '预订尚未连接到服务器。请稍后再试。',
     mainButton: '预订',
     mainButtonSubmit: '发送请求',
+    shareTelegramPhone: '从 Telegram 分享手机号',
   },
   player: {
     aria: '精选混音播放器',

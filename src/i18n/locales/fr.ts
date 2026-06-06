@@ -199,6 +199,7 @@ export const fr: LocaleMessages = {
       'La réservation n’est pas connectée au serveur. Veuillez réessayer plus tard.',
     mainButton: 'RÉSERVER',
     mainButtonSubmit: 'ENVOYER LA DEMANDE',
+    shareTelegramPhone: 'Partager le numéro depuis Telegram',
   },
   player: {
     aria: 'Lecteur du mix à la une',

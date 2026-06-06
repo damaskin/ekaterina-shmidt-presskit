@@ -199,6 +199,7 @@ export const de: LocaleMessages = {
       'Die Buchung ist nicht mit dem Server verbunden. Bitte versuche es später erneut.',
     mainButton: 'BUCHUNG',
     mainButtonSubmit: 'ANFRAGE SENDEN',
+    shareTelegramPhone: 'Telefonnummer aus Telegram teilen',
   },
   player: {
     aria: 'Feature-Mix-Player',

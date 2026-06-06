@@ -199,6 +199,7 @@ export const en: LocaleMessages = {
       'Booking is not connected to the server. Please try again later.',
     mainButton: 'BOOKING',
     mainButtonSubmit: 'SEND REQUEST',
+    shareTelegramPhone: 'Share phone from Telegram',
   },
   player: {
     aria: 'Featured mix player',

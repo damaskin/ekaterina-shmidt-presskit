@@ -127,6 +127,7 @@ export interface LocaleMessages {
     apiError: string;
     mainButton: string;
     mainButtonSubmit: string;
+    shareTelegramPhone: string;
   };
   player: {
     aria: string;

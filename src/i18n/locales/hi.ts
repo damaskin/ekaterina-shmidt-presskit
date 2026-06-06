@@ -199,6 +199,7 @@ export const hi: LocaleMessages = {
       'बुकिंग सर्वर से कनेक्ट नहीं है। कृपया बाद में पुनः प्रयास करें।',
     mainButton: 'बुकिंग',
     mainButtonSubmit: 'अनुरोध भेजें',
+    shareTelegramPhone: 'Telegram से फ़ोन नंबर साझा करें',
   },
   player: {
     aria: 'फ़ीचर्ड मिक्स प्लेयर',

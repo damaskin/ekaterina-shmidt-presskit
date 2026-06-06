@@ -198,6 +198,7 @@ export const ru: LocaleMessages = {
     apiError: 'Форма букинга не подключена к серверу. Попробуйте позже.',
     mainButton: 'БУКИНГ',
     mainButtonSubmit: 'ОТПРАВИТЬ ЗАЯВКУ',
+    shareTelegramPhone: 'Поделиться номером из Telegram',
   },
   player: {
     aria: 'Плеер фирменного микса',

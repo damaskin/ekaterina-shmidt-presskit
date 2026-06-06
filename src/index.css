@@ -522,6 +522,55 @@ button {
     background 0.2s ease;
 }
 
+.booking-field__phone-row {
+  display: flex;
+  gap: 0.45rem;
+  align-items: stretch;
+}
+
+.booking-field__input--phone {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-field__tg-phone {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(42 171 238 / 0.35);
+  border-radius: 0.65rem;
+  background: rgb(42 171 238 / 0.16);
+  color: #5bc8ff;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.booking-field__tg-phone:hover:not(:disabled) {
+  background: rgb(42 171 238 / 0.28);
+  border-color: rgb(42 171 238 / 0.55);
+}
+
+.booking-field__tg-phone:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.booking-field__tg-phone:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.booking-field__tg-phone-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: currentColor;
+}
+
 .booking-field__input::placeholder {
   color: rgb(255 255 255 / 0.35);
 }

@@ -199,6 +199,7 @@ export const es: LocaleMessages = {
       'La reserva no está conectada al servidor. Inténtalo de nuevo más tarde.',
     mainButton: 'RESERVAR',
     mainButtonSubmit: 'ENVIAR SOLICITUD',
+    shareTelegramPhone: 'Compartir número desde Telegram',
   },
   player: {
     aria: 'Reproductor del mix destacado',
