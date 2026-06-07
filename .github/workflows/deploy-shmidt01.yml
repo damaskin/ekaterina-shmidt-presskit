@@ -86,17 +86,13 @@ jobs:
           docker exec -e API_BASE=http://127.0.0.1:3002 shmidt-booking-api node /tmp/drain-telegram.mjs
           REMOTE
 
-      - name: Reload nginx
+      - name: Ensure nginx serves shmidt01.ru
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
           HOST="${SSH_HOST:-91.201.54.196}"
           USER="${SSH_USER:-root}"
-          ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
-          set -euo pipefail
-          cd /opt/rayn-repo/infra/deploy
-          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -t
-          docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -s reload
-          REMOTE
+          rsync -az -e "ssh $SSH_OPTS" scripts/fix-nginx-shmidt01.sh "${USER}@${HOST}:/tmp/fix-nginx-shmidt01.sh"
+          ssh $SSH_OPTS "${USER}@${HOST}" "sed -i 's/\r$//' /tmp/fix-nginx-shmidt01.sh && bash /tmp/fix-nginx-shmidt01.sh"
 
       - name: Smoke test
         run: |
@@ -105,7 +101,7 @@ jobs:
           USER="${SSH_USER:-root}"
           ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
           set -euo pipefail
-          curl -sfk -H 'Host: shmidt01.ru' https://127.0.0.1/api/health >/dev/null
+          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health >/dev/null
           test -n "$(docker exec shmidt-booking-api printenv TELEGRAM_BOT_TOKEN)"
-          curl -sfk -H 'Host: shmidt01.ru' https://127.0.0.1/ | grep -q 'id="root"'
+          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/ | grep -q 'Ekaterina Shmidt'
           REMOTE
