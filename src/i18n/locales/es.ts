@@ -104,6 +104,7 @@ export const es: LocaleMessages = {
     bio: `Ekaterina Shmidt cuenta historias a través del sonido desde 2013. Sus sets se mueven como paisajes — desde el pulso intenso de la música House hasta la quietud cinematográfica del Downtempo y la relajación profunda del Chill Out. No solo reproduce tracks; construye arcos que llevan al público de la energía del amanecer a la reflexión de la madrugada.`,
     booking: 'Reserva 🔗',
     pressbook: 'Dossier de prensa',
+    guide: 'Guía para DJs',
   },
   styles: {
     aria: 'Estilo musical',

@@ -104,6 +104,7 @@ export const zh: LocaleMessages = {
     bio: `自 2013 年以来，Ekaterina Shmidt 一直用声音编织故事。她的 DJ set 像风景一样流动 — 从 House 音乐充满驱动力的脉动，到 Downtempo 的电影感静谧，再到 Chill Out 的深度放松。她不只是播放曲目；她构建音乐弧线，把听众从日出般的能量带入深夜的沉思。`,
     booking: '预订 🔗',
     pressbook: '媒体手册',
+    guide: 'DJ 指南',
   },
   styles: {
     aria: '音乐风格',

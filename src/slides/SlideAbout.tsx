@@ -91,6 +91,14 @@ export default function SlideAbout() {
             >
               {t.about.pressbook}
             </motion.a>
+            <motion.a
+              className="btn btn--ghost"
+              href={`${import.meta.env.BASE_URL}guide/`}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+            >
+              {t.about.guide}
+            </motion.a>
           </motion.div>
         </motion.div>
       </div>

@@ -67,6 +67,7 @@ export interface LocaleMessages {
     bio: string;
     booking: string;
     pressbook: string;
+    guide: string;
   };
   styles: {
     aria: string;
