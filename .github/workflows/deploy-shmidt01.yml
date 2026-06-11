@@ -40,13 +40,26 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "${{ secrets.SHMIDT01_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          HOST="${SSH_HOST:-91.201.54.196}"
-          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+          HOST="${SSH_HOST:-167.233.91.168}"
+          USER="${SSH_USER:-root}"
+          for attempt in 1 2 3; do
+            if ssh-keyscan -T 15 -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              break
+            fi
+            echo "ssh-keyscan attempt $attempt failed, retrying..."
+            sleep 3
+          done
+          test -s ~/.ssh/known_hosts || {
+            echo "Could not fetch SSH host key for $HOST"
+            exit 1
+          }
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=15 \
+            "${USER}@${HOST}" "echo deploy-ssh-ok"
 
       - name: Sync files
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
-          HOST="${SSH_HOST:-91.201.54.196}"
+          HOST="${SSH_HOST:-167.233.91.168}"
           USER="${SSH_USER:-root}"
           TARGET="${USER}@${HOST}"
 
@@ -69,7 +82,7 @@ jobs:
       - name: Rebuild booking API
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
-          HOST="${SSH_HOST:-91.201.54.196}"
+          HOST="${SSH_HOST:-167.233.91.168}"
           USER="${SSH_USER:-root}"
           ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
           set -euo pipefail
@@ -89,7 +102,7 @@ jobs:
       - name: Ensure nginx serves shmidt01.ru
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
-          HOST="${SSH_HOST:-91.201.54.196}"
+          HOST="${SSH_HOST:-167.233.91.168}"
           USER="${SSH_USER:-root}"
           rsync -az -e "ssh $SSH_OPTS" scripts/fix-nginx-shmidt01.sh "${USER}@${HOST}:/tmp/fix-nginx-shmidt01.sh"
           ssh $SSH_OPTS "${USER}@${HOST}" "sed -i 's/\r$//' /tmp/fix-nginx-shmidt01.sh && bash /tmp/fix-nginx-shmidt01.sh"
@@ -97,7 +110,7 @@ jobs:
       - name: Smoke test
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
-          HOST="${SSH_HOST:-91.201.54.196}"
+          HOST="${SSH_HOST:-167.233.91.168}"
           USER="${SSH_USER:-root}"
           ssh $SSH_OPTS "${USER}@${HOST}" bash -s <<'REMOTE'
           set -euo pipefail

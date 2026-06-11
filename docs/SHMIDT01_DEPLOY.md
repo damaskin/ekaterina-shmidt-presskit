@@ -1,6 +1,7 @@
 # shmidt01.ru — VPS deploy
 
-Сервер: **91.201.54.196** (Ubuntu 24.04, Docker nginx rayn-prod).
+Сервер: **167.233.91.168** (Ubuntu, Docker nginx rayn-prod).  
+Старый IP `91.201.54.196` больше не используется — SSH на него сбрасывается.
 
 ## Что уже на сервере
 
@@ -21,15 +22,15 @@ Nginx отдаёт `shmidt01.ru` по HTTP (bootstrap), проксирует `/a
 
 | Тип | Имя | Значение | TTL |
 |-----|-----|----------|-----|
-| A | `@` | `91.201.54.196` | 300 |
-| A | `www` | `91.201.54.196` | 300 |
+| A | `@` | `167.233.91.168` | 300 |
+| A | `www` | `167.233.91.168` | 300 |
 
 Удалите старые A/CNAME, если указывают на другой хостинг.  
 Проверка (через 5–30 мин):
 
 ```bash
 dig +short shmidt01.ru A @8.8.8.8
-# должно быть 91.201.54.196
+# должно быть 167.233.91.168
 ```
 
 ---
@@ -121,7 +122,7 @@ docker exec rayn-prod-nginx-1 nginx -s reload
 
 | Variable | По умолчанию |
 |----------|--------------|
-| `SHMIDT01_SSH_HOST` | `91.201.54.196` |
+| `SHMIDT01_SSH_HOST` | `167.233.91.168` |
 | `SHMIDT01_SSH_USER` | `root` |
 | `VITE_BOOKING_API_URL` | `https://shmidt01.ru/api/booking` |
 
@@ -133,7 +134,7 @@ docker exec rayn-prod-nginx-1 nginx -s reload
 
 ```bash
 VITE_BOOKING_API_URL=https://shmidt01.ru/api/booking npm run build
-scp -r dist/* root@91.201.54.196:/opt/ekaterina-shmidt/web/
+scp -r dist/* root@167.233.91.168:/opt/ekaterina-shmidt/web/
 ```
 
 Или `bash scripts/deploy-shmidt01.sh` (Git Bash / WSL).
@@ -142,8 +143,17 @@ scp -r dist/* root@91.201.54.196:/opt/ekaterina-shmidt/web/
 
 ## SSH-ключ
 
-В `authorized_keys` добавлен публичный ключ:
+В `authorized_keys` на **167.233.91.168** должен быть публичный ключ деплоя:
 
 `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICAroUPNQSW2CANzBk2m02rWnEwAg6nUd+HRJdL9+Kj3`
 
-Подключение возможно только с **приватным** ключом, парой к этому публичному.
+На новом сервере (после смены IP):
+
+```bash
+ssh root@167.233.91.168
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICAroUPNQSW2CANzBk2m02rWnEwAg6nUd+HRJdL9+Kj3' >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
+
+GitHub Actions secret `SHMIDT01_SSH_PRIVATE_KEY` — приватная пара к этому ключу.

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-HOST="${DEPLOY_HOST:-root@91.201.54.196}"
+HOST="${DEPLOY_HOST:-root@167.233.91.168}"
 REMOTE_DIR="/opt/ekaterina-shmidt"
 RAYN_DEPLOY="/opt/rayn-repo/infra/deploy"
 
