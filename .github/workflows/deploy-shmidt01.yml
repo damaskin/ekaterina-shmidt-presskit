@@ -130,9 +130,10 @@ jobs:
             curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru${asset}"
           done
           ADMIN=$(curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/admin/)
-          echo "$ADMIN" | grep -q 'Админ-панель'
+          echo "$ADMIN" | grep -q 'admin-html'
           echo "$ADMIN" | grep -o '/assets/admin-[^"]*\.js' | head -1 | while read -r asset; do
             curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru${asset}"
           done
+          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health >/dev/null
           curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/admin/session | grep -qE 'unauthorized|admin disabled'
           REMOTE
