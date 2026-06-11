@@ -65,10 +65,10 @@ jobs:
 
           ssh $SSH_OPTS "$TARGET" "mkdir -p ${REMOTE_DIR}/web ${REMOTE_DIR}/web/assets ${REMOTE_DIR}/server ${REMOTE_DIR}/infra/shmidt01/data"
 
+          rsync -az --delete -e "ssh $SSH_OPTS" dist/assets/ "${TARGET}:${REMOTE_DIR}/web/assets/"
           rsync -az --delete -e "ssh $SSH_OPTS" \
             --exclude 'assets/' \
             dist/ "${TARGET}:${REMOTE_DIR}/web/"
-          rsync -az -e "ssh $SSH_OPTS" dist/assets/ "${TARGET}:${REMOTE_DIR}/web/assets/"
           rsync -az -e "ssh $SSH_OPTS" \
             --exclude '.env' \
             --exclude 'data/' \

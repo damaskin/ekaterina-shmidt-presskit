@@ -12,7 +12,8 @@ VITE_BOOKING_API_URL="${VITE_BOOKING_API_URL:-https://shmidt01.ru/api/booking}" 
 
 echo "==> Sync to server"
 ssh "$HOST" "mkdir -p $REMOTE_DIR/web $REMOTE_DIR/infra/shmidt01/data"
-rsync -az --delete "$ROOT/dist/" "$HOST:$REMOTE_DIR/web/"
+rsync -az --delete "$ROOT/dist/assets/" "$HOST:$REMOTE_DIR/web/assets/"
+rsync -az --delete --exclude 'assets/' "$ROOT/dist/" "$HOST:$REMOTE_DIR/web/"
 rsync -az "$ROOT/server/" "$HOST:$REMOTE_DIR/server/"
 rsync -az --exclude '.env' --exclude 'data/' "$ROOT/infra/shmidt01/" "$HOST:$REMOTE_DIR/infra/shmidt01/"
 
