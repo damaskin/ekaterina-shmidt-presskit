@@ -3,6 +3,7 @@ set -euo pipefail
 
 NGINX_CONF=/opt/rayn-repo/infra/deploy/nginx.conf
 COMPOSE=/opt/rayn-repo/infra/deploy/docker-compose.prod.yml
+COMPOSE_PATCHED=0
 
 if ! grep -q 'shmidt01.conf' "$NGINX_CONF"; then
   sed -i '/include \/etc\/nginx\/tenants.d\/\*\.conf;/i \  include /etc/nginx/shmidt01.conf;' "$NGINX_CONF"
@@ -21,10 +22,15 @@ if "/var/www/shmidt-presskit" not in text:
     p.write_text(text)
     print("Patched docker-compose.prod.yml volumes")
 PY
+  COMPOSE_PATCHED=1
 fi
 
 cd /opt/rayn-repo/infra/deploy
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d nginx
+if [ "$COMPOSE_PATCHED" = 1 ]; then
+  docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --no-deps --force-recreate nginx
+else
+  echo "Compose unchanged — reloading nginx only"
+fi
 docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -t
 docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T nginx nginx -s reload
 
