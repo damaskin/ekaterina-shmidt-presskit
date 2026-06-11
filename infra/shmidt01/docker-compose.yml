@@ -11,6 +11,7 @@ services:
     volumes:
       - ./data:/data
     networks:
+      - default
       - rayn-prod_default
 
 networks:

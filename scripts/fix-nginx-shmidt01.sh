@@ -57,4 +57,11 @@ echo "--- smoke ---"
 curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/ | grep -o '<title>[^<]*</title>'
 MAIN=$(curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/ | grep -o 'main-[^"]*\.js' | head -1)
 curl -sfk -o /dev/null -w "main_js=%{http_code}\n" --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru/assets/${MAIN}"
-curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health
+for attempt in 1 2 3 4 5; do
+  if curl -sfk --max-time 5 --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health >/dev/null; then
+    break
+  fi
+  echo "api health attempt $attempt failed, retrying..."
+  sleep 2
+done
+curl -sfk --max-time 5 --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health

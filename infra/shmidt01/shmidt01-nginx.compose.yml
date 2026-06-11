@@ -1,0 +1,27 @@
+# Override для edge-nginx (shmidt-nginx): API и nginx в одной compose-сети.
+#   docker compose -f docker-compose.yml -f shmidt01-nginx.compose.yml up -d
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: shmidt-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-shmidt01.wrapper.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-shmidt01.conf:/etc/nginx/conf.d/shmidt01.conf:ro
+      - ./nginx-shmidt01-internal.conf:/etc/nginx/conf.d/shmidt01-internal.conf:ro
+      - ../../web:/var/www/shmidt-presskit:ro
+      - /opt/rayn-repo/infra/deploy/certbot/conf:/etc/letsencrypt:ro
+      - /opt/rayn-repo/infra/deploy/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - booking-api
+    networks:
+      - default
+      - edge-public
+
+networks:
+  edge-public:
+    external: true

@@ -96,7 +96,7 @@ jobs:
             exit 1
           fi
           docker compose build
-          docker compose up -d --force-recreate
+          docker compose -f docker-compose.yml -f shmidt01-nginx.compose.yml up -d --force-recreate
           docker cp /opt/ekaterina-shmidt/scripts/drain-telegram.mjs shmidt-booking-api:/tmp/drain-telegram.mjs
           docker exec -e API_BASE=http://127.0.0.1:3002 shmidt-booking-api node /tmp/drain-telegram.mjs
           REMOTE
