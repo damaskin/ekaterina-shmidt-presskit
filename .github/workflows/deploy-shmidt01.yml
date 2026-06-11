@@ -116,5 +116,10 @@ jobs:
           set -euo pipefail
           curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health >/dev/null
           test -n "$(docker exec shmidt-booking-api printenv TELEGRAM_BOT_TOKEN)"
-          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/ | grep -q 'Ekaterina Shmidt'
+          HTML=$(curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/)
+          echo "$HTML" | grep -q 'Ekaterina Shmidt'
+          MAIN=$(echo "$HTML" | grep -o 'main-[^"]*\.js' | head -1)
+          test -n "$MAIN"
+          curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru/assets/$MAIN"
+          curl -sfk -I --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/ | grep -qi 'cache-control: no-cache, no-store, must-revalidate'
           REMOTE
