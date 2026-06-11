@@ -97,6 +97,7 @@ jobs:
           fi
           docker compose build
           docker compose -f docker-compose.yml -f shmidt01-nginx.compose.yml up -d --force-recreate
+          docker restart edge-nginx || true
           docker cp /opt/ekaterina-shmidt/scripts/drain-telegram.mjs shmidt-booking-api:/tmp/drain-telegram.mjs
           docker exec -e API_BASE=http://127.0.0.1:3002 shmidt-booking-api node /tmp/drain-telegram.mjs
           REMOTE

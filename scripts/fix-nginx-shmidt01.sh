@@ -47,6 +47,7 @@ fi
 cd /opt/rayn-repo/infra/deploy
 if [ "$COMPOSE_PATCHED" = 1 ]; then
   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --no-deps --force-recreate nginx
+  docker network connect edge-public rayn-prod-nginx-1 2>/dev/null || true
 else
   echo "Compose unchanged — reloading nginx only"
 fi
