@@ -111,6 +111,11 @@ body.admin-body {
 
 /* ── Логин ─────────────────────────────────────────── */
 
+.ad-login[hidden],
+.ad-app[hidden] {
+  display: none !important;
+}
+
 .ad-login {
   min-height: 100vh;
   display: grid;

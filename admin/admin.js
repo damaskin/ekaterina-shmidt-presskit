@@ -139,6 +139,7 @@ $('login-form').addEventListener('submit', async (e) => {
   btn.disabled = false;
   const err = $('login-error');
   if (ok) {
+    authed = true;
     err.hidden = true;
     $('password').value = '';
     showApp();
@@ -151,6 +152,7 @@ $('login-form').addEventListener('submit', async (e) => {
 
 $('logout-btn').addEventListener('click', async () => {
   await api('/logout', { method: 'POST' });
+  authed = false;
   showLogin();
 });
 
@@ -219,8 +221,11 @@ $('purchases').addEventListener('click', async (e) => {
 
 /* ── Старт: проверяем сессию ───────────────────────── */
 
+let authed = false;
+
 (async () => {
   const { ok } = await api('/session');
+  if (authed) return;
   if (ok) {
     showApp();
     loadAll();
