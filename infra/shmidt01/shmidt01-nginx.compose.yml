@@ -6,9 +6,10 @@ services:
     image: nginx:1.27-alpine
     container_name: shmidt-nginx
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    expose:
+      - "80"
+      - "443"
+      - "8080"
     volumes:
       - ./nginx-shmidt01.wrapper.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-shmidt01.conf:/etc/nginx/conf.d/shmidt01.conf:ro
