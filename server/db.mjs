@@ -26,6 +26,27 @@ CREATE TABLE IF NOT EXISTS bookings (
   message TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS purchases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  chat_id INTEGER NOT NULL,
+  product TEXT NOT NULL DEFAULT 'guide_maldives',
+  email TEXT,
+  payment_id TEXT UNIQUE,
+  status TEXT NOT NULL DEFAULT 'awaiting_email',
+  amount TEXT,
+  currency TEXT NOT NULL DEFAULT 'RUB',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  paid_at TEXT,
+  delivered_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_purchases_chat ON purchases (chat_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_payment ON purchases (payment_id);
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `;
 
 let db;
@@ -115,6 +136,144 @@ export function setOwner(database, chatId, isOwner = true) {
        updated_at = datetime('now') WHERE chat_id = ?`,
     )
     .run(isOwner ? 1 : 0, isOwner ? 1 : 0, chatId);
+}
+
+/* ── Покупки гайда ──────────────────────────────────── */
+
+const PURCHASE_COLUMNS = `id, chat_id, product, email, payment_id, status, amount, currency, created_at, updated_at, paid_at, delivered_at`;
+
+/** Активная незавершённая покупка (ждём email или оплату) для чата. */
+export function getActivePurchase(database, chatId, product = 'guide_maldives') {
+  return database
+    .prepare(
+      `SELECT ${PURCHASE_COLUMNS} FROM purchases
+       WHERE chat_id = ? AND product = ? AND status IN ('awaiting_email', 'pending')
+       ORDER BY id DESC LIMIT 1`,
+    )
+    .get(chatId, product);
+}
+
+/** Создаёт (или переиспользует) ряд покупки в статусе awaiting_email. */
+export function startPurchase(database, chatId, product = 'guide_maldives') {
+  const active = getActivePurchase(database, chatId, product);
+  if (active) {
+    database
+      .prepare(
+        `UPDATE purchases SET status = 'awaiting_email', payment_id = NULL,
+         updated_at = datetime('now') WHERE id = ?`,
+      )
+      .run(active.id);
+    return active.id;
+  }
+  const result = database
+    .prepare(`INSERT INTO purchases (chat_id, product) VALUES (?, ?)`)
+    .run(chatId, product);
+  return result.lastInsertRowid;
+}
+
+export function setPurchaseEmail(database, id, email) {
+  database
+    .prepare(`UPDATE purchases SET email = ?, updated_at = datetime('now') WHERE id = ?`)
+    .run(email, id);
+}
+
+export function attachPayment(database, id, { paymentId, amount, currency = 'RUB' }) {
+  database
+    .prepare(
+      `UPDATE purchases SET payment_id = ?, amount = ?, currency = ?, status = 'pending',
+       updated_at = datetime('now') WHERE id = ?`,
+    )
+    .run(paymentId, amount, currency, id);
+}
+
+export function getPurchaseByPayment(database, paymentId) {
+  return database
+    .prepare(`SELECT ${PURCHASE_COLUMNS} FROM purchases WHERE payment_id = ?`)
+    .get(paymentId);
+}
+
+export function getPurchaseById(database, id) {
+  return database.prepare(`SELECT ${PURCHASE_COLUMNS} FROM purchases WHERE id = ?`).get(id);
+}
+
+export function markPurchasePaid(database, paymentId) {
+  database
+    .prepare(
+      `UPDATE purchases SET status = 'paid', paid_at = COALESCE(paid_at, datetime('now')),
+       updated_at = datetime('now') WHERE payment_id = ?`,
+    )
+    .run(paymentId);
+}
+
+export function markPurchaseDelivered(database, paymentId) {
+  database
+    .prepare(
+      `UPDATE purchases SET status = 'delivered', delivered_at = datetime('now'),
+       updated_at = datetime('now') WHERE payment_id = ?`,
+    )
+    .run(paymentId);
+}
+
+export function listPurchases(database, limit = 30) {
+  return database
+    .prepare(
+      `SELECT ${PURCHASE_COLUMNS} FROM purchases
+       WHERE status IN ('pending', 'paid', 'delivered')
+       ORDER BY id DESC LIMIT ?`,
+    )
+    .all(limit);
+}
+
+/** Покупки для админки: опциональный фильтр по статусу. */
+export function queryPurchases(database, { status, limit = 100 } = {}) {
+  if (status) {
+    return database
+      .prepare(`SELECT ${PURCHASE_COLUMNS} FROM purchases WHERE status = ? ORDER BY id DESC LIMIT ?`)
+      .all(status, limit);
+  }
+  return database
+    .prepare(`SELECT ${PURCHASE_COLUMNS} FROM purchases ORDER BY id DESC LIMIT ?`)
+    .all(limit);
+}
+
+/** Сводка для дашборда: счётчики по статусам, выручка, конверсия. */
+export function purchaseStats(database) {
+  const byStatus = {};
+  for (const row of database
+    .prepare(`SELECT status, COUNT(*) AS c FROM purchases GROUP BY status`)
+    .all()) {
+    byStatus[row.status] = row.c;
+  }
+  const paid = database
+    .prepare(
+      `SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS revenue, COUNT(*) AS c
+       FROM purchases WHERE status IN ('paid', 'delivered')`,
+    )
+    .get();
+  const total = database.prepare(`SELECT COUNT(*) AS c FROM purchases`).get().c;
+  return {
+    total,
+    paidCount: paid.c,
+    revenue: paid.revenue,
+    delivered: byStatus.delivered ?? 0,
+    byStatus,
+  };
+}
+
+/* ── Настройки (ключ-значение) ──────────────────────── */
+
+export function getSetting(database, key) {
+  const row = database.prepare(`SELECT value FROM settings WHERE key = ?`).get(key);
+  return row ? row.value : null;
+}
+
+export function setSetting(database, key, value) {
+  database
+    .prepare(
+      `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')`,
+    )
+    .run(key, value == null ? null : String(value));
 }
 
 export function saveBooking(database, data) {

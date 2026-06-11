@@ -1,7 +1,9 @@
 import { createServer } from 'node:http';
 import { getDb } from './db.mjs';
+import { handleAdmin } from './admin.mjs';
 import { handleBooking } from './booking.mjs';
 import { handleTelegramUpdate } from './bot.mjs';
+import { handleYookassaWebhook } from './payments.mjs';
 import { startTelegramPolling } from './poll.mjs';
 import { handleRegister } from './register.mjs';
 
@@ -67,6 +69,14 @@ const env = {
   TELEGRAM_AUTO_ADMIN_USERNAMES: process.env.TELEGRAM_AUTO_ADMIN_USERNAMES,
   TELEGRAM_AUTO_ADMIN_IDS: process.env.TELEGRAM_AUTO_ADMIN_IDS,
   TELEGRAM_USE_POLLING: process.env.TELEGRAM_USE_POLLING,
+  YOOKASSA_SHOP_ID: process.env.YOOKASSA_SHOP_ID,
+  YOOKASSA_SECRET_KEY: process.env.YOOKASSA_SECRET_KEY,
+  GUIDE_PRICE_RUB: process.env.GUIDE_PRICE_RUB,
+  GUIDE_VAT_CODE: process.env.GUIDE_VAT_CODE,
+  GUIDE_REQUIRE_EMAIL: process.env.GUIDE_REQUIRE_EMAIL,
+  GUIDE_RETURN_URL: process.env.GUIDE_RETURN_URL,
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+  ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET,
 };
 
 const server = createServer(async (req, res) => {
@@ -103,6 +113,33 @@ const server = createServer(async (req, res) => {
       });
     } catch {
       json(res, 400, { error: 'Invalid JSON' });
+    }
+    return;
+  }
+
+  if (
+    req.method === 'POST' &&
+    (path === '/payments/yookassa' || path === '/api/payments/yookassa')
+  ) {
+    try {
+      const body = await readJson(req);
+      const result = await handleYookassaWebhook(env, body);
+      json(res, result.status, result.body);
+    } catch (err) {
+      console.error('yookassa webhook failed', err);
+      json(res, 500, { error: 'Server error' });
+    }
+    return;
+  }
+
+  if (path === '/admin' || path.startsWith('/admin/') ||
+      path === '/api/admin' || path.startsWith('/api/admin/')) {
+    try {
+      const result = await handleAdmin(env, req, path, readJson);
+      json(res, result.status, result.body, result.headers ?? {});
+    } catch (err) {
+      console.error('admin request failed', err);
+      json(res, 500, { error: 'Server error' });
     }
     return;
   }

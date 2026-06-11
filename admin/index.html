@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru" class="admin-html">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Админка — Ekaterina Shmidt</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0d0a0f" />
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
+    />
+  </head>
+  <body class="admin-body">
+    <!-- Логин -->
+    <section class="ad-login" id="login" hidden>
+      <form class="ad-login__card" id="login-form">
+        <p class="ad-login__eyebrow">Ekaterina Shmidt</p>
+        <h1 class="ad-login__title">Админ-панель</h1>
+        <input
+          class="ad-input"
+          id="password"
+          type="password"
+          placeholder="Пароль"
+          autocomplete="current-password"
+          required
+        />
+        <button class="ad-btn ad-btn--accent" type="submit" id="login-btn">Войти</button>
+        <p class="ad-login__error" id="login-error" hidden></p>
+      </form>
+    </section>
+
+    <!-- Дашборд -->
+    <main class="ad-app" id="app" hidden>
+      <header class="ad-header">
+        <div>
+          <p class="ad-header__eyebrow">Гайд · Мальдивы</p>
+          <h1 class="ad-header__title">Панель управления</h1>
+        </div>
+        <button class="ad-btn ad-btn--ghost" id="logout-btn" type="button">Выйти</button>
+      </header>
+
+      <p class="ad-msg" id="msg" hidden></p>
+
+      <!-- Статистика -->
+      <section class="ad-cards" id="cards"></section>
+
+      <!-- Настройки -->
+      <section class="ad-panel">
+        <h2 class="ad-panel__title">Настройки продажи</h2>
+        <div class="ad-grid">
+          <label class="ad-field">
+            <span class="ad-field__label">Цена, ₽</span>
+            <input class="ad-input" id="set-price" type="number" min="1" step="1" />
+          </label>
+          <label class="ad-check">
+            <input type="checkbox" id="set-sales" />
+            <span>Продажа включена</span>
+          </label>
+          <label class="ad-check">
+            <input type="checkbox" id="set-email" />
+            <span>Спрашивать email (чек 54-ФЗ)</span>
+          </label>
+        </div>
+        <div class="ad-row">
+          <button class="ad-btn ad-btn--accent" id="save-settings" type="button">Сохранить</button>
+          <span class="ad-hint" id="yk-status"></span>
+        </div>
+      </section>
+
+      <!-- Редактор текста гайда -->
+      <section class="ad-panel">
+        <h2 class="ad-panel__title">Текст гайда</h2>
+        <p class="ad-hint">
+          Блоки (отдельные сообщения) разделяйте строкой <code>---</code>. Поддерживается
+          Telegram-HTML: <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;a&gt;</code>.
+          Лимит блока — 4096 символов.
+        </p>
+        <textarea class="ad-textarea" id="guide-body" spellcheck="false"></textarea>
+        <div class="ad-row">
+          <button class="ad-btn ad-btn--accent" id="save-guide" type="button">Сохранить текст</button>
+          <span class="ad-hint" id="guide-info"></span>
+        </div>
+        <div class="ad-row ad-row--test">
+          <input class="ad-input ad-input--sm" id="test-chat" type="text" placeholder="chat_id для теста" />
+          <button class="ad-btn ad-btn--ghost" id="test-send" type="button">Тест-отправка</button>
+        </div>
+      </section>
+
+      <!-- Покупки -->
+      <section class="ad-panel">
+        <div class="ad-panel__head">
+          <h2 class="ad-panel__title">Покупки</h2>
+          <div class="ad-row">
+            <select class="ad-input ad-input--sm" id="filter-status">
+              <option value="">Все статусы</option>
+              <option value="awaiting_email">Ждёт email</option>
+              <option value="pending">Ждёт оплату</option>
+              <option value="paid">Оплачено</option>
+              <option value="delivered">Доставлено</option>
+            </select>
+            <button class="ad-btn ad-btn--ghost" id="refresh" type="button">Обновить</button>
+          </div>
+        </div>
+        <div class="ad-table-wrap">
+          <table class="ad-table">
+            <thead>
+              <tr>
+                <th>chat_id</th>
+                <th>Статус</th>
+                <th>Сумма</th>
+                <th>Email</th>
+                <th>Оплата</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="purchases"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>

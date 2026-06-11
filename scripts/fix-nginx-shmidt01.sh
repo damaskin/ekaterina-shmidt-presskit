@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -x /opt/ekaterina-shmidt/scripts/fix-tcp-delivery.sh ]; then
+  bash /opt/ekaterina-shmidt/scripts/fix-tcp-delivery.sh
+elif [ -f /tmp/fix-tcp-delivery.sh ]; then
+  sed -i 's/\r$//' /tmp/fix-tcp-delivery.sh
+  bash /tmp/fix-tcp-delivery.sh
+fi
+
 NGINX_CONF=/opt/rayn-repo/infra/deploy/nginx.conf
 COMPOSE=/opt/rayn-repo/infra/deploy/docker-compose.prod.yml
 TENANTS_DIR=/opt/rayn-repo/infra/deploy/tenants.d

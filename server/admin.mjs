@@ -1,0 +1,227 @@
+/**
+ * Админ-панель: API под /admin/* (через nginx — /api/admin/*).
+ * Авторизация — пароль (ADMIN_PASSWORD) → подписанная cookie-сессия (HMAC).
+ * Статика панели лежит отдельно (admin/index.html), сюда ходит только JSON.
+ */
+import {
+  getActivePurchase,
+  getSetting,
+  markPurchaseDelivered,
+  purchaseStats,
+  queryPurchases,
+  setSetting,
+} from './db.mjs';
+import { deliverGuide } from './guide.mjs';
+import {
+  SETTING_KEYS,
+  getGuideBody,
+  getGuidePriceRub,
+  guideRequiresEmail,
+  isSalesEnabled,
+  splitGuideBody,
+} from './settings.mjs';
+import {
+  COOKIE,
+  SESSION_TTL_MS,
+  cookieHeader,
+  makeToken,
+  parseCookies,
+  safeEqual,
+  verifyToken,
+} from './admin-auth.mjs';
+
+const TG_LIMIT = 4096;
+
+// Примитивный анти-брутфорс по IP (в памяти процесса).
+const attempts = new Map(); // ip → { count, until }
+const MAX_ATTEMPTS = 10;
+const LOCK_MS = 10 * 60 * 1000;
+
+function clientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return String(fwd).split(',')[0].trim();
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function isLocked(ip) {
+  const rec = attempts.get(ip);
+  return rec && rec.until > Date.now() && rec.count >= MAX_ATTEMPTS;
+}
+
+function registerFail(ip) {
+  const rec = attempts.get(ip) || { count: 0, until: 0 };
+  rec.count += 1;
+  rec.until = Date.now() + LOCK_MS;
+  attempts.set(ip, rec);
+}
+
+function isAuthed(env, req) {
+  const token = parseCookies(req.headers.cookie)[COOKIE];
+  return verifyToken(env, token);
+}
+
+function settingsView(env) {
+  const db = env.database;
+  return {
+    priceRub: getGuidePriceRub(db, env),
+    salesEnabled: isSalesEnabled(db),
+    requireEmail: guideRequiresEmail(db, env),
+    yookassaConfigured: Boolean(env.YOOKASSA_SHOP_ID && env.YOOKASSA_SECRET_KEY),
+  };
+}
+
+/**
+ * @returns {{status:number, body:any, headers?:Record<string,string>}}
+ */
+export async function handleAdmin(env, req, path, readJson) {
+  const route = path.replace(/^\/api/, ''); // /admin/...
+  const method = req.method;
+
+  if (!env.ADMIN_PASSWORD) {
+    return { status: 503, body: { error: 'admin disabled: set ADMIN_PASSWORD' } };
+  }
+  if (!env.database) {
+    return { status: 503, body: { error: 'database unavailable' } };
+  }
+
+  // — Логин —
+  if (route === '/admin/login' && method === 'POST') {
+    const ip = clientIp(req);
+    if (isLocked(ip)) {
+      return { status: 429, body: { error: 'Слишком много попыток. Подождите 10 минут.' } };
+    }
+    let body;
+    try {
+      body = await readJson(req);
+    } catch {
+      return { status: 400, body: { error: 'Invalid JSON' } };
+    }
+    if (!safeEqual(body?.password ?? '', env.ADMIN_PASSWORD)) {
+      registerFail(ip);
+      return { status: 401, body: { error: 'Неверный пароль' } };
+    }
+    attempts.delete(ip);
+    return {
+      status: 200,
+      body: { ok: true },
+      headers: { 'Set-Cookie': cookieHeader(makeToken(env), SESSION_TTL_MS / 1000) },
+    };
+  }
+
+  if (route === '/admin/logout' && method === 'POST') {
+    return { status: 200, body: { ok: true }, headers: { 'Set-Cookie': cookieHeader('', 0) } };
+  }
+
+  // — Всё остальное требует сессии —
+  if (!isAuthed(env, req)) {
+    return { status: 401, body: { error: 'unauthorized' } };
+  }
+
+  if (route === '/admin/session' && method === 'GET') {
+    return { status: 200, body: { ok: true } };
+  }
+
+  if (route === '/admin/overview' && method === 'GET') {
+    return { status: 200, body: { stats: purchaseStats(env.database), settings: settingsView(env) } };
+  }
+
+  if (route === '/admin/purchases' && method === 'GET') {
+    const url = new URL(req.url, 'http://localhost');
+    const status = url.searchParams.get('status') || undefined;
+    const limit = Math.min(Number(url.searchParams.get('limit')) || 100, 500);
+    return { status: 200, body: { purchases: queryPurchases(env.database, { status, limit }) } };
+  }
+
+  if (route === '/admin/purchases/resend' && method === 'POST') {
+    const body = await readJson(req).catch(() => ({}));
+    const chatId = Number(body?.chat_id);
+    if (!Number.isFinite(chatId)) {
+      return { status: 400, body: { error: 'chat_id required' } };
+    }
+    const delivery = await deliverGuide(env, chatId);
+    if (!delivery.ok) {
+      return {
+        status: 502,
+        body: { error: `Доставлено ${delivery.delivered} сообщений. Покупатель должен написать боту /start.` },
+      };
+    }
+    const purchase = getActivePurchase(env.database, chatId);
+    if (purchase?.payment_id) markPurchaseDelivered(env.database, purchase.payment_id);
+    return { status: 200, body: { ok: true, delivered: delivery.delivered } };
+  }
+
+  if (route === '/admin/settings') {
+    if (method === 'GET') return { status: 200, body: settingsView(env) };
+    if (method === 'POST') {
+      const body = await readJson(req).catch(() => ({}));
+      if (body.priceRub != null) {
+        const price = Math.round(Number(body.priceRub));
+        if (!Number.isFinite(price) || price <= 0) {
+          return { status: 400, body: { error: 'Цена должна быть положительным числом' } };
+        }
+        setSetting(env.database, SETTING_KEYS.price, price);
+      }
+      if (body.salesEnabled != null) {
+        setSetting(env.database, SETTING_KEYS.salesEnabled, body.salesEnabled ? '1' : '0');
+      }
+      if (body.requireEmail != null) {
+        setSetting(env.database, SETTING_KEYS.requireEmail, body.requireEmail ? '1' : '0');
+      }
+      return { status: 200, body: settingsView(env) };
+    }
+  }
+
+  if (route === '/admin/guide') {
+    if (method === 'GET') {
+      const body = getGuideBody(env.database);
+      const chunks = splitGuideBody(body);
+      return {
+        status: 200,
+        body: {
+          body,
+          chunkCount: chunks.length,
+          lengths: chunks.map((c) => c.length),
+          limit: TG_LIMIT,
+          custom: getSetting(env.database, SETTING_KEYS.body) != null,
+        },
+      };
+    }
+    if (method === 'POST') {
+      const payload = await readJson(req).catch(() => ({}));
+      const body = String(payload?.body ?? '');
+      const chunks = splitGuideBody(body);
+      if (chunks.length === 0) {
+        return { status: 400, body: { error: 'Текст гайда пуст' } };
+      }
+      const tooLong = chunks
+        .map((c, i) => ({ i: i + 1, len: c.length }))
+        .filter((c) => c.len > TG_LIMIT);
+      if (tooLong.length) {
+        return {
+          status: 400,
+          body: {
+            error: `Блоки превышают лимит Telegram (${TG_LIMIT}): ${tooLong
+              .map((c) => `#${c.i} — ${c.len}`)
+              .join(', ')}. Разделите их строкой ---`,
+          },
+        };
+      }
+      setSetting(env.database, SETTING_KEYS.body, body);
+      return { status: 200, body: { ok: true, chunkCount: chunks.length, lengths: chunks.map((c) => c.length) } };
+    }
+  }
+
+  if (route === '/admin/test-send' && method === 'POST') {
+    const body = await readJson(req).catch(() => ({}));
+    const chatId = Number(body?.chat_id);
+    if (!Number.isFinite(chatId)) {
+      return { status: 400, body: { error: 'chat_id required' } };
+    }
+    const delivery = await deliverGuide(env, chatId);
+    return delivery.ok
+      ? { status: 200, body: { ok: true, delivered: delivery.delivered } }
+      : { status: 502, body: { error: 'Не доставлено. Получатель должен написать боту /start.' } };
+  }
+
+  return { status: 404, body: { error: 'not found' } };
+}

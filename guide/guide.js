@@ -41,6 +41,17 @@ document.querySelectorAll('.gp-lang__btn').forEach((btn) => {
 
 applyLang(resolveInitialLang());
 
+/* Кнопка покупки ведёт в бота с deep-link ?start=guide.
+   Username бота берётся из VITE_GUIDE_BOT_USERNAME (запекается при сборке).
+   Если не задан — остаётся fallback-href из HTML (личка @shmidt01). */
+const BOT_USERNAME = import.meta.env.VITE_GUIDE_BOT_USERNAME;
+if (BOT_USERNAME) {
+  const botUrl = `https://t.me/${BOT_USERNAME}?start=guide`;
+  document.querySelectorAll('[data-buy]').forEach((a) => {
+    a.href = botUrl;
+  });
+}
+
 /* Плавное появление секций при скролле — прогрессивное улучшение:
    без работающего IntersectionObserver контент просто остаётся видимым */
 const revealEls = document.querySelectorAll('.gp-reveal');

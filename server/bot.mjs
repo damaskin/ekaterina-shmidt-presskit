@@ -1,11 +1,15 @@
 import { isOwnerChat as checkOwnerChat, resolveUserRoles } from './admins.mjs';
 import {
+  getActivePurchase,
   getUser,
+  listPurchases,
   listUsers,
+  markPurchaseDelivered,
   setAdmin,
   upsertUser,
 } from './db.mjs';
 import { sendTelegramMessage, userLabel } from './telegram.mjs';
+import { deliverGuide, handleGuideEmail, startGuideFlow } from './guide.mjs';
 
 function isOwnerChat(chatId, env) {
   return checkOwnerChat(chatId, env, env.database);
@@ -203,6 +207,7 @@ async function handleHelp(env, chatId) {
     '<b>Команды</b>',
     '/start — регистрация',
     '/me — ваш статус',
+    '/guide — купить гайд',
   ];
 
   if (user?.is_owner) {
@@ -211,10 +216,89 @@ async function handleHelp(env, chatId) {
       '/admins — список админов',
       '/promote &lt;chat_id&gt; — выдать админа',
       '/demote &lt;chat_id&gt; — снять админа',
+      '/sales — последние покупки гайда',
+      '/sendguide &lt;chat_id&gt; — выслать гайд вручную',
     );
   }
 
   return reply(env, chatId, lines.join('\n'));
+}
+
+function isGuideTrigger(text) {
+  const norm = (text ?? '').trim().toLowerCase().replace(/[«»"]/g, '');
+  return ['гайд', 'guide', 'купить гайд', 'buy guide'].includes(norm);
+}
+
+/** Покупка гайда: deep-link ?start=guide, слово «ГАЙД», ввод email. */
+async function maybeHandleGuidePurchase(env, chat, text, parsed) {
+  const register = () => {
+    const roles = resolveUserRoles(chat, env, env.database);
+    upsertUser(env.database, chat, {
+      isAdmin: roles.isAdmin,
+      isOwner: roles.isOwner,
+      touchVisit: true,
+    });
+  };
+
+  if (parsed?.command === '/start' && parsed.args[0]?.toLowerCase() === 'guide') {
+    register();
+    await startGuideFlow(env, chat);
+    return true;
+  }
+
+  if (parsed?.command === '/guide' || (!parsed && isGuideTrigger(text))) {
+    register();
+    await startGuideFlow(env, chat);
+    return true;
+  }
+
+  if (!parsed) {
+    const active = getActivePurchase(env.database, chat.id);
+    if (active?.status === 'awaiting_email') {
+      await handleGuideEmail(env, chat, text, active);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function formatPurchaseRow(p) {
+  const when = p.paid_at || p.created_at;
+  const mark = p.status === 'delivered' ? '✅' : p.status === 'paid' ? '💳' : '⏳';
+  return `${mark} <code>${p.chat_id}</code> · ${p.amount ?? '—'} ${p.currency} · ${p.email ?? 'без email'} · ${when}`;
+}
+
+async function handleSales(env, chatId) {
+  const rows = listPurchases(env.database, 30);
+  if (rows.length === 0) {
+    return reply(env, chatId, 'Покупок пока нет.');
+  }
+  return reply(
+    env,
+    chatId,
+    ['<b>Последние покупки гайда</b>', '', ...rows.map(formatPurchaseRow)].join('\n'),
+  );
+}
+
+async function handleSendGuide(env, chatId, args) {
+  const targetId = Number(args[0]);
+  if (!Number.isFinite(targetId)) {
+    return reply(env, chatId, 'Использование: /sendguide &lt;chat_id&gt;');
+  }
+  const delivery = await deliverGuide(env, targetId);
+  if (!delivery.ok) {
+    return reply(
+      env,
+      chatId,
+      `Не удалось доставить (${delivery.delivered} сообщений ушло). Покупатель должен сначала написать боту /start.`,
+    );
+  }
+  const purchase = getActivePurchase(env.database, targetId);
+  if (purchase?.payment_id) {
+    markPurchaseDelivered(env.database, purchase.payment_id);
+  }
+  return reply(env, chatId, `✅ Гайд выслан в <code>${targetId}</code>.`);
 }
 
 export async function handleTelegramUpdate(env, update) {
@@ -239,7 +323,14 @@ export async function handleTelegramUpdate(env, update) {
   }
 
   const chat = message.chat;
-  const parsed = parseCommand(message.text);
+  const text = message.text ?? '';
+  const parsed = parseCommand(text);
+
+  // Покупка гайда работает и для обычного текста («ГАЙД», email) — до early-return.
+  if (await maybeHandleGuidePurchase(env, chat, text, parsed)) {
+    return { status: 200, body: { ok: true } };
+  }
+
   if (!parsed) {
     return { status: 200, body: { ok: true } };
   }
@@ -291,6 +382,20 @@ export async function handleTelegramUpdate(env, update) {
         break;
       }
       await handleDemote(env, chat.id, args);
+      break;
+    case '/sales':
+      if (!isOwnerChat(chat.id, env)) {
+        await reply(env, chat.id, 'Только для владельца');
+        break;
+      }
+      await handleSales(env, chat.id);
+      break;
+    case '/sendguide':
+      if (!isOwnerChat(chat.id, env)) {
+        await reply(env, chat.id, 'Только для владельца');
+        break;
+      }
+      await handleSendGuide(env, chat.id, args);
       break;
     default:
       await reply(env, chat.id, 'Неизвестная команда. /help');

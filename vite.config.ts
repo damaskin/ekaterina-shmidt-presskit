@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import viteCompression from 'vite-plugin-compression';
 import { fileURLToPath } from 'node:url';
 
 const REPO_NAME = 'ekaterina-shmidt-presskit';
@@ -21,7 +22,11 @@ function stripCrossorigin(): Plugin {
 }
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), stripCrossorigin()],
+  plugins: [
+    react(),
+    stripCrossorigin(),
+    viteCompression({ algorithm: 'gzip', ext: '.gz', threshold: 256 }),
+  ],
   publicDir: 'public',
   base: mode === 'ghpages' ? `/${REPO_NAME}/` : '/',
   build: {
@@ -32,6 +37,14 @@ export default defineConfig(({ mode }) => ({
         guide: entry('guide/index.html'),
         // Скрытая страница полного гайда — ссылку покупателям отправляет Екатерина
         guideMaldives: entry('guide/maldives-311da15937d7/index.html'),
+        // Админ-панель (защищена паролем на стороне API)
+        admin: entry('admin/index.html'),
+      },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          motion: ['framer-motion'],
+        },
       },
     },
   },

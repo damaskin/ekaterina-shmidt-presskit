@@ -17,6 +17,7 @@ jobs:
       SSH_USER: ${{ vars.SHMIDT01_SSH_USER }}
       REMOTE_DIR: /opt/ekaterina-shmidt
       VITE_BOOKING_API_URL: ${{ vars.VITE_BOOKING_API_URL }}
+      VITE_GUIDE_BOT_USERNAME: ${{ vars.VITE_GUIDE_BOT_USERNAME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +34,7 @@ jobs:
         run: npm run build
         env:
           VITE_BOOKING_API_URL: ${{ env.VITE_BOOKING_API_URL != '' && env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking' }}
+          VITE_GUIDE_BOT_USERNAME: ${{ env.VITE_GUIDE_BOT_USERNAME != '' && env.VITE_GUIDE_BOT_USERNAME || 'shmidt01' }}
           VITE_SITE_URL: https://shmidt01.ru
 
       - name: Configure SSH
@@ -104,8 +106,8 @@ jobs:
           SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
           HOST="${SSH_HOST:-167.233.91.168}"
           USER="${SSH_USER:-root}"
-          rsync -az -e "ssh $SSH_OPTS" scripts/fix-nginx-shmidt01.sh "${USER}@${HOST}:/tmp/fix-nginx-shmidt01.sh"
-          ssh $SSH_OPTS "${USER}@${HOST}" "sed -i 's/\r$//' /tmp/fix-nginx-shmidt01.sh && bash /tmp/fix-nginx-shmidt01.sh"
+          rsync -az -e "ssh $SSH_OPTS" scripts/fix-nginx-shmidt01.sh scripts/fix-tcp-delivery.sh "${USER}@${HOST}:/tmp/"
+          ssh $SSH_OPTS "${USER}@${HOST}" "sed -i 's/\r$//' /tmp/fix-tcp-delivery.sh /tmp/fix-nginx-shmidt01.sh && bash /tmp/fix-tcp-delivery.sh && bash /tmp/fix-nginx-shmidt01.sh"
 
       - name: Smoke test
         run: |
@@ -126,4 +128,10 @@ jobs:
           echo "$GUIDE" | grep -o '/assets/[^"]*\.js' | sort -u | while read -r asset; do
             curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru${asset}"
           done
+          ADMIN=$(curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/admin/)
+          echo "$ADMIN" | grep -q 'Админ-панель'
+          echo "$ADMIN" | grep -o '/assets/admin-[^"]*\.js' | head -1 | while read -r asset; do
+            curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru${asset}"
+          done
+          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/admin/session | grep -qE 'unauthorized|admin disabled'
           REMOTE
