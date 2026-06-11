@@ -157,3 +157,17 @@ chmod 600 ~/.ssh/authorized_keys
 ```
 
 GitHub Actions secret `SHMIDT01_SSH_PRIVATE_KEY` — приватная пара к этому ключу.
+
+Локальный SSH (`~/.ssh/rayn_prod`):
+
+```
+Host shmidt01 167.233.91.168
+  HostName 167.233.91.168
+  User root
+  IdentityFile ~/.ssh/rayn_prod
+  IdentitiesOnly yes
+```
+
+Диагностика на сервере: `bash /opt/ekaterina-shmidt/scripts/server-check.sh`
+
+Nginx vhost: `infra/shmidt01/tenants.d/shmidt01.ru.conf` (синхронизируется при деплое).
