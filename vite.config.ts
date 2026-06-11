@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 
@@ -6,8 +6,22 @@ const REPO_NAME = 'ekaterina-shmidt-presskit';
 
 const entry = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
+/** Same-origin deploy: без crossorigin браузер не маскирует 404 HTML как CORS. */
+function stripCrossorigin(): Plugin {
+  return {
+    name: 'strip-crossorigin',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        return html.replace(/\s+crossorigin(?=\s|>)/g, '');
+      },
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: [react(), stripCrossorigin()],
   publicDir: 'public',
   base: mode === 'ghpages' ? `/${REPO_NAME}/` : '/',
   build: {
