@@ -135,5 +135,7 @@ jobs:
             curl -sfk -o /dev/null --resolve shmidt01.ru:443:127.0.0.1 "https://shmidt01.ru${asset}"
           done
           curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/health >/dev/null
-          curl -sfk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/admin/session | grep -qE 'unauthorized|admin disabled'
+          # /api/admin/session отвечает 401 (или 503, если пароль не задан) — это ожидаемо,
+          # поэтому без -f (иначе curl упадёт на 4xx/5xx и подавит тело до grep).
+          curl -sk --resolve shmidt01.ru:443:127.0.0.1 https://shmidt01.ru/api/admin/session | grep -qE 'unauthorized|admin disabled'
           REMOTE
