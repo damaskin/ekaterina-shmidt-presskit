@@ -189,14 +189,25 @@ $('save-guide').addEventListener('click', async (e) => {
   }
 });
 
-$('test-send').addEventListener('click', async (e) => {
-  const chatId = $('test-chat').value.trim();
-  if (!chatId) return flash('Укажите chat_id', 'err');
-  const btn = e.currentTarget;
+async function sendGuideTo(chatId, btn, who) {
   btn.disabled = true;
   const { ok, data } = await api('/test-send', { method: 'POST', body: { chat_id: Number(chatId) } });
   btn.disabled = false;
-  flash(ok ? `Отправлено (${data.delivered} сообщений)` : data.error || 'Ошибка отправки', ok ? 'ok' : 'err');
+  const target = who ? `${who} ` : '';
+  flash(
+    ok ? `Гайд отправлен ${target}(${data.delivered} сообщений)` : data.error || 'Ошибка отправки',
+    ok ? 'ok' : 'err',
+  );
+}
+
+$('test-send').addEventListener('click', (e) => {
+  const chatId = $('test-chat').value.trim();
+  if (!chatId) return flash('Укажите chat_id', 'err');
+  sendGuideTo(chatId, e.currentTarget);
+});
+
+document.querySelectorAll('[data-send-to]').forEach((btn) => {
+  btn.addEventListener('click', () => sendGuideTo(btn.dataset.sendTo, btn, btn.textContent.trim()));
 });
 
 $('refresh').addEventListener('click', loadPurchases);
