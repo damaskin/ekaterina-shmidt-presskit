@@ -4,6 +4,7 @@
  * Статика панели лежит отдельно (admin/index.html), сюда ходит только JSON.
  */
 import {
+  audienceCounts,
   getActivePurchase,
   getSetting,
   markPurchaseDelivered,
@@ -12,6 +13,7 @@ import {
   setSetting,
 } from './db.mjs';
 import { deliverGuide } from './guide.mjs';
+import { isBroadcasting, startBroadcast } from './broadcast.mjs';
 import {
   SETTING_KEYS,
   getGuideBody,
@@ -122,7 +124,35 @@ export async function handleAdmin(env, req, path, readJson) {
   }
 
   if (route === '/admin/overview' && method === 'GET') {
-    return { status: 200, body: { stats: purchaseStats(env.database), settings: settingsView(env) } };
+    return {
+      status: 200,
+      body: {
+        stats: purchaseStats(env.database),
+        settings: settingsView(env),
+        audience: audienceCounts(env.database),
+      },
+    };
+  }
+
+  if (route === '/admin/audience' && method === 'GET') {
+    return { status: 200, body: { ...audienceCounts(env.database), broadcasting: isBroadcasting() } };
+  }
+
+  if (route === '/admin/broadcast' && method === 'POST') {
+    if (isBroadcasting()) {
+      return { status: 409, body: { error: 'Рассылка уже выполняется' } };
+    }
+    const body = await readJson(req).catch(() => ({}));
+    const text = String(body?.text ?? '').trim();
+    if (!text) return { status: 400, body: { error: 'Текст рассылки пуст' } };
+    if (text.length > TG_LIMIT) {
+      return { status: 400, body: { error: `Слишком длинно (макс ${TG_LIMIT})` } };
+    }
+    const result = startBroadcast(env, text);
+    if (!result.started) {
+      return { status: 409, body: { error: 'Рассылка уже выполняется' } };
+    }
+    return { status: 200, body: { ok: true, queued: result.queued } };
   }
 
   if (route === '/admin/purchases' && method === 'GET') {

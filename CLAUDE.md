@@ -34,7 +34,9 @@ node scripts/check-bundle-url.mjs   # после build: проверить, чт
 
 Платный гайд продаётся через бота с оплатой в ЮKassa и доставкой защищёнными сообщениями (`protect_content`). Кнопка на `/guide/` → `t.me/<bot>?start=guide` → бот спрашивает email (чек 54-ФЗ) → платёж ЮKassa → webhook `payment.succeeded` на `/api/payments/yookassa` → бот отдаёт текст гайда. Код: `server/guide*.mjs`, `server/yookassa.mjs`, `server/payments.mjs`, таблица `purchases`. Текст гайда в `server/guide-content.mjs` — дефолт, копия веб-страницы (синхронизировать вручную); из админки текст можно переопределить (хранится в таблице `settings`). Реализовано **только в server/** (worker/ не трогали). Runbook и переменные окружения — `docs/GUIDE_SALES.md`. Username бота для кнопки — `VITE_GUIDE_BOT_USERNAME` (запекается в бандл).
 
-**Админ-панель** `shmidt01.ru/admin` (вход по `ADMIN_PASSWORD`, cookie-сессия HMAC): статистика, таблица покупок со статусами + повторная отправка, цена/вкл-выкл продаж, редактор текста гайда. Статика — `admin/` (Vite-вход), API — `server/admin.mjs` под `/api/admin/*`, авторизация — `server/admin-auth.mjs`, настройки — `server/settings.mjs` + таблица `settings` (перекрывают env). Cookie `Secure` → только HTTPS.
+**Админ-панель** `shmidt01.ru/admin` (вход по `ADMIN_PASSWORD`, cookie-сессия HMAC): статистика, таблица покупок со статусами + повторная отправка, цена/вкл-выкл продаж, редактор текста гайда, **рассылка по всем пользователям**. Статика — `admin/` (Vite-вход), API — `server/admin.mjs` под `/api/admin/*`, авторизация — `server/admin-auth.mjs`, настройки — `server/settings.mjs` + таблица `settings` (перекрывают env). Cookie `Secure` → только HTTPS.
+
+**Сохранение пользователей и рассылка.** `bot.mjs` сохраняет (`captureUser`) КАЖДОГО, кто пишет боту, и ловит `my_chat_member` (блок/разблок → флаг `users.is_blocked`). Для `my_chat_member` в `allowed_updates` добавлен этот тип (drain-telegram.mjs, setup-telegram-webhook.mjs, poll.mjs). Рассылка — `server/broadcast.mjs`: фоновая, троттлинг ~20 msg/sec, 403 → пометка заблокировавших, 429 → retry_after, итог админам в Telegram. Только не-заблокировавшие (`is_blocked=0`).
 
 ## Деплой
 

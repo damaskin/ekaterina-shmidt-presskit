@@ -53,9 +53,10 @@ function showApp() {
 
 /* ── Загрузка данных ───────────────────────────────── */
 
-function renderCards(stats) {
+function renderCards(stats, audience) {
   const rub = (n) => `${Math.round(Number(n) || 0).toLocaleString('ru-RU')} ₽`;
   const cards = [
+    { value: audience?.total ?? 0, label: 'Пользователей бота' },
     { value: stats.delivered ?? 0, label: 'Доставлено гайдов' },
     { value: rub(stats.revenue), label: 'Выручка' },
     { value: stats.paidCount ?? 0, label: 'Оплачено' },
@@ -81,8 +82,12 @@ function fillSettings(s) {
 async function loadOverview() {
   const { ok, data } = await api('/overview');
   if (!ok) return;
-  renderCards(data.stats);
+  renderCards(data.stats, data.audience);
   fillSettings(data.settings);
+  const ac = $('audience-count');
+  if (ac && data.audience) {
+    ac.textContent = `${data.audience.reachable} получат, ${data.audience.blocked} заблокировали`;
+  }
 }
 
 async function loadGuide() {
@@ -208,6 +213,22 @@ $('test-send').addEventListener('click', (e) => {
 
 document.querySelectorAll('[data-send-to]').forEach((btn) => {
   btn.addEventListener('click', () => sendGuideTo(btn.dataset.sendTo, btn, btn.textContent.trim()));
+});
+
+$('broadcast-send').addEventListener('click', async (e) => {
+  const text = $('broadcast-text').value.trim();
+  if (!text) return flash('Текст рассылки пуст', 'err');
+  if (!window.confirm('Отправить рассылку всем пользователям бота?')) return;
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  const { ok, data } = await api('/broadcast', { method: 'POST', body: { text } });
+  btn.disabled = false;
+  if (ok) {
+    flash(`Рассылка запущена на ${data.queued} — итог придёт в Telegram`);
+    $('broadcast-text').value = '';
+  } else {
+    flash(data.error || 'Не удалось запустить рассылку', 'err');
+  }
 });
 
 $('refresh').addEventListener('click', loadPurchases);

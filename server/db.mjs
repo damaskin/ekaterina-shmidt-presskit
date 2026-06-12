@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT,
   is_admin INTEGER NOT NULL DEFAULT 0,
   is_owner INTEGER NOT NULL DEFAULT 0,
+  is_blocked INTEGER NOT NULL DEFAULT 0,
   registered_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   last_seen_at TEXT
@@ -61,6 +62,11 @@ export function getDb(dbPath) {
   } catch {
     /* already exists */
   }
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN is_blocked INTEGER NOT NULL DEFAULT 0`);
+  } catch {
+    /* already exists */
+  }
   return db;
 }
 
@@ -79,6 +85,7 @@ export function upsertUser(
          last_name = excluded.last_name,
          is_admin = CASE WHEN excluded.is_owner = 1 THEN 1 WHEN users.is_admin = 1 THEN 1 WHEN excluded.is_admin = 1 THEN 1 ELSE users.is_admin END,
          is_owner = CASE WHEN excluded.is_owner = 1 THEN 1 ELSE users.is_owner END,
+         is_blocked = 0,
          updated_at = datetime('now'),
          last_seen_at = CASE WHEN ? = 1 THEN datetime('now') ELSE users.last_seen_at END`,
     )
@@ -110,6 +117,28 @@ export function listUsers(database) {
        FROM users ORDER BY registered_at ASC`,
     )
     .all();
+}
+
+/* ── Аудитория для рассылок ─────────────────────────── */
+
+export function setUserBlocked(database, chatId, blocked) {
+  database
+    .prepare(`UPDATE users SET is_blocked = ?, updated_at = datetime('now') WHERE chat_id = ?`)
+    .run(blocked ? 1 : 0, chatId);
+}
+
+/** chat_id всех, кому можно слать рассылку (не заблокировали бота). */
+export function listBroadcastRecipients(database) {
+  return database
+    .prepare(`SELECT chat_id FROM users WHERE is_blocked = 0 ORDER BY chat_id`)
+    .all()
+    .map((row) => row.chat_id);
+}
+
+export function audienceCounts(database) {
+  const total = database.prepare(`SELECT COUNT(*) AS c FROM users`).get().c;
+  const blocked = database.prepare(`SELECT COUNT(*) AS c FROM users WHERE is_blocked = 1`).get().c;
+  return { total, reachable: total - blocked, blocked };
 }
 
 export function getAdminChatIds(database) {

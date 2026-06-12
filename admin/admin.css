@@ -55,6 +55,14 @@ body.admin-body {
   tab-size: 2;
 }
 
+.ad-textarea--sm {
+  min-height: 120px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 .ad-btn {
   display: inline-flex;
   align-items: center;

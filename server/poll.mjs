@@ -34,7 +34,7 @@ export async function startTelegramPolling(env) {
         url.searchParams.set('offset', String(offset));
         url.searchParams.set(
           'allowed_updates',
-          JSON.stringify(['message', 'edited_message']),
+          JSON.stringify(['message', 'edited_message', 'my_chat_member']),
         );
 
         const res = await fetch(url);

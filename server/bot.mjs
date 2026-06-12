@@ -6,6 +6,7 @@ import {
   listUsers,
   markPurchaseDelivered,
   setAdmin,
+  setUserBlocked,
   upsertUser,
 } from './db.mjs';
 import { sendTelegramMessage, userLabel } from './telegram.mjs';
@@ -13,6 +14,17 @@ import { deliverGuide, handleGuideEmail, startGuideFlow } from './guide.mjs';
 
 function isOwnerChat(chatId, env) {
   return checkOwnerChat(chatId, env, env.database);
+}
+
+/** Сохраняем любого, кто взаимодействует с ботом, — для будущих рассылок. */
+function captureUser(env, chat) {
+  if (!env.database) return;
+  const roles = resolveUserRoles(chat, env, env.database);
+  upsertUser(env.database, chat, {
+    isAdmin: roles.isAdmin,
+    isOwner: roles.isOwner,
+    touchVisit: true,
+  });
 }
 
 function parseCommand(text) {
@@ -229,25 +241,15 @@ function isGuideTrigger(text) {
   return ['гайд', 'guide', 'купить гайд', 'buy guide'].includes(norm);
 }
 
-/** Покупка гайда: deep-link ?start=guide, слово «ГАЙД», ввод email. */
+/** Покупка гайда: deep-link ?start=guide, слово «ГАЙД», ввод email.
+ * Пользователь уже сохранён в captureUser до вызова этой функции. */
 async function maybeHandleGuidePurchase(env, chat, text, parsed) {
-  const register = () => {
-    const roles = resolveUserRoles(chat, env, env.database);
-    upsertUser(env.database, chat, {
-      isAdmin: roles.isAdmin,
-      isOwner: roles.isOwner,
-      touchVisit: true,
-    });
-  };
-
   if (parsed?.command === '/start' && parsed.args[0]?.toLowerCase() === 'guide') {
-    register();
     await startGuideFlow(env, chat);
     return true;
   }
 
   if (parsed?.command === '/guide' || (!parsed && isGuideTrigger(text))) {
-    register();
     await startGuideFlow(env, chat);
     return true;
   }
@@ -306,6 +308,15 @@ export async function handleTelegramUpdate(env, update) {
     return { status: 500, body: { error: 'Bot not configured' } };
   }
 
+  // Пользователь заблокировал/разблокировал бота — обновляем достижимость.
+  const memberUpdate = update.my_chat_member;
+  if (memberUpdate?.chat?.type === 'private' && env.database) {
+    captureUser(env, memberUpdate.chat);
+    const status = memberUpdate.new_chat_member?.status;
+    setUserBlocked(env.database, memberUpdate.chat.id, status === 'kicked' || status === 'left');
+    return { status: 200, body: { ok: true } };
+  }
+
   const message = update.message ?? update.edited_message;
   if (!message?.chat || message.chat.type !== 'private') {
     return { status: 200, body: { ok: true, skipped: true } };
@@ -325,6 +336,9 @@ export async function handleTelegramUpdate(env, update) {
   const chat = message.chat;
   const text = message.text ?? '';
   const parsed = parseCommand(text);
+
+  // Сохраняем КАЖДОГО, кто пишет боту (для будущих рассылок), до любой логики.
+  captureUser(env, chat);
 
   // Покупка гайда работает и для обычного текста («ГАЙД», email) — до early-return.
   if (await maybeHandleGuidePurchase(env, chat, text, parsed)) {

@@ -95,6 +95,20 @@
         <p class="ad-hint">Кнопки отправляют сохранённый текст гайда. Получатель должен был хотя бы раз написать боту.</p>
       </section>
 
+      <!-- Рассылка -->
+      <section class="ad-panel">
+        <h2 class="ad-panel__title">Рассылка</h2>
+        <p class="ad-hint">
+          Сообщение получат все, кто писал боту и не заблокировал его
+          (<span id="audience-count">…</span>). Отправляется как обычный текст.
+          Итог придёт вам в Telegram.
+        </p>
+        <textarea class="ad-textarea ad-textarea--sm" id="broadcast-text" spellcheck="true" placeholder="Текст рассылки…"></textarea>
+        <div class="ad-row">
+          <button class="ad-btn ad-btn--accent" id="broadcast-send" type="button">Отправить всем</button>
+        </div>
+      </section>
+
       <!-- Покупки -->
       <section class="ad-panel">
         <div class="ad-panel__head">
