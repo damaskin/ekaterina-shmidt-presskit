@@ -66,6 +66,12 @@ interface TelegramWebApp {
   /** Язык интерфейса Telegram-клиента (IETF tag) */
   languageCode?: string;
   MainButton: TelegramMainButton;
+  BackButton?: {
+    show: () => void;
+    hide: () => void;
+    onClick: (callback: () => void) => void;
+    offClick: (callback: () => void) => void;
+  };
   ready: () => void;
   expand: () => void;
   close: () => void;

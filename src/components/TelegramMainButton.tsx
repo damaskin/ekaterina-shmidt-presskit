@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useBooking } from '../context/BookingContext';
 import { useI18n } from '../context/LocaleContext';
 import { isTelegramWebApp, loadTelegramSdk } from '../hooks/useTelegramWebApp';
@@ -11,11 +11,20 @@ function getWebApp() {
   return window.Telegram?.WebApp;
 }
 
-/** Main Button в Telegram: BOOKING → открыть форму, SEND REQUEST → отправить */
+/**
+ * Нативные кнопки Telegram на главной (пресс-кит):
+ * - форма закрыта → MainButton «Закрыть» и BackButton закрывают Mini App;
+ * - форма открыта → MainButton отправляет заявку, BackButton закрывает форму.
+ * Сам букинг открывается обычной кнопкой на странице.
+ */
 export default function TelegramMainButton() {
-  const { isOpen, open, close, formStatus, requestSubmit } = useBooking();
+  const { isOpen, close, formStatus, requestSubmit } = useBooking();
   const { t } = useI18n();
 
+  const mainClickRef = useRef<(() => void) | undefined>(undefined);
+  const backClickRef = useRef<(() => void) | undefined>(undefined);
+
+  // Монтаж: грузим SDK, регистрируем визитёра, показываем кнопки.
   useEffect(() => {
     if (!isTelegramWebApp()) return;
 
@@ -25,10 +34,8 @@ export default function TelegramMainButton() {
     loadTelegramSdk()
       .then(() => {
         if (cancelled) return;
-
         const tg = getWebApp();
-        const mainButton = tg?.MainButton;
-        if (!mainButton) return;
+        if (!tg) return;
 
         const user = tg.initDataUnsafe?.user;
         if (user?.id) {
@@ -40,13 +47,17 @@ export default function TelegramMainButton() {
           });
         }
 
-        mainButton.color = ACCENT;
-        mainButton.textColor = ACCENT_TEXT;
-        mainButton.show();
+        if (tg.MainButton) {
+          tg.MainButton.color = ACCENT;
+          tg.MainButton.textColor = ACCENT_TEXT;
+          tg.MainButton.show();
+        }
+        tg.BackButton?.show();
 
         cleanup = () => {
-          mainButton.hide();
-          mainButton.hideProgress();
+          tg.MainButton?.hide();
+          tg.MainButton?.hideProgress();
+          tg.BackButton?.hide();
         };
       })
       .catch(() => {
@@ -59,47 +70,63 @@ export default function TelegramMainButton() {
     };
   }, []);
 
+  // Обновляем подписи и действия кнопок при смене состояния формы.
   useEffect(() => {
     if (!isTelegramWebApp()) return;
 
     let cancelled = false;
-    let clickHandler: (() => void) | undefined;
 
     loadTelegramSdk()
       .then(() => {
         if (cancelled) return;
+        const tg = getWebApp();
+        if (!tg) return;
 
-        const mainButton = getWebApp()?.MainButton;
-        if (!mainButton) return;
+        const closeApp = () => tg.close?.();
 
-        let label: string;
-        let action: () => void;
+        // MainButton
+        const mainButton = tg.MainButton;
+        if (mainButton) {
+          let label: string;
+          let action: () => void;
 
-        if (!isOpen) {
-          label = t.booking.mainButton;
-          action = open;
-        } else if (formStatus === 'success') {
-          label = t.booking.successClose;
-          action = close;
-        } else {
-          label = t.booking.mainButtonSubmit;
-          action = requestSubmit;
+          if (!isOpen) {
+            label = t.booking.successClose; // «Закрыть»
+            action = closeApp;
+          } else if (formStatus === 'success') {
+            label = t.booking.successClose;
+            action = close;
+          } else {
+            label = t.booking.mainButtonSubmit;
+            action = requestSubmit;
+          }
+
+          if (mainClickRef.current) mainButton.offClick(mainClickRef.current);
+          mainButton.setText(label);
+          mainClickRef.current = action;
+          mainButton.onClick(action);
+          mainButton.show();
+
+          if (formStatus === 'sending') {
+            mainButton.showProgress(true);
+            mainButton.disable();
+          } else {
+            mainButton.hideProgress();
+            mainButton.enable();
+          }
         }
 
-        if (clickHandler) {
-          mainButton.offClick(clickHandler);
-        }
-
-        mainButton.setText(label);
-        clickHandler = action;
-        mainButton.onClick(clickHandler);
-
-        if (formStatus === 'sending') {
-          mainButton.showProgress(true);
-          mainButton.disable();
-        } else {
-          mainButton.hideProgress();
-          mainButton.enable();
+        // BackButton: форма открыта → закрыть форму, иначе → закрыть Mini App.
+        const backButton = tg.BackButton;
+        if (backButton) {
+          const backAction = () => {
+            if (isOpen) close();
+            else closeApp();
+          };
+          if (backClickRef.current) backButton.offClick(backClickRef.current);
+          backClickRef.current = backAction;
+          backButton.onClick(backAction);
+          backButton.show();
         }
       })
       .catch(() => {
@@ -108,18 +135,15 @@ export default function TelegramMainButton() {
 
     return () => {
       cancelled = true;
-      const mainButton = getWebApp()?.MainButton;
-      if (mainButton && clickHandler) {
-        mainButton.offClick(clickHandler);
-      }
+      const tg = getWebApp();
+      if (tg?.MainButton && mainClickRef.current) tg.MainButton.offClick(mainClickRef.current);
+      if (tg?.BackButton && backClickRef.current) tg.BackButton.offClick(backClickRef.current);
     };
   }, [
     isOpen,
     formStatus,
-    open,
     close,
     requestSubmit,
-    t.booking.mainButton,
     t.booking.mainButtonSubmit,
     t.booking.successClose,
   ]);
