@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT,
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS guide_media (
+  id TEXT PRIMARY KEY,
+  filename TEXT NOT NULL,
+  mime TEXT,
+  file_id TEXT,
+  bytes INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `;
 
 let db;
@@ -304,6 +312,34 @@ export function purchaseStats(database) {
 export function getSetting(database, key) {
   const row = database.prepare(`SELECT value FROM settings WHERE key = ?`).get(key);
   return row ? row.value : null;
+}
+
+/* ── Фото гайда ─────────────────────────────────────── */
+
+export function insertMedia(database, { id, filename, mime, bytes }) {
+  database
+    .prepare(`INSERT INTO guide_media (id, filename, mime, bytes) VALUES (?, ?, ?, ?)`)
+    .run(id, filename, mime ?? null, bytes ?? null);
+}
+
+export function listMedia(database) {
+  return database
+    .prepare(`SELECT id, filename, mime, bytes, created_at FROM guide_media ORDER BY created_at DESC`)
+    .all();
+}
+
+export function getMedia(database, id) {
+  return database
+    .prepare(`SELECT id, filename, mime, file_id, bytes FROM guide_media WHERE id = ?`)
+    .get(id);
+}
+
+export function deleteMedia(database, id) {
+  database.prepare(`DELETE FROM guide_media WHERE id = ?`).run(id);
+}
+
+export function setMediaFileId(database, id, fileId) {
+  database.prepare(`UPDATE guide_media SET file_id = ? WHERE id = ?`).run(fileId, id);
 }
 
 export function setSetting(database, key, value) {

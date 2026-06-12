@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { dirname, join } from 'node:path';
 import { getDb } from './db.mjs';
 import { handleAdmin } from './admin.mjs';
 import { handleBooking } from './booking.mjs';
@@ -77,6 +78,8 @@ const env = {
   GUIDE_RETURN_URL: process.env.GUIDE_RETURN_URL,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET,
+  DB_PATH,
+  MEDIA_DIR: process.env.MEDIA_DIR || join(dirname(DB_PATH), 'guide-media'),
 };
 
 const server = createServer(async (req, res) => {
@@ -136,7 +139,12 @@ const server = createServer(async (req, res) => {
       path === '/api/admin' || path.startsWith('/api/admin/')) {
     try {
       const result = await handleAdmin(env, req, path, readJson);
-      json(res, result.status, result.body, result.headers ?? {});
+      if (result.raw) {
+        res.writeHead(result.status, result.headers ?? {});
+        res.end(result.raw);
+      } else {
+        json(res, result.status, result.body, result.headers ?? {});
+      }
     } catch (err) {
       console.error('admin request failed', err);
       json(res, 500, { error: 'Server error' });

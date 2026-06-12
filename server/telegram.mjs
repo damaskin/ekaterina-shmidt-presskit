@@ -56,6 +56,41 @@ export async function sendTelegramMessage(env, chatId, text, extra = {}) {
   return response.json();
 }
 
+/**
+ * Отправка фото. По fileId — JSON (без повторной загрузки), иначе multipart с буфером.
+ * Возвращает ответ Telegram (в т.ч. result.photo[].file_id для кэша).
+ */
+export async function sendTelegramPhoto(env, chatId, { buffer, fileId, filename, mime, caption, protect_content = false }) {
+  const url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendPhoto`;
+
+  if (fileId) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: fileId,
+        caption: caption || undefined,
+        parse_mode: caption ? 'HTML' : undefined,
+        protect_content,
+      }),
+    });
+    return response.json();
+  }
+
+  const form = new FormData();
+  form.append('chat_id', String(chatId));
+  if (caption) {
+    form.append('caption', caption);
+    form.append('parse_mode', 'HTML');
+  }
+  if (protect_content) form.append('protect_content', 'true');
+  form.append('photo', new Blob([buffer], { type: mime || 'image/jpeg' }), filename || 'photo.jpg');
+
+  const response = await fetch(url, { method: 'POST', body: form });
+  return response.json();
+}
+
 export async function notifyRecipients(env, chatIds, text) {
   const unique = [...new Set(chatIds.filter(Boolean))];
   if (unique.length === 0) return { ok: false, delivered: 0, errors: ['no recipients'] };

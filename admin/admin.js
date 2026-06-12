@@ -75,6 +75,7 @@ function showTab(name) {
     /* приватный режим */
   }
   if (tab === 'users') loadUsers();
+  if (tab === 'guide') loadMedia();
 }
 
 document.querySelectorAll('.ad-tab-btn').forEach((btn) => {
@@ -309,6 +310,85 @@ document.querySelectorAll('.ad-toolbar').forEach((toolbar) => {
   toolbar.querySelectorAll('.ad-chip').forEach((btn) => {
     btn.addEventListener('click', () => applyEditorAction(textarea, btn));
   });
+});
+
+/* ── Фото гайда ────────────────────────────────────── */
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadMedia() {
+  const { ok, data } = await api('/media');
+  if (!ok) return;
+  const grid = $('media-grid');
+  const items = data.media || [];
+  if (!items.length) {
+    grid.innerHTML = '<p class="ad-hint">Фото пока нет</p>';
+    return;
+  }
+  grid.innerHTML = items
+    .map(
+      (m) => `<div class="ad-media-item">
+        <img src="${API}/media/${m.id}" alt="" loading="lazy" />
+        <div class="ad-media-item__actions">
+          <button class="ad-btn ad-btn--ghost ad-btn--mini" data-media-insert="${m.id}">Вставить</button>
+          <button class="ad-btn ad-btn--ghost ad-btn--mini" data-media-delete="${m.id}">Удалить</button>
+        </div>
+      </div>`,
+    )
+    .join('');
+}
+
+$('media-upload').addEventListener('change', async (e) => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  let failed = 0;
+  for (const file of files) {
+    if (file.size > 8 * 1024 * 1024) {
+      failed += 1;
+      flash(`${file.name}: больше 8 МБ`, 'err');
+      continue;
+    }
+    const dataUrl = await readFileAsDataURL(file);
+    const { ok, data } = await api('/media', { method: 'POST', body: { name: file.name, data: dataUrl } });
+    if (!ok) {
+      failed += 1;
+      flash(data.error || `${file.name}: не загрузилось`, 'err');
+    }
+  }
+  if (failed < files.length) flash('Фото загружены');
+  loadMedia();
+});
+
+$('media-grid').addEventListener('click', async (e) => {
+  const insert = e.target.closest('[data-media-insert]');
+  if (insert) {
+    const ta = $('guide-body');
+    const marker = `\n---\n[[photo:${insert.dataset.mediaInsert}]]\n---\n`;
+    const start = ta.selectionStart ?? ta.value.length;
+    const end = ta.selectionEnd ?? start;
+    ta.setRangeText(marker, start, end, 'end');
+    ta.focus();
+    flash('Маркер фото вставлен — не забудьте «Сохранить текст»');
+    return;
+  }
+  const del = e.target.closest('[data-media-delete]');
+  if (del) {
+    if (!window.confirm('Удалить фото с сервера?')) return;
+    const { ok, data } = await api(`/media/${del.dataset.mediaDelete}`, { method: 'DELETE' });
+    if (ok) {
+      flash('Фото удалено');
+      loadMedia();
+    } else {
+      flash(data.error || 'Не удалось удалить', 'err');
+    }
+  }
 });
 
 async function sendGuideTo(chatId, btn, who) {

@@ -7,11 +7,14 @@
 import {
   attachPayment,
   getActivePurchase,
+  getMedia,
   listUsers,
+  setMediaFileId,
   setPurchaseEmail,
   startPurchase,
 } from './db.mjs';
-import { sendTelegramMessage, userLabel } from './telegram.mjs';
+import { sendTelegramMessage, sendTelegramPhoto, userLabel } from './telegram.mjs';
+import { readMediaFile } from './media.mjs';
 import { createPayment, isYookassaConfigured } from './yookassa.mjs';
 import { GUIDE_TITLE } from './guide-content.mjs';
 import {
@@ -148,9 +151,64 @@ async function createAndSendInvoice(env, chatId, purchaseId, email) {
  * Доставка гайда защищёнными сообщениями (protect_content).
  * Возвращает { ok, delivered }.
  */
+// Блок-фото: [[photo:<id>]] на отдельной строке, остаток блока — подпись.
+const PHOTO_BLOCK_RE = /^\[\[photo:([a-z0-9]+)\]\]\s*([\s\S]*)$/i;
+const TG_CAPTION_LIMIT = 1024;
+
+/** Доставка фото-блока. Возвращает 'sent' | 'skip' (нет файла) | 'fail'. */
+async function deliverPhotoBlock(env, chatId, mediaId, caption) {
+  const media = getMedia(env.database, mediaId);
+  if (!media) return 'skip'; // фото удалили — пропускаем, не валим весь гайд
+
+  const longCaption = caption.length > TG_CAPTION_LIMIT;
+  const cap = longCaption ? '' : caption;
+
+  let res = null;
+  if (media.file_id) {
+    res = await sendTelegramPhoto(env, chatId, { fileId: media.file_id, caption: cap, protect_content: true });
+  }
+  if (!res?.ok) {
+    const buffer = readMediaFile(env, media.filename);
+    if (!buffer) return 'skip';
+    res = await sendTelegramPhoto(env, chatId, {
+      buffer,
+      filename: media.filename,
+      mime: media.mime,
+      caption: cap,
+      protect_content: true,
+    });
+    if (res?.ok) {
+      const fileId = res.result?.photo?.at(-1)?.file_id;
+      if (fileId) setMediaFileId(env.database, mediaId, fileId);
+    }
+  }
+  if (!res?.ok) return 'fail';
+
+  // Подпись длиннее лимита Telegram — досылаем отдельным защищённым сообщением.
+  if (longCaption) {
+    await sendTelegramMessage(env, chatId, caption, {
+      protect_content: true,
+      disable_web_page_preview: true,
+    });
+  }
+  return 'sent';
+}
+
 export async function deliverGuide(env, chatId) {
   let delivered = 0;
   for (const chunk of getGuideChunks(env.database)) {
+    const photo = chunk.match(PHOTO_BLOCK_RE);
+    if (photo) {
+      const outcome = await deliverPhotoBlock(env, chatId, photo[1], photo[2].trim());
+      if (outcome === 'sent') delivered += 1;
+      else if (outcome === 'fail') {
+        console.error('guide photo delivery failed', photo[1]);
+        return { ok: false, delivered };
+      }
+      // 'skip' (удалённое фото) — просто идём дальше
+      continue;
+    }
+
     const res = await sendTelegramMessage(env, chatId, chunk, {
       protect_content: true,
       disable_web_page_preview: true,

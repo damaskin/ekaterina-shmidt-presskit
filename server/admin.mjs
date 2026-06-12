@@ -3,10 +3,15 @@
  * Авторизация — пароль (ADMIN_PASSWORD) → подписанная cookie-сессия (HMAC).
  * Статика панели лежит отдельно (admin/index.html), сюда ходит только JSON.
  */
+import { randomBytes } from 'node:crypto';
 import {
   audienceCounts,
+  deleteMedia,
   getActivePurchase,
+  getMedia,
   getSetting,
+  insertMedia,
+  listMedia,
   listUsersForAdmin,
   markPurchaseDelivered,
   purchaseStats,
@@ -15,6 +20,7 @@ import {
 } from './db.mjs';
 import { deliverGuide } from './guide.mjs';
 import { isBroadcasting, startBroadcast } from './broadcast.mjs';
+import { MAX_MEDIA_BYTES, MIME_EXT, readMediaFile, removeMediaFile, saveMediaFile } from './media.mjs';
 import {
   SETTING_KEYS,
   getGuideBody,
@@ -141,6 +147,55 @@ export async function handleAdmin(env, req, path, readJson) {
 
   if (route === '/admin/users' && method === 'GET') {
     return { status: 200, body: { users: listUsersForAdmin(env.database, 500) } };
+  }
+
+  // — Фото гайда —
+  if (route === '/admin/media' && method === 'GET') {
+    return { status: 200, body: { media: listMedia(env.database) } };
+  }
+
+  if (route === '/admin/media' && method === 'POST') {
+    if (Number(req.headers['content-length'] || 0) > 14 * 1024 * 1024) {
+      return { status: 413, body: { error: 'Файл слишком большой' } };
+    }
+    const body = await readJson(req).catch(() => ({}));
+    const match = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$/.exec(body?.data ?? '');
+    if (!match) {
+      return { status: 400, body: { error: 'Поддерживаются JPEG, PNG, WebP, GIF' } };
+    }
+    const mime = match[1];
+    const buffer = Buffer.from(match[2], 'base64');
+    if (buffer.length === 0 || buffer.length > MAX_MEDIA_BYTES) {
+      return { status: 400, body: { error: 'Размер 0 или больше 8 МБ' } };
+    }
+    const id = randomBytes(6).toString('hex');
+    const filename = `${id}.${MIME_EXT[mime]}`;
+    saveMediaFile(env, filename, buffer);
+    insertMedia(env.database, { id, filename, mime, bytes: buffer.length });
+    return { status: 200, body: { id, mime, bytes: buffer.length } };
+  }
+
+  if (route.startsWith('/admin/media/')) {
+    const id = decodeURIComponent(route.slice('/admin/media/'.length));
+    const media = getMedia(env.database, id);
+
+    if (method === 'GET') {
+      const buffer = media ? readMediaFile(env, media.filename) : null;
+      if (!buffer) return { status: 404, body: { error: 'not found' } };
+      return {
+        status: 200,
+        raw: buffer,
+        headers: { 'Content-Type': media.mime || 'application/octet-stream', 'Cache-Control': 'private, max-age=300' },
+      };
+    }
+
+    if (method === 'DELETE') {
+      if (media) {
+        removeMediaFile(env, media.filename);
+        deleteMedia(env.database, id);
+      }
+      return { status: 200, body: { ok: true } };
+    }
   }
 
   if (route === '/admin/broadcast' && method === 'POST') {

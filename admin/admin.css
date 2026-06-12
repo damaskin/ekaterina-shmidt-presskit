@@ -498,6 +498,39 @@ body.admin-body {
   opacity: 0.55;
 }
 
+/* ── Фото гайда ────────────────────────────────────── */
+
+.ad-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem;
+}
+
+.ad-media-item {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.03);
+}
+
+.ad-media-item img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.ad-media-item__actions {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.4rem;
+}
+
+.ad-media-item__actions .ad-btn {
+  flex: 1;
+}
+
 @media (max-width: 560px) {
   .ad-header__title {
     font-size: 1.3rem;

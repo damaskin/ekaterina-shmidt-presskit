@@ -144,6 +144,22 @@
         </section>
 
         <section class="ad-panel">
+          <div class="ad-panel__head">
+            <h2 class="ad-panel__title">Фото в гайде</h2>
+            <label class="ad-btn ad-btn--accent">
+              + Загрузить
+              <input type="file" id="media-upload" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+            </label>
+          </div>
+          <p class="ad-hint">
+            Загрузите фото и нажмите «Вставить» — оно добавится в текст как отдельное
+            сообщение (<code>[[photo:id]]</code>); подпись можно дописать в той же строке.
+            «Удалить» убирает файл с сервера. JPEG/PNG/WebP/GIF до 8 МБ.
+          </p>
+          <div class="ad-media-grid" id="media-grid"></div>
+        </section>
+
+        <section class="ad-panel">
           <h2 class="ad-panel__title">Текст гайда</h2>
           <div class="ad-toolbar" data-editor="guide-body">
             <button type="button" class="ad-chip" data-insert="block" title="Новое сообщение (разделитель ---)">--- Новый блок</button>
