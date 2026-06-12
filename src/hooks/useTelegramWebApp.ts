@@ -171,6 +171,14 @@ export function useTelegramWebApp(): void {
   useEffect(() => {
     if (!isTelegramWebApp()) return;
 
+    // Флаг для статических страниц гайда: при переходе туда внутри webview
+    // хэш #tgWebAppData= теряется, и детект Telegram опирается на этот флаг.
+    try {
+      sessionStorage.setItem('tgWebApp', '1');
+    } catch {
+      /* sessionStorage недоступен */
+    }
+
     document.documentElement.classList.add('tg-webapp');
 
     let cleanup: (() => void) | undefined;

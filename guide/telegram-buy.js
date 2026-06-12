@@ -8,19 +8,38 @@ const TG_SDK = 'https://telegram.org/js/telegram-web-app.js';
 const HEADER = '#0d0a0f';
 const ACCENT = '#ff2d8a';
 
+const TG_FLAG = 'tgWebApp';
+
 function getWebApp() {
   return window.Telegram && window.Telegram.WebApp;
 }
 
-/** Реальный Telegram-клиент, а не stub в обычном браузере. */
-function isTelegramWebApp() {
-  if (location.hash.includes('tgWebAppData=')) return true;
-  if (/Telegram/i.test(navigator.userAgent)) return true;
+/**
+ * Есть ли признаки, что мы внутри Telegram. Важно: при переходе со страницы
+ * на страницу внутри webview хэш #tgWebAppData= теряется, а SDK ещё не загружен,
+ * поэтому полагаемся ещё на webview-прокси и на флаг в sessionStorage, который
+ * выставляет основной сайт/эта же страница при подтверждённом Telegram.
+ */
+function hasTelegramHints() {
+  try {
+    if (location.hash.includes('tgWebAppData=')) return true;
+    if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true;
+    if (/Telegram/i.test(navigator.userAgent)) return true;
+    if (sessionStorage.getItem(TG_FLAG) === '1') return true;
+  } catch {
+    /* sessionStorage недоступен — игнорируем */
+  }
+  const tg = getWebApp();
+  if (tg && tg.initData && tg.initData.length > 0) return true;
+  return Boolean(tg && tg.platform && tg.platform !== 'unknown' && tg.platform !== 'web');
+}
+
+/** Подтверждение после загрузки SDK: это реальный Telegram, а не stub в браузере. */
+function isRealTelegram() {
   const tg = getWebApp();
   if (!tg) return false;
   if (tg.initData && tg.initData.length > 0) return true;
-  const platform = tg.platform;
-  return Boolean(platform && platform !== 'unknown' && platform !== 'web');
+  return Boolean(tg.platform && tg.platform !== 'unknown' && tg.platform !== 'web');
 }
 
 function loadSdk() {
@@ -58,7 +77,7 @@ function applyInsets(tg) {
  * @returns {{ refreshText: (text: string) => void } | null}
  */
 export function setupGuideTelegram({ buyUrl, getButtonText } = {}) {
-  if (!isTelegramWebApp()) return null;
+  if (!hasTelegramHints()) return null;
   document.documentElement.classList.add('tg-webapp');
 
   let mainButton = null;
@@ -69,6 +88,19 @@ export function setupGuideTelegram({ buyUrl, getButtonText } = {}) {
       if (!tg) return;
 
       tg.ready();
+
+      // Подтверждаем, что это реально Telegram (а не ложный сигнал) уже после
+      // загрузки SDK, когда известны platform/initData.
+      if (!isRealTelegram()) {
+        document.documentElement.classList.remove('tg-webapp');
+        return;
+      }
+      try {
+        sessionStorage.setItem(TG_FLAG, '1');
+      } catch {
+        /* ignore */
+      }
+
       tg.expand();
       if (tg.setHeaderColor) tg.setHeaderColor(HEADER);
       if (tg.setBackgroundColor) tg.setBackgroundColor(HEADER);
