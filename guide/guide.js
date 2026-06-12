@@ -2,10 +2,23 @@
    но в dev-режиме без этого импорта на страницах гайда не будет CSS-переменных) */
 import '../src/index.css';
 import './guide.css';
+import { setupGuideTelegram } from './telegram-buy.js';
 
 /* Переключатель RU/EN: приоритет ?lang= → localStorage → русский по умолчанию */
 const STORAGE_KEY = 'guide-lang';
 const LANGS = ['ru', 'en'];
+
+// Хэндл Telegram Mini App (если открыто внутри Telegram) — для обновления MainButton.
+let telegram = null;
+
+/** Текст видимой кнопки покупки для текущего языка (для нативной MainButton). */
+function visibleBuyText() {
+  const lang = document.documentElement.dataset.guideLang || 'ru';
+  const btn =
+    document.querySelector(`main[data-lang="${lang}"] [data-buy]`) ||
+    document.querySelector('[data-buy]');
+  return btn ? btn.textContent.trim() : '';
+}
 
 function resolveInitialLang() {
   const fromQuery = new URLSearchParams(window.location.search).get('lang');
@@ -33,6 +46,8 @@ function applyLang(lang) {
   } catch {
     /* приватный режим — игнорируем */
   }
+  // Текст нативной MainButton должен совпадать с языком страницы.
+  if (telegram) telegram.refreshText(visibleBuyText());
 }
 
 document.querySelectorAll('.gp-lang__btn').forEach((btn) => {
@@ -45,12 +60,22 @@ applyLang(resolveInitialLang());
    Username бота берётся из VITE_GUIDE_BOT_USERNAME (запекается при сборке).
    Если не задан — остаётся fallback-href из HTML (личка @shmidt01). */
 const BOT_USERNAME = import.meta.env.VITE_GUIDE_BOT_USERNAME;
+const buyButtons = document.querySelectorAll('[data-buy]');
+const buyUrl = BOT_USERNAME
+  ? `https://t.me/${BOT_USERNAME}?start=guide`
+  : buyButtons[0]?.getAttribute('href') || null;
 if (BOT_USERNAME) {
-  const botUrl = `https://t.me/${BOT_USERNAME}?start=guide`;
-  document.querySelectorAll('[data-buy]').forEach((a) => {
-    a.href = botUrl;
+  buyButtons.forEach((a) => {
+    a.href = buyUrl;
   });
 }
+
+/* Telegram Mini App: полноэкранный режим + отступ под шапку, нативные кнопки.
+   MainButton показываем только на продающей странице (где есть кнопка покупки). */
+telegram = setupGuideTelegram({
+  buyUrl: buyButtons.length ? buyUrl : null,
+  getButtonText: visibleBuyText,
+});
 
 /* Плавное появление секций при скролле — прогрессивное улучшение:
    без работающего IntersectionObserver контент просто остаётся видимым */

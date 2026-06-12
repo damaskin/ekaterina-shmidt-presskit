@@ -45,6 +45,16 @@ body.guide-body {
   padding: clamp(4.5rem, 9vh, 6.5rem) var(--slide-pad-x) 4rem;
 }
 
+/* ── Telegram Mini App: контент не под шапкой + место под MainButton ── */
+html.tg-webapp .gp-page {
+  padding-top: calc(var(--tg-top-inset, 0px) + 4rem);
+  padding-bottom: calc(var(--tg-bottom-inset, 0px) + 5.5rem);
+}
+
+html.tg-webapp .gp-topbar {
+  top: calc(var(--tg-top-inset, 0px) + 0.5rem);
+}
+
 /* ── Шапка ─────────────────────────────────────────── */
 
 .gp-topbar {
