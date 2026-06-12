@@ -25,6 +25,10 @@ import {
   SETTING_KEYS,
   getGuideBody,
   getGuidePriceRub,
+  getGuideReturnUrl,
+  getGuideVatCode,
+  getYookassaSecretKey,
+  getYookassaShopId,
   guideRequiresEmail,
   isSalesEnabled,
   splitGuideBody,
@@ -71,11 +75,19 @@ function isAuthed(env, req) {
 
 function settingsView(env) {
   const db = env.database;
+  const shopId = getYookassaShopId(db, env);
+  const secret = getYookassaSecretKey(db, env);
   return {
     priceRub: getGuidePriceRub(db, env),
     salesEnabled: isSalesEnabled(db),
     requireEmail: guideRequiresEmail(db, env),
-    yookassaConfigured: Boolean(env.YOOKASSA_SHOP_ID && env.YOOKASSA_SECRET_KEY),
+    yookassaConfigured: Boolean(shopId && secret),
+    // Платёжная система. Секретный ключ не отдаём — только факт, что он задан.
+    shopId,
+    secretKeySet: Boolean(secret),
+    vatCode: getGuideVatCode(db, env),
+    returnUrl: getGuideReturnUrl(db, env),
+    webhookUrl: 'https://shmidt01.ru/api/payments/yookassa',
   };
 }
 
@@ -256,6 +268,21 @@ export async function handleAdmin(env, req, path, readJson) {
       }
       if (body.requireEmail != null) {
         setSetting(env.database, SETTING_KEYS.requireEmail, body.requireEmail ? '1' : '0');
+      }
+      // — Реквизиты ЮKassa —
+      if (body.shopId != null) {
+        setSetting(env.database, SETTING_KEYS.shopId, String(body.shopId).trim());
+      }
+      // Секрет меняем только если прислали непустой (пустое поле = не трогать).
+      if (typeof body.secretKey === 'string' && body.secretKey.trim()) {
+        setSetting(env.database, SETTING_KEYS.secretKey, body.secretKey.trim());
+      }
+      if (body.vatCode != null) {
+        const vat = Number(body.vatCode);
+        setSetting(env.database, SETTING_KEYS.vatCode, String(vat >= 1 && vat <= 6 ? vat : 1));
+      }
+      if (body.returnUrl != null) {
+        setSetting(env.database, SETTING_KEYS.returnUrl, String(body.returnUrl).trim());
       }
       return { status: 200, body: settingsView(env) };
     }

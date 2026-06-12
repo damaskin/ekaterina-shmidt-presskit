@@ -3,12 +3,18 @@
  * Аутентификация — Basic shopId:secretKey. Все суммы — строки "1234.00".
  */
 import { randomUUID } from 'node:crypto';
+import {
+  getGuideReturnUrl,
+  getGuideVatCode,
+  getYookassaSecretKey,
+  getYookassaShopId,
+} from './settings.mjs';
 
 const API = 'https://api.yookassa.ru/v3';
 
 function authHeader(env) {
-  const shopId = env.YOOKASSA_SHOP_ID;
-  const secret = env.YOOKASSA_SECRET_KEY;
+  const shopId = getYookassaShopId(env.database, env);
+  const secret = getYookassaSecretKey(env.database, env);
   if (!shopId || !secret) return null;
   return 'Basic ' + Buffer.from(`${shopId}:${secret}`).toString('base64');
 }
@@ -32,7 +38,7 @@ export async function createPayment(env, { amountValue, description, metadata, e
 
   const currency = 'RUB';
   const value = formatAmount(amountValue);
-  const returnUrl = env.GUIDE_RETURN_URL || 'https://shmidt01.ru/guide/?paid=1';
+  const returnUrl = getGuideReturnUrl(env.database, env);
 
   const body = {
     amount: { value, currency },
@@ -44,7 +50,7 @@ export async function createPayment(env, { amountValue, description, metadata, e
 
   // Чек 54-ФЗ: предмет расчёта + email покупателя.
   if (email) {
-    const vatCode = Number(env.GUIDE_VAT_CODE || 1); // 1 = «без НДС» (самозанятые/НПД)
+    const vatCode = getGuideVatCode(env.database, env); // 1 = «без НДС» (самозанятые/НПД)
     body.receipt = {
       customer: { email },
       items: [

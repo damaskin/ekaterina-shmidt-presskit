@@ -144,6 +144,43 @@
         </section>
 
         <section class="ad-panel">
+          <h2 class="ad-panel__title">Платёжная система (ЮKassa)</h2>
+          <div class="ad-grid">
+            <label class="ad-field">
+              <span class="ad-field__label">shopId (идентификатор магазина)</span>
+              <input class="ad-input" id="pay-shop" type="text" autocomplete="off" inputmode="numeric" />
+            </label>
+            <label class="ad-field">
+              <span class="ad-field__label">Секретный ключ</span>
+              <input class="ad-input" id="pay-secret" type="password" autocomplete="off" />
+            </label>
+            <label class="ad-field">
+              <span class="ad-field__label">Ставка НДС (для чека)</span>
+              <select class="ad-input" id="pay-vat">
+                <option value="1">Без НДС (самозанятые / НПД)</option>
+                <option value="2">0%</option>
+                <option value="3">10%</option>
+                <option value="4">20%</option>
+                <option value="5">10/110</option>
+                <option value="6">20/120</option>
+              </select>
+            </label>
+            <label class="ad-field">
+              <span class="ad-field__label">Return URL (куда вернуть после оплаты)</span>
+              <input class="ad-input" id="pay-return" type="text" autocomplete="off" />
+            </label>
+          </div>
+          <p class="ad-hint">
+            В кабинете ЮKassa → HTTP-уведомления укажите событие <code>payment.succeeded</code>
+            и URL: <code id="pay-webhook"></code>
+          </p>
+          <div class="ad-row">
+            <button class="ad-btn ad-btn--accent" id="save-payment" type="button">Сохранить</button>
+            <span class="ad-hint" id="pay-status"></span>
+          </div>
+        </section>
+
+        <section class="ad-panel">
           <div class="ad-panel__head">
             <h2 class="ad-panel__title">Фото в гайде</h2>
             <label class="ad-btn ad-btn--accent">

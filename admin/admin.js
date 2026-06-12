@@ -108,6 +108,16 @@ function fillSettings(s) {
   $('yk-status').textContent = s.yookassaConfigured
     ? 'ЮKassa подключена ✓'
     : '⚠️ Ключи ЮKassa не заданы — оплата не создаётся';
+  // Платёжная система
+  $('pay-shop').value = s.shopId || '';
+  $('pay-secret').value = '';
+  $('pay-secret').placeholder = s.secretKeySet
+    ? '•••• ключ задан — введите новый, чтобы заменить'
+    : 'секретный ключ';
+  $('pay-vat').value = String(s.vatCode || 1);
+  $('pay-return').value = s.returnUrl || '';
+  $('pay-webhook').textContent = s.webhookUrl || '';
+  $('pay-status').textContent = s.yookassaConfigured ? 'Подключено ✓' : 'Ключи не заданы';
 }
 
 async function loadOverview() {
@@ -259,6 +269,26 @@ $('save-settings').addEventListener('click', async (e) => {
   if (ok) {
     fillSettings(data);
     flash('Настройки сохранены');
+  } else {
+    flash(data.error || 'Не удалось сохранить', 'err');
+  }
+});
+
+$('save-payment').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  const body = {
+    shopId: $('pay-shop').value.trim(),
+    vatCode: Number($('pay-vat').value),
+    returnUrl: $('pay-return').value.trim(),
+  };
+  const secret = $('pay-secret').value.trim();
+  if (secret) body.secretKey = secret;
+  const { ok, data } = await api('/settings', { method: 'POST', body });
+  btn.disabled = false;
+  if (ok) {
+    fillSettings(data);
+    flash('Реквизиты платёжной системы сохранены');
   } else {
     flash(data.error || 'Не удалось сохранить', 'err');
   }

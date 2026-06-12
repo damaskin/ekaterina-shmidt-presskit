@@ -13,6 +13,10 @@ export const SETTING_KEYS = {
   salesEnabled: 'guide_sales_enabled',
   requireEmail: 'guide_require_email',
   body: 'guide_body',
+  shopId: 'yookassa_shop_id',
+  secretKey: 'yookassa_secret_key',
+  vatCode: 'guide_vat_code',
+  returnUrl: 'guide_return_url',
 };
 
 export function getGuidePriceRub(db, env) {
@@ -24,6 +28,29 @@ export function getGuidePriceRub(db, env) {
 export function isSalesEnabled(db) {
   if (!db) return true;
   return getSetting(db, SETTING_KEYS.salesEnabled) !== '0';
+}
+
+/* ── Реквизиты ЮKassa (БД перекрывает env) ──────────── */
+
+export function getYookassaShopId(db, env) {
+  return ((db && getSetting(db, SETTING_KEYS.shopId)) || env?.YOOKASSA_SHOP_ID || '').trim();
+}
+
+export function getYookassaSecretKey(db, env) {
+  return ((db && getSetting(db, SETTING_KEYS.secretKey)) || env?.YOOKASSA_SECRET_KEY || '').trim();
+}
+
+export function getGuideVatCode(db, env) {
+  const value = Number((db && getSetting(db, SETTING_KEYS.vatCode)) ?? env?.GUIDE_VAT_CODE ?? 1);
+  return Number.isFinite(value) && value >= 1 && value <= 6 ? value : 1;
+}
+
+export function getGuideReturnUrl(db, env) {
+  return (
+    (db && getSetting(db, SETTING_KEYS.returnUrl)) ||
+    env?.GUIDE_RETURN_URL ||
+    'https://shmidt01.ru/guide/?paid=1'
+  );
 }
 
 export function guideRequiresEmail(db, env) {

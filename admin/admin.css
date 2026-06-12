@@ -502,7 +502,7 @@ body.admin-body {
 
 .ad-media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0.75rem;
 }
 
@@ -523,12 +523,15 @@ body.admin-body {
 
 .ad-media-item__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.3rem;
   padding: 0.4rem;
 }
 
 .ad-media-item__actions .ad-btn {
-  flex: 1;
+  flex: 1 1 auto;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
 }
 
 @media (max-width: 560px) {
