@@ -49,7 +49,37 @@ function showLogin() {
 function showApp() {
   $('login').hidden = true;
   $('app').hidden = false;
+  let saved = 'overview';
+  try {
+    saved = localStorage.getItem('admin-tab') || 'overview';
+  } catch {
+    /* приватный режим */
+  }
+  showTab(saved);
 }
+
+/* ── Табы ──────────────────────────────────────────── */
+
+function showTab(name) {
+  const known = [...document.querySelectorAll('.ad-tab-panel')].map((p) => p.dataset.panel);
+  const tab = known.includes(name) ? name : 'overview';
+  document.querySelectorAll('.ad-tab-panel').forEach((p) => {
+    p.hidden = p.dataset.panel !== tab;
+  });
+  document.querySelectorAll('.ad-tab-btn').forEach((b) => {
+    b.classList.toggle('ad-tab-btn--active', b.dataset.tab === tab);
+  });
+  try {
+    localStorage.setItem('admin-tab', tab);
+  } catch {
+    /* приватный режим */
+  }
+  if (tab === 'users') loadUsers();
+}
+
+document.querySelectorAll('.ad-tab-btn').forEach((btn) => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
 
 /* ── Загрузка данных ───────────────────────────────── */
 
@@ -129,6 +159,58 @@ async function loadPurchases() {
   const { ok, data } = await api(`/purchases${status ? `?status=${status}` : ''}`);
   if (ok) renderPurchases(data.purchases);
 }
+
+/* ── Пользователи ──────────────────────────────────── */
+
+let usersCache = [];
+
+function userName(u) {
+  const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim();
+  if (name) return u.username ? `${name} (@${u.username})` : name;
+  return u.username ? `@${u.username}` : '—';
+}
+
+function renderUsers() {
+  const q = ($('user-filter').value || '').trim().toLowerCase();
+  const rows = usersCache.filter(
+    (u) =>
+      !q ||
+      String(u.chat_id).includes(q) ||
+      userName(u).toLowerCase().includes(q) ||
+      String(u.username || '').toLowerCase().includes(q),
+  );
+  $('users-total').textContent = `(${q ? `${rows.length} из ${usersCache.length}` : usersCache.length})`;
+  const tbody = $('users-list');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="ad-empty">Нет пользователей</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows
+    .map((u) => {
+      const role = u.is_owner ? 'владелец' : u.is_admin ? 'админ' : 'пользователь';
+      const status = u.is_blocked
+        ? '<span class="ad-badge ad-badge--canceled">заблокировал</span>'
+        : '<span class="ad-badge ad-badge--delivered">активен</span>';
+      return `<tr>
+        <td><code>${u.chat_id}</code></td>
+        <td>${escapeHtml(userName(u))}</td>
+        <td>${role}</td>
+        <td>${status}</td>
+        <td>${u.last_seen_at || u.registered_at || '—'}</td>
+      </tr>`;
+    })
+    .join('');
+}
+
+async function loadUsers() {
+  const { ok, data } = await api('/users');
+  if (!ok) return;
+  usersCache = data.users || [];
+  renderUsers();
+}
+
+$('user-filter').addEventListener('input', renderUsers);
+$('users-refresh').addEventListener('click', loadUsers);
 
 async function loadAll() {
   await Promise.all([loadOverview(), loadGuide(), loadPurchases()]);

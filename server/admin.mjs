@@ -7,6 +7,7 @@ import {
   audienceCounts,
   getActivePurchase,
   getSetting,
+  listUsersForAdmin,
   markPurchaseDelivered,
   purchaseStats,
   queryPurchases,
@@ -136,6 +137,10 @@ export async function handleAdmin(env, req, path, readJson) {
 
   if (route === '/admin/audience' && method === 'GET') {
     return { status: 200, body: { ...audienceCounts(env.database), broadcasting: isBroadcasting() } };
+  }
+
+  if (route === '/admin/users' && method === 'GET') {
+    return { status: 200, body: { users: listUsersForAdmin(env.database, 500) } };
   }
 
   if (route === '/admin/broadcast' && method === 'POST') {

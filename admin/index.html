@@ -45,103 +45,145 @@
 
       <p class="ad-msg" id="msg" hidden></p>
 
-      <!-- Статистика -->
-      <section class="ad-cards" id="cards"></section>
+      <nav class="ad-tabs" id="tabs">
+        <button class="ad-tab-btn" type="button" data-tab="overview">Обзор</button>
+        <button class="ad-tab-btn" type="button" data-tab="users">Пользователи</button>
+        <button class="ad-tab-btn" type="button" data-tab="purchases">Покупки</button>
+        <button class="ad-tab-btn" type="button" data-tab="guide">Гайд</button>
+        <button class="ad-tab-btn" type="button" data-tab="broadcast">Рассылка</button>
+      </nav>
 
-      <!-- Настройки -->
-      <section class="ad-panel">
-        <h2 class="ad-panel__title">Настройки продажи</h2>
-        <div class="ad-grid">
-          <label class="ad-field">
-            <span class="ad-field__label">Цена, ₽</span>
-            <input class="ad-input" id="set-price" type="number" min="1" step="1" />
-          </label>
-          <label class="ad-check">
-            <input type="checkbox" id="set-sales" />
-            <span>Продажа включена</span>
-          </label>
-          <label class="ad-check">
-            <input type="checkbox" id="set-email" />
-            <span>Спрашивать email (чек 54-ФЗ)</span>
-          </label>
-        </div>
-        <div class="ad-row">
-          <button class="ad-btn ad-btn--accent" id="save-settings" type="button">Сохранить</button>
-          <span class="ad-hint" id="yk-status"></span>
-        </div>
-      </section>
+      <!-- ── Обзор ── -->
+      <div class="ad-tab-panel" data-panel="overview">
+        <section class="ad-cards" id="cards"></section>
+      </div>
 
-      <!-- Редактор текста гайда -->
-      <section class="ad-panel">
-        <h2 class="ad-panel__title">Текст гайда</h2>
-        <div class="ad-toolbar" data-editor="guide-body">
-          <button type="button" class="ad-chip" data-insert="block" title="Новое сообщение (разделитель ---)">--- Новый блок</button>
-          <button type="button" class="ad-chip" data-wrap="b" title="Жирный"><b>B</b></button>
-          <button type="button" class="ad-chip" data-wrap="i" title="Курсив"><i>I</i></button>
-          <button type="button" class="ad-chip" data-link title="Ссылка">🔗 Ссылка</button>
-          <span class="ad-hint">Блоки — отдельные сообщения. Лимит блока 4096 символов.</span>
-        </div>
-        <textarea class="ad-textarea ad-textarea--tall" id="guide-body" spellcheck="false"></textarea>
-        <div class="ad-row">
-          <button class="ad-btn ad-btn--accent" id="save-guide" type="button">Сохранить текст</button>
-          <span class="ad-hint" id="guide-info"></span>
-        </div>
-        <div class="ad-row ad-row--test">
-          <button class="ad-btn ad-btn--accent" data-send-to="961661753" type="button">Отправить Кате</button>
-          <button class="ad-btn ad-btn--accent" data-send-to="210311255" type="button">Отправить Ване</button>
-        </div>
-        <div class="ad-row ad-row--test">
-          <input class="ad-input ad-input--sm" id="test-chat" type="text" placeholder="другой chat_id" />
-          <button class="ad-btn ad-btn--ghost" id="test-send" type="button">Тест-отправка</button>
-        </div>
-        <p class="ad-hint">Кнопки отправляют сохранённый текст гайда. Получатель должен был хотя бы раз написать боту.</p>
-      </section>
-
-      <!-- Рассылка -->
-      <section class="ad-panel">
-        <h2 class="ad-panel__title">Рассылка</h2>
-        <p class="ad-hint">
-          Сообщение получат все, кто писал боту и не заблокировал его
-          (<span id="audience-count">…</span>). Отправляется как обычный текст.
-          Итог придёт вам в Telegram.
-        </p>
-        <textarea class="ad-textarea ad-textarea--sm" id="broadcast-text" spellcheck="true" placeholder="Текст рассылки…"></textarea>
-        <div class="ad-row">
-          <button class="ad-btn ad-btn--accent" id="broadcast-send" type="button">Отправить всем</button>
-        </div>
-      </section>
-
-      <!-- Покупки -->
-      <section class="ad-panel">
-        <div class="ad-panel__head">
-          <h2 class="ad-panel__title">Покупки</h2>
-          <div class="ad-row">
-            <select class="ad-input ad-input--sm" id="filter-status">
-              <option value="">Все статусы</option>
-              <option value="awaiting_email">Ждёт email</option>
-              <option value="pending">Ждёт оплату</option>
-              <option value="paid">Оплачено</option>
-              <option value="delivered">Доставлено</option>
-            </select>
-            <button class="ad-btn ad-btn--ghost" id="refresh" type="button">Обновить</button>
+      <!-- ── Пользователи ── -->
+      <div class="ad-tab-panel" data-panel="users" hidden>
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <h2 class="ad-panel__title">Пользователи <span class="ad-count" id="users-total"></span></h2>
+            <div class="ad-row">
+              <input class="ad-input ad-input--sm" id="user-filter" type="search" placeholder="поиск по имени / id" />
+              <button class="ad-btn ad-btn--ghost" id="users-refresh" type="button">Обновить</button>
+            </div>
           </div>
-        </div>
-        <div class="ad-table-wrap">
-          <table class="ad-table">
-            <thead>
-              <tr>
-                <th>chat_id</th>
-                <th>Статус</th>
-                <th>Сумма</th>
-                <th>Email</th>
-                <th>Оплата</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="purchases"></tbody>
-          </table>
-        </div>
-      </section>
+          <div class="ad-table-wrap">
+            <table class="ad-table">
+              <thead>
+                <tr>
+                  <th>chat_id</th>
+                  <th>Имя</th>
+                  <th>Роль</th>
+                  <th>Статус</th>
+                  <th>Последний визит</th>
+                </tr>
+              </thead>
+              <tbody id="users-list"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── Покупки ── -->
+      <div class="ad-tab-panel" data-panel="purchases" hidden>
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <h2 class="ad-panel__title">Покупки</h2>
+            <div class="ad-row">
+              <select class="ad-input ad-input--sm" id="filter-status">
+                <option value="">Все статусы</option>
+                <option value="awaiting_email">Ждёт email</option>
+                <option value="pending">Ждёт оплату</option>
+                <option value="paid">Оплачено</option>
+                <option value="delivered">Доставлено</option>
+              </select>
+              <button class="ad-btn ad-btn--ghost" id="refresh" type="button">Обновить</button>
+            </div>
+          </div>
+          <div class="ad-table-wrap">
+            <table class="ad-table">
+              <thead>
+                <tr>
+                  <th>chat_id</th>
+                  <th>Статус</th>
+                  <th>Сумма</th>
+                  <th>Email</th>
+                  <th>Оплата</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="purchases"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── Гайд: настройки + текст ── -->
+      <div class="ad-tab-panel" data-panel="guide" hidden>
+        <section class="ad-panel">
+          <h2 class="ad-panel__title">Настройки продажи</h2>
+          <div class="ad-grid">
+            <label class="ad-field">
+              <span class="ad-field__label">Цена, ₽</span>
+              <input class="ad-input" id="set-price" type="number" min="1" step="1" />
+            </label>
+            <label class="ad-check">
+              <input type="checkbox" id="set-sales" />
+              <span>Продажа включена</span>
+            </label>
+            <label class="ad-check">
+              <input type="checkbox" id="set-email" />
+              <span>Спрашивать email (чек 54-ФЗ)</span>
+            </label>
+          </div>
+          <div class="ad-row">
+            <button class="ad-btn ad-btn--accent" id="save-settings" type="button">Сохранить</button>
+            <span class="ad-hint" id="yk-status"></span>
+          </div>
+        </section>
+
+        <section class="ad-panel">
+          <h2 class="ad-panel__title">Текст гайда</h2>
+          <div class="ad-toolbar" data-editor="guide-body">
+            <button type="button" class="ad-chip" data-insert="block" title="Новое сообщение (разделитель ---)">--- Новый блок</button>
+            <button type="button" class="ad-chip" data-wrap="b" title="Жирный"><b>B</b></button>
+            <button type="button" class="ad-chip" data-wrap="i" title="Курсив"><i>I</i></button>
+            <button type="button" class="ad-chip" data-link title="Ссылка">🔗 Ссылка</button>
+            <span class="ad-hint">Блоки — отдельные сообщения. Лимит блока 4096 символов.</span>
+          </div>
+          <textarea class="ad-textarea ad-textarea--tall" id="guide-body" spellcheck="false"></textarea>
+          <div class="ad-row">
+            <button class="ad-btn ad-btn--accent" id="save-guide" type="button">Сохранить текст</button>
+            <span class="ad-hint" id="guide-info"></span>
+          </div>
+          <div class="ad-row ad-row--test">
+            <button class="ad-btn ad-btn--accent" data-send-to="961661753" type="button">Отправить Кате</button>
+            <button class="ad-btn ad-btn--accent" data-send-to="210311255" type="button">Отправить Ване</button>
+          </div>
+          <div class="ad-row ad-row--test">
+            <input class="ad-input ad-input--sm" id="test-chat" type="text" placeholder="другой chat_id" />
+            <button class="ad-btn ad-btn--ghost" id="test-send" type="button">Тест-отправка</button>
+          </div>
+          <p class="ad-hint">Кнопки отправляют сохранённый текст гайда. Получатель должен был хотя бы раз написать боту.</p>
+        </section>
+      </div>
+
+      <!-- ── Рассылка ── -->
+      <div class="ad-tab-panel" data-panel="broadcast" hidden>
+        <section class="ad-panel">
+          <h2 class="ad-panel__title">Рассылка</h2>
+          <p class="ad-hint">
+            Сообщение получат все, кто писал боту и не заблокировал его
+            (<span id="audience-count">…</span>). Отправляется как обычный текст.
+            Итог придёт вам в Telegram.
+          </p>
+          <textarea class="ad-textarea ad-textarea--sm" id="broadcast-text" spellcheck="true" placeholder="Текст рассылки…"></textarea>
+          <div class="ad-row">
+            <button class="ad-btn ad-btn--accent" id="broadcast-send" type="button">Отправить всем</button>
+          </div>
+        </section>
+      </div>
     </main>
 
     <script type="module" src="./admin.js"></script>

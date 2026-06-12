@@ -113,10 +113,20 @@ export function getUser(database, chatId) {
 export function listUsers(database) {
   return database
     .prepare(
-      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, registered_at, last_seen_at
+      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, is_blocked, registered_at, last_seen_at
        FROM users ORDER BY registered_at ASC`,
     )
     .all();
+}
+
+/** Пользователи для админки: новые сверху, с лимитом. */
+export function listUsersForAdmin(database, limit = 500) {
+  return database
+    .prepare(
+      `SELECT chat_id, username, first_name, last_name, is_admin, is_owner, is_blocked, registered_at, last_seen_at
+       FROM users ORDER BY COALESCE(last_seen_at, registered_at) DESC LIMIT ?`,
+    )
+    .all(limit);
 }
 
 /* ── Аудитория для рассылок ─────────────────────────── */
