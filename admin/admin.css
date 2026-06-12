@@ -50,8 +50,9 @@ body.admin-body {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.82rem;
   line-height: 1.6;
-  white-space: pre;
-  overflow-wrap: normal;
+  /* Перенос длинных строк по ширине поля, без горизонтального скролла */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
   tab-size: 2;
 }
 
