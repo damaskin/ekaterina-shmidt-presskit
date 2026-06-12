@@ -535,4 +535,69 @@ body.admin-body {
   .ad-header__title {
     font-size: 1.3rem;
   }
+
+  /* Таблицы → карточки: каждая строка отдельной карточкой, без горизонтального скролла */
+  .ad-table-wrap {
+    overflow-x: visible;
+  }
+
+  .ad-table,
+  .ad-table tbody,
+  .ad-table tr,
+  .ad-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .ad-table thead {
+    display: none;
+  }
+
+  .ad-table tr {
+    margin-bottom: 0.7rem;
+    padding: 0.3rem 0.2rem;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 0.8rem;
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .ad-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0.85rem;
+    border: 0;
+    text-align: right;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .ad-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    text-align: left;
+  }
+
+  .ad-table td.ad-td-action {
+    padding-top: 0.6rem;
+  }
+
+  .ad-table td.ad-td-action::before {
+    display: none;
+  }
+
+  .ad-table td.ad-td-action .ad-btn {
+    width: 100%;
+  }
+
+  .ad-table .ad-empty {
+    text-align: center;
+  }
 }

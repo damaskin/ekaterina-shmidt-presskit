@@ -144,12 +144,12 @@ function renderPurchases(rows) {
       const paidAt = p.paid_at || '—';
       const amount = p.amount ? `${p.amount} ${p.currency}` : '—';
       return `<tr>
-        <td><code>${p.chat_id}</code></td>
-        <td><span class="ad-badge ad-badge--${p.status}">${label}</span></td>
-        <td>${amount}</td>
-        <td>${escapeHtml(p.email) || '—'}</td>
-        <td>${paidAt}</td>
-        <td><button class="ad-btn ad-btn--ghost ad-btn--mini" data-resend="${p.chat_id}">Выслать</button></td>
+        <td data-label="chat_id"><code>${p.chat_id}</code></td>
+        <td data-label="Статус"><span class="ad-badge ad-badge--${p.status}">${label}</span></td>
+        <td data-label="Сумма">${amount}</td>
+        <td data-label="Email">${escapeHtml(p.email) || '—'}</td>
+        <td data-label="Оплата">${paidAt}</td>
+        <td class="ad-td-action"><button class="ad-btn ad-btn--ghost ad-btn--mini" data-resend="${p.chat_id}">Выслать</button></td>
       </tr>`;
     })
     .join('');
@@ -193,11 +193,11 @@ function renderUsers() {
         ? '<span class="ad-badge ad-badge--canceled">заблокировал</span>'
         : '<span class="ad-badge ad-badge--delivered">активен</span>';
       return `<tr>
-        <td><code>${u.chat_id}</code></td>
-        <td>${escapeHtml(userName(u))}</td>
-        <td>${role}</td>
-        <td>${status}</td>
-        <td>${u.last_seen_at || u.registered_at || '—'}</td>
+        <td data-label="chat_id"><code>${u.chat_id}</code></td>
+        <td data-label="Имя">${escapeHtml(userName(u))}</td>
+        <td data-label="Роль">${role}</td>
+        <td data-label="Статус">${status}</td>
+        <td data-label="Визит">${u.last_seen_at || u.registered_at || '—'}</td>
       </tr>`;
     })
     .join('');
