@@ -194,6 +194,41 @@ $('save-guide').addEventListener('click', async (e) => {
   }
 });
 
+/* Тулбар редактора: вставка разделителя блоков и Telegram-HTML тегов.
+   Если есть выделение — оборачиваем его, иначе вставляем с подсказкой. */
+function applyEditorAction(textarea, btn) {
+  const start = textarea.selectionStart ?? textarea.value.length;
+  const end = textarea.selectionEnd ?? textarea.value.length;
+  let body = textarea.value.slice(start, end);
+  let before = '';
+  let after = '';
+
+  if (btn.dataset.insert === 'block') {
+    before = '\n---\n';
+    body = '';
+  } else if (btn.dataset.wrap) {
+    const tag = btn.dataset.wrap;
+    before = `<${tag}>`;
+    after = `</${tag}>`;
+    if (!body) body = tag === 'b' ? 'жирный текст' : 'курсив';
+  } else if ('link' in btn.dataset) {
+    before = '<a href="https://">';
+    after = '</a>';
+    if (!body) body = 'текст ссылки';
+  }
+
+  textarea.setRangeText(before + body + after, start, end, 'end');
+  textarea.focus();
+}
+
+document.querySelectorAll('.ad-toolbar').forEach((toolbar) => {
+  const textarea = $(toolbar.dataset.editor);
+  if (!textarea) return;
+  toolbar.querySelectorAll('.ad-chip').forEach((btn) => {
+    btn.addEventListener('click', () => applyEditorAction(textarea, btn));
+  });
+});
+
 async function sendGuideTo(chatId, btn, who) {
   btn.disabled = true;
   const { ok, data } = await api('/test-send', { method: 'POST', body: { chat_id: Number(chatId) } });

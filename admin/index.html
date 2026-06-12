@@ -74,12 +74,14 @@
       <!-- Редактор текста гайда -->
       <section class="ad-panel">
         <h2 class="ad-panel__title">Текст гайда</h2>
-        <p class="ad-hint">
-          Блоки (отдельные сообщения) разделяйте строкой <code>---</code>. Поддерживается
-          Telegram-HTML: <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;a&gt;</code>.
-          Лимит блока — 4096 символов.
-        </p>
-        <textarea class="ad-textarea" id="guide-body" spellcheck="false"></textarea>
+        <div class="ad-toolbar" data-editor="guide-body">
+          <button type="button" class="ad-chip" data-insert="block" title="Новое сообщение (разделитель ---)">--- Новый блок</button>
+          <button type="button" class="ad-chip" data-wrap="b" title="Жирный"><b>B</b></button>
+          <button type="button" class="ad-chip" data-wrap="i" title="Курсив"><i>I</i></button>
+          <button type="button" class="ad-chip" data-link title="Ссылка">🔗 Ссылка</button>
+          <span class="ad-hint">Блоки — отдельные сообщения. Лимит блока 4096 символов.</span>
+        </div>
+        <textarea class="ad-textarea ad-textarea--tall" id="guide-body" spellcheck="false"></textarea>
         <div class="ad-row">
           <button class="ad-btn ad-btn--accent" id="save-guide" type="button">Сохранить текст</button>
           <span class="ad-hint" id="guide-info"></span>

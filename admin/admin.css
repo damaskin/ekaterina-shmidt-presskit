@@ -63,6 +63,48 @@ body.admin-body {
   overflow-wrap: break-word;
 }
 
+.ad-textarea--tall {
+  min-height: clamp(360px, 64vh, 760px);
+}
+
+/* ── Тулбар редактора ──────────────────────────────── */
+
+.ad-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ad-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 0.06);
+  color: var(--color-text-on-dark);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ad-chip:hover {
+  border-color: rgb(255 45 138 / 0.55);
+  background: rgb(255 45 138 / 0.12);
+}
+
+.ad-chip:active {
+  transform: translateY(1px);
+}
+
+.ad-toolbar .ad-hint {
+  margin-left: 0.35rem;
+}
+
 .ad-btn {
   display: inline-flex;
   align-items: center;
