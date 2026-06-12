@@ -155,7 +155,7 @@ async function createAndSendInvoice(env, chatId, purchaseId, email) {
 const PHOTO_BLOCK_RE = /^\[\[photo:([a-z0-9]+)\]\]\s*([\s\S]*)$/i;
 const TG_CAPTION_LIMIT = 1024;
 
-/** Доставка фото-блока. Возвращает 'sent' | 'skip' (нет файла) | 'fail'. */
+/** Доставка фото-блока. Возвращает 'sent' | 'skip' (нет файла/Telegram отверг) | 'blocked' (403). */
 async function deliverPhotoBlock(env, chatId, mediaId, caption) {
   const media = getMedia(env.database, mediaId);
   if (!media) return 'skip'; // фото удалили — пропускаем, не валим весь гайд
@@ -182,7 +182,11 @@ async function deliverPhotoBlock(env, chatId, mediaId, caption) {
       if (fileId) setMediaFileId(env.database, mediaId, fileId);
     }
   }
-  if (!res?.ok) return 'fail';
+  if (!res?.ok) {
+    if (res?.error_code === 403) return 'blocked'; // получатель заблокировал бота
+    console.error('guide photo rejected by Telegram', mediaId, res?.error_code, res?.description);
+    return 'skip'; // слишком большое/битое фото — пропускаем, гайд не валим
+  }
 
   // Подпись длиннее лимита Telegram — досылаем отдельным защищённым сообщением.
   if (longCaption) {
@@ -196,38 +200,57 @@ async function deliverPhotoBlock(env, chatId, mediaId, caption) {
 
 export async function deliverGuide(env, chatId) {
   let delivered = 0;
+  let blocked = false;
+
   for (const chunk of getGuideChunks(env.database)) {
     const photo = chunk.match(PHOTO_BLOCK_RE);
     if (photo) {
       const outcome = await deliverPhotoBlock(env, chatId, photo[1], photo[2].trim());
       if (outcome === 'sent') delivered += 1;
-      else if (outcome === 'fail') {
-        console.error('guide photo delivery failed', photo[1]);
-        return { ok: false, delivered };
+      else if (outcome === 'blocked') {
+        blocked = true;
+        break;
       }
-      // 'skip' (удалённое фото) — просто идём дальше
+      // 'skip' (удалённое/битое фото) — идём дальше, не прерывая весь гайд
       continue;
     }
 
-    const res = await sendTelegramMessage(env, chatId, chunk, {
+    let res = await sendTelegramMessage(env, chatId, chunk, {
       protect_content: true,
       disable_web_page_preview: true,
     });
-    if (res?.ok) delivered += 1;
-    else {
-      console.error('guide chunk delivery failed', res?.description);
-      return { ok: false, delivered };
+    // Telegram не смог разобрать HTML (незакрытый тег, голые < или &) → шлём
+    // блок обычным текстом, чтобы он не потерялся и не оборвал доставку.
+    if (!res?.ok && res?.error_code === 400) {
+      console.error('guide chunk HTML parse failed, retry as plain text', res?.description);
+      res = await sendTelegramMessage(env, chatId, chunk, {
+        protect_content: true,
+        disable_web_page_preview: true,
+        parse_mode: undefined,
+      });
+    }
+
+    if (res?.ok) {
+      delivered += 1;
+    } else if (res?.error_code === 403) {
+      blocked = true; // получатель заблокировал бота — дальше слать некому
+      break;
+    } else {
+      // прочую ошибку конкретного блока логируем и продолжаем, а не валим весь гайд
+      console.error('guide chunk delivery failed', res?.error_code, res?.description);
     }
   }
 
-  await sendTelegramMessage(
-    env,
-    chatId,
-    '✅ Это весь гайд. Спасибо за покупку — и удачи на кастинге! По вопросам пишите @shmidt01.',
-    { protect_content: true },
-  );
+  if (delivered > 0 && !blocked) {
+    await sendTelegramMessage(
+      env,
+      chatId,
+      '✅ Это весь гайд. Спасибо за покупку — и удачи на кастинге! По вопросам пишите @shmidt01.',
+      { protect_content: true },
+    );
+  }
 
-  return { ok: true, delivered };
+  return { ok: delivered > 0 && !blocked, delivered };
 }
 
 /** Уведомить админов/владельца о продаже. */

@@ -5,8 +5,8 @@
 import { getSetting } from './db.mjs';
 import { GUIDE_CHUNKS } from './guide-content.mjs';
 
-// Разделитель блоков (сообщений) в редактируемом теле гайда: строка из 3+ дефисов.
-const CHUNK_DELIM = /\n-{3,}\n/;
+// Разделитель блоков — отдельная строка из 3+ дефисов (возможны пробелы).
+const SEPARATOR_LINE = /^\s*-{3,}\s*$/;
 
 export const SETTING_KEYS = {
   price: 'guide_price_rub',
@@ -38,17 +38,27 @@ export function getGuideBody(db) {
   return stored && stored.trim() ? stored : GUIDE_CHUNKS.join('\n---\n');
 }
 
-/** Блоки для доставки (по одному сообщению на блок). */
-export function getGuideChunks(db) {
-  return getGuideBody(db)
-    .split(CHUNK_DELIM)
-    .map((s) => s.trim())
-    .filter(Boolean);
+/**
+ * Разбивает тело на блоки по строке-разделителю `---`.
+ * Построчно (а не по regex с \n до и после), поэтому корректно работает
+ * с разделителем в начале/конце файла и с переводами строк Windows (CRLF).
+ */
+export function splitGuideBody(body) {
+  const blocks = [];
+  let current = [];
+  for (const line of String(body).split(/\r?\n/)) {
+    if (SEPARATOR_LINE.test(line)) {
+      blocks.push(current.join('\n').trim());
+      current = [];
+    } else {
+      current.push(line);
+    }
+  }
+  blocks.push(current.join('\n').trim());
+  return blocks.filter(Boolean);
 }
 
-export function splitGuideBody(body) {
-  return String(body)
-    .split(CHUNK_DELIM)
-    .map((s) => s.trim())
-    .filter(Boolean);
+/** Блоки для доставки (по одному сообщению на блок). */
+export function getGuideChunks(db) {
+  return splitGuideBody(getGuideBody(db));
 }
