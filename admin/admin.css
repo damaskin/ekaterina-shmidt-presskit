@@ -37,6 +37,13 @@ body.admin-body {
   min-width: 12rem;
 }
 
+/* Нативный список <option> рисуется фоном ОС (обычно белым) — задаём тёмный текст,
+   иначе белый текст на белом фоне нечитаем. */
+.ad-input option {
+  color: #141014;
+  background: #f0edf2;
+}
+
 .ad-input:focus,
 .ad-textarea:focus {
   outline: none;
