@@ -11,6 +11,7 @@
     "assets:portrait-desktop": "node scripts/generate-portrait-desktop.mjs",
     "assets:logo-transparent": "node scripts/remove-logo-background.mjs",
     "assets:logo-svg": "node scripts/trace-logo-svg.mjs",
+    "assets:favicon": "node scripts/generate-favicon.mjs",
     "deploy:booking": "wrangler deploy",
     "worker:dev": "wrangler dev",
     "d1:create": "wrangler d1 create ekaterina-shmidt-booking",
