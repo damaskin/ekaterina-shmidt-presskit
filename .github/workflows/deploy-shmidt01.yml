@@ -34,7 +34,7 @@ jobs:
         run: npm run build
         env:
           VITE_BOOKING_API_URL: ${{ env.VITE_BOOKING_API_URL != '' && env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking' }}
-          VITE_GUIDE_BOT_USERNAME: ${{ env.VITE_GUIDE_BOT_USERNAME != '' && env.VITE_GUIDE_BOT_USERNAME || 'shmidt01' }}
+          VITE_GUIDE_BOT_USERNAME: ${{ env.VITE_GUIDE_BOT_USERNAME != '' && env.VITE_GUIDE_BOT_USERNAME || 'dj_shmidt_bot' }}
           VITE_SITE_URL: https://shmidt01.ru
 
       - name: Configure SSH
