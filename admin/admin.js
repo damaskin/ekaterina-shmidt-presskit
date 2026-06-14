@@ -426,6 +426,19 @@ async function sendGuideTo(chatId, btn, who) {
   );
 }
 
+$('test-payment').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  const { ok, data } = await api('/test-payment', { method: 'POST' });
+  btn.disabled = false;
+  if (ok && data.confirmationUrl) {
+    window.open(data.confirmationUrl, '_blank');
+    flash('Страница оплаты открыта в новой вкладке');
+  } else {
+    flash(data.error || 'Не удалось создать тестовый платёж', 'err');
+  }
+});
+
 $('test-send').addEventListener('click', (e) => {
   const chatId = $('test-chat').value.trim();
   if (!chatId) return flash('Укажите chat_id', 'err');

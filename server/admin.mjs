@@ -42,6 +42,7 @@ import {
   safeEqual,
   verifyToken,
 } from './admin-auth.mjs';
+import { createPayment, isYookassaConfigured } from './yookassa.mjs';
 
 const TG_LIMIT = 4096;
 
@@ -325,6 +326,23 @@ export async function handleAdmin(env, req, path, readJson) {
       }
       setSetting(env.database, SETTING_KEYS.body, body);
       return { status: 200, body: { ok: true, chunkCount: chunks.length, lengths: chunks.map((c) => c.length) } };
+    }
+  }
+
+  if (route === '/admin/test-payment' && method === 'POST') {
+    if (!isYookassaConfigured(env)) {
+      return { status: 400, body: { error: 'ЮKassa не настроена: задайте shopId и секретный ключ' } };
+    }
+    try {
+      const payment = await createPayment(env, {
+        amountValue: 10,
+        description: 'Тестовый платёж — проверка интеграции ЮKassa',
+        metadata: { test: true, source: 'admin' },
+        email: null,
+      });
+      return { status: 200, body: { ok: true, confirmationUrl: payment.confirmationUrl, id: payment.id } };
+    } catch (err) {
+      return { status: 502, body: { error: err.message || 'Не удалось создать платёж в ЮKassa' } };
     }
   }
 
