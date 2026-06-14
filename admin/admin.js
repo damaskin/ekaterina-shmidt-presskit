@@ -1,5 +1,6 @@
 import '../src/index.css';
 import './admin.css';
+import { notify } from './notify.js';
 
 const API = '/api/admin';
 
@@ -29,16 +30,9 @@ async function api(path, { method = 'GET', body } = {}) {
   return { ok: res.ok, status: res.status, data };
 }
 
-let msgTimer;
+// Все уведомления идут через переиспользуемый компонент тостов (notify.js).
 function flash(text, kind = 'ok') {
-  const el = $('msg');
-  el.textContent = text;
-  el.className = `ad-msg ad-msg--${kind}`;
-  el.hidden = false;
-  clearTimeout(msgTimer);
-  msgTimer = setTimeout(() => {
-    el.hidden = true;
-  }, 4000);
+  notify(text, kind === 'err' ? 'error' : 'success');
 }
 
 function showLogin() {
