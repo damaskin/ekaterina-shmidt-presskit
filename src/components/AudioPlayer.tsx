@@ -144,7 +144,7 @@ export default function AudioPlayer() {
       className={`audio-player${autoplayBlocked ? ' audio-player--blocked' : ''}${isPlaying ? ' audio-player--playing' : ''}`}
       aria-label={t.player.aria}
     >
-      <audio ref={audioRef} src={trackSrc} preload="auto" />
+      <audio ref={audioRef} src={trackSrc} preload="none" />
 
       <div className="audio-player__shell">
         <AudioPlayerViz
