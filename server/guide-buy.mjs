@@ -34,6 +34,41 @@ function verifyTelegramHash(botToken, data) {
   return age >= 0 && age <= AUTH_MAX_AGE_SEC;
 }
 
+/**
+ * Проверяет подпись Telegram Mini App initData (другая схема, чем у Login Widget).
+ * https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
+ * Возвращает распарсенного пользователя или null.
+ */
+function verifyTmaInitData(botToken, initData) {
+  if (typeof initData !== 'string' || !initData) return null;
+  const params = new URLSearchParams(initData);
+  const hash = params.get('hash');
+  if (!hash) return null;
+  params.delete('hash');
+
+  const checkString = [...params.entries()]
+    .map(([k, v]) => [k, v])
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([k, v]) => `${k}=${v}`)
+    .join('\n');
+
+  const secretKey = createHmac('sha256', 'WebAppData').update(botToken).digest();
+  const expected = createHmac('sha256', secretKey).update(checkString).digest('hex');
+  if (expected !== hash) return null;
+
+  const authDate = Number(params.get('auth_date'));
+  const age = Math.floor(Date.now() / 1000) - authDate;
+  if (!Number.isFinite(age) || age < 0 || age > AUTH_MAX_AGE_SEC) return null;
+
+  const userRaw = params.get('user');
+  if (!userRaw) return null;
+  try {
+    return JSON.parse(userRaw);
+  } catch {
+    return null;
+  }
+}
+
 export async function handleGuideBuy(env, body) {
   if (!env.database) {
     return { status: 503, body: { error: 'База данных недоступна' } };
@@ -48,15 +83,24 @@ export async function handleGuideBuy(env, body) {
     return { status: 503, body: { error: 'Bot not configured' } };
   }
 
-  const tgAuth = body?.tg_auth;
-  if (!tgAuth?.id || !tgAuth?.hash) {
-    return { status: 400, body: { error: 'Требуется авторизация через Telegram' } };
-  }
-  if (!verifyTelegramHash(env.TELEGRAM_BOT_TOKEN, tgAuth)) {
-    return { status: 401, body: { error: 'Неверная подпись Telegram. Попробуйте войти заново.' } };
+  let user = null;
+  if (typeof body?.tma_init_data === 'string' && body.tma_init_data) {
+    user = verifyTmaInitData(env.TELEGRAM_BOT_TOKEN, body.tma_init_data);
+    if (!user?.id) {
+      return { status: 401, body: { error: 'Неверная подпись Telegram Mini App.' } };
+    }
+  } else {
+    const tgAuth = body?.tg_auth;
+    if (!tgAuth?.id || !tgAuth?.hash) {
+      return { status: 400, body: { error: 'Требуется авторизация через Telegram' } };
+    }
+    if (!verifyTelegramHash(env.TELEGRAM_BOT_TOKEN, tgAuth)) {
+      return { status: 401, body: { error: 'Неверная подпись Telegram. Попробуйте войти заново.' } };
+    }
+    user = tgAuth;
   }
 
-  const chatId = Number(tgAuth.id);
+  const chatId = Number(user.id);
   const requireEmail = guideRequiresEmail(env.database, env);
   const email = typeof body?.email === 'string' ? body.email.trim() : null;
 
@@ -71,9 +115,9 @@ export async function handleGuideBuy(env, body) {
     env.database,
     {
       id: chatId,
-      first_name: tgAuth.first_name ?? null,
-      last_name: tgAuth.last_name ?? null,
-      username: tgAuth.username ?? null,
+      first_name: user.first_name ?? null,
+      last_name: user.last_name ?? null,
+      username: user.username ?? null,
     },
     { touchVisit: true },
   );

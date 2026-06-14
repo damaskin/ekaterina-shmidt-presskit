@@ -73,10 +73,10 @@ function applyInsets(tg) {
 }
 
 /**
- * @param {{ buyUrl?: string|null, getButtonText?: () => string }} opts
+ * @param {{ showMainButton?: boolean, onMainButtonClick?: () => void, getButtonText?: () => string }} opts
  * @returns {{ refreshText: (text: string) => void } | null}
  */
-export function setupGuideTelegram({ buyUrl, getButtonText } = {}) {
+export function setupGuideTelegram({ showMainButton, onMainButtonClick, getButtonText } = {}) {
   if (!hasTelegramHints()) return null;
   document.documentElement.classList.add('tg-webapp');
 
@@ -133,16 +133,16 @@ export function setupGuideTelegram({ buyUrl, getButtonText } = {}) {
         });
       }
 
-      // Главная кнопка «Купить» — только на продающей странице (есть buyUrl).
-      if (buyUrl && getButtonText && tg.MainButton) {
+      // Главная кнопка «Купить» — только на продающей странице.
+      // Клик открывает панель покупки прямо в Mini App (без редиректа в бота).
+      if (showMainButton && getButtonText && onMainButtonClick && tg.MainButton) {
         mainButton = tg.MainButton;
         mainButton.color = ACCENT;
         mainButton.textColor = '#ffffff';
         mainButton.setText(getButtonText());
         mainButton.show();
         mainButton.onClick(() => {
-          if (tg.openTelegramLink) tg.openTelegramLink(buyUrl);
-          else window.location.href = buyUrl;
+          onMainButtonClick();
         });
       }
     })

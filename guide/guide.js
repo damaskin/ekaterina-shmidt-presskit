@@ -61,20 +61,39 @@ applyLang(resolveInitialLang());
    В браузере: открывается панель с Telegram Login Widget + оплата на сайте. */
 const BOT_USERNAME = import.meta.env.VITE_GUIDE_BOT_USERNAME;
 const buyButtons = document.querySelectorAll('[data-buy]');
-const buyUrl = BOT_USERNAME ? `https://t.me/${BOT_USERNAME}?start=guide` : null;
 const API_BASE = (import.meta.env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking')
   .replace(/\/booking$/, '');
 
 // ─── Purchase panel ─────────────────────────────────────────
 const panel = document.getElementById('purchase-panel');
 let tgUser = null;
+let tmaInitData = null;
 let requireEmailForPurchase = true;
+
+function isInsideTelegram() {
+  return document.documentElement.classList.contains('tg-webapp');
+}
 
 function openPurchasePanel() {
   if (!panel) return;
   panel.removeAttribute('aria-hidden');
   document.body.style.overflow = 'hidden';
   tgUser = null;
+  tmaInitData = null;
+
+  const tgApp = window.Telegram?.WebApp;
+  const tmaUser = tgApp?.initDataUnsafe?.user;
+  if (isInsideTelegram() && tgApp?.initData && tmaUser?.id) {
+    tgUser = tmaUser;
+    tmaInitData = tgApp.initData;
+    const nameEl = document.getElementById('tg-user-name');
+    if (nameEl) nameEl.textContent = tmaUser.first_name || 'друг';
+    const emailWrap = document.getElementById('email-field-wrap');
+    if (emailWrap) emailWrap.hidden = !requireEmailForPurchase;
+    showPanelStep('email');
+    return;
+  }
+
   showPanelStep('tg');
   mountTelegramWidget();
 }
@@ -129,21 +148,20 @@ function mountTelegramWidget() {
 
 buyButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
-    const isTma = document.documentElement.classList.contains('tg-webapp');
-    if (isTma && buyUrl) {
-      const tgApp = window.Telegram?.WebApp;
-      if (tgApp?.openTelegramLink) tgApp.openTelegramLink(buyUrl);
-      else window.location.href = buyUrl;
-    } else {
-      openPurchasePanel();
-    }
+    openPurchasePanel();
   });
 });
 
 document.getElementById('panel-backdrop')?.addEventListener('click', closePurchasePanel);
 document.getElementById('panel-cancel')?.addEventListener('click', closePurchasePanel);
 document.getElementById('step-back')?.addEventListener('click', () => {
+  // В TMA шага авторизации нет — кнопка "Назад" просто закрывает панель.
+  if (isInsideTelegram()) {
+    closePurchasePanel();
+    return;
+  }
   tgUser = null;
+  tmaInitData = null;
   showPanelStep('tg');
   mountTelegramWidget();
 });
@@ -164,14 +182,25 @@ document.getElementById('purchase-pay-btn')?.addEventListener('click', async () 
   showPanelStep('loading');
 
   try {
+    const payload = tmaInitData
+      ? { tma_init_data: tmaInitData, email }
+      : { tg_auth: tgUser, email };
     const res = await fetch(`${API_BASE}/guide-buy`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tg_auth: tgUser, email }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.confirmationUrl) {
-      window.location.href = data.confirmationUrl;
+      const tgApp = window.Telegram?.WebApp;
+      // В TMA встроенный webview ЮKassa может не сработать — открываем во
+      // внешнем браузере; бот доставит гайд независимо от того, где платил.
+      if (isInsideTelegram() && tgApp?.openLink) {
+        tgApp.openLink(data.confirmationUrl, { try_instant_view: false });
+        closePurchasePanel();
+      } else {
+        window.location.href = data.confirmationUrl;
+      }
     } else {
       showPanelStep('email');
       showPurchaseError(data.error || 'Ошибка при создании платежа. Попробуйте позже.');
@@ -193,9 +222,11 @@ if (new URLSearchParams(window.location.search).get('paid') === '1') {
 }
 
 /* Telegram Mini App: полноэкранный режим + отступ под шапку, нативные кнопки.
-   MainButton показываем только на продающей странице (где есть кнопка покупки). */
+   MainButton показываем только на продающей странице (где есть кнопка покупки).
+   Внутри TMA она открывает ту же панель покупки (с пропуском шага авторизации). */
 telegram = setupGuideTelegram({
-  buyUrl: buyButtons.length ? buyUrl : null,
+  showMainButton: buyButtons.length > 0,
+  onMainButtonClick: openPurchasePanel,
   getButtonText: visibleBuyText,
 });
 
