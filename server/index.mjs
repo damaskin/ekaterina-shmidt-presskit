@@ -7,6 +7,7 @@ import { handleTelegramUpdate } from './bot.mjs';
 import { handleYookassaWebhook } from './payments.mjs';
 import { startTelegramPolling } from './poll.mjs';
 import { handleRegister } from './register.mjs';
+import { getGuidePriceRub, isSalesEnabled } from './settings.mjs';
 
 const PORT = Number(process.env.PORT || 3002);
 const DB_PATH = process.env.DB_PATH || '/data/booking.sqlite';
@@ -95,6 +96,21 @@ const server = createServer(async (req, res) => {
 
   if (req.method === 'GET' && (path === '/health' || path === '/api/health')) {
     json(res, 200, { ok: true }, cors);
+    return;
+  }
+
+  // Публичная цена гайда для статической страницы /guide/ (меняется в админке).
+  if (req.method === 'GET' && (path === '/guide-price' || path === '/api/guide-price')) {
+    json(
+      res,
+      200,
+      {
+        priceRub: getGuidePriceRub(env.database, env),
+        currency: 'RUB',
+        salesEnabled: isSalesEnabled(env.database),
+      },
+      cors,
+    );
     return;
   }
 

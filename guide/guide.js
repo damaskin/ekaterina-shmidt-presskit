@@ -77,6 +77,37 @@ telegram = setupGuideTelegram({
   getButtonText: visibleBuyText,
 });
 
+/* Актуальная цена приходит с сервера (меняется в админке), а в HTML —
+   лишь дефолт. Подставляем её в крупный ценник, кнопки покупки и MainButton. */
+function updatePrice(rub) {
+  const label = `${rub} ₽`;
+  document.querySelectorAll('.gp-buy__price').forEach((el) => {
+    el.textContent = label;
+  });
+  document.querySelectorAll('[data-buy]').forEach((btn) => {
+    const main = btn.closest('main[data-lang]');
+    const lang = main ? main.dataset.lang : 'ru';
+    btn.textContent = lang === 'en' ? `Buy the guide — ${label}` : `Купить гайд — ${label}`;
+  });
+  if (telegram) telegram.refreshText(visibleBuyText());
+}
+
+if (buyButtons.length) {
+  const priceUrl = (import.meta.env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking').replace(
+    /\/booking$/,
+    '/guide-price',
+  );
+  fetch(priceUrl)
+    .then((r) => r.json())
+    .then((data) => {
+      const rub = Number(data?.priceRub);
+      if (Number.isFinite(rub) && rub > 0) updatePrice(rub);
+    })
+    .catch(() => {
+      /* сеть недоступна — остаётся дефолтная цена из HTML */
+    });
+}
+
 /* Плавное появление секций при скролле — прогрессивное улучшение:
    без работающего IntersectionObserver контент просто остаётся видимым */
 const revealEls = document.querySelectorAll('.gp-reveal');
