@@ -902,3 +902,153 @@ html.gp-anim .gp-reveal:not(.is-visible) {
     break-inside: avoid-page;
   }
 }
+
+/* ── Purchase panel (slide-up sheet) ─────────────────── */
+
+.gp-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  visibility: hidden;
+  transition: visibility 0s 0.35s;
+}
+.gp-panel:not([aria-hidden='true']) {
+  visibility: visible;
+  transition: visibility 0s;
+}
+.gp-panel__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 0;
+  transition: opacity 0.3s;
+  cursor: pointer;
+}
+.gp-panel:not([aria-hidden='true']) .gp-panel__backdrop {
+  opacity: 1;
+}
+.gp-panel__sheet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: #160e20;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+.gp-panel:not([aria-hidden='true']) .gp-panel__sheet {
+  transform: translateY(0);
+}
+.gp-panel__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 4vw, 1.45rem);
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+.gp-panel__hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 1.5rem;
+  line-height: 1.55;
+}
+.gp-panel__widget {
+  display: flex;
+  justify-content: center;
+  min-height: 48px;
+  margin-bottom: 1.5rem;
+}
+.gp-panel__label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 0.4rem;
+}
+.gp-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s;
+}
+.gp-input:focus {
+  border-color: var(--color-accent, #ff2d8a);
+}
+.gp-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+.gp-panel__pay {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+.gp-panel__error {
+  font-size: 0.85rem;
+  color: #ff6b6b;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+.gp-panel__cancel {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+  display: block;
+  margin: 0 auto;
+  font-family: var(--font-body);
+}
+.gp-panel__cancel:hover {
+  color: rgba(255, 255, 255, 0.65);
+}
+.gp-panel__step--loading {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+.gp-panel__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--color-accent, #ff2d8a);
+  border-radius: 50%;
+  animation: gp-spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes gp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Баннер успешной оплаты (?paid=1) */
+.gp-paid-banner {
+  background: linear-gradient(135deg, rgba(0, 200, 100, 0.15), rgba(0, 200, 100, 0.05));
+  border: 1px solid rgba(0, 200, 100, 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: #a0ffcc;
+  line-height: 1.5;
+}

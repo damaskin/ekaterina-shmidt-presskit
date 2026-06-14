@@ -4,10 +4,11 @@ import { getDb } from './db.mjs';
 import { handleAdmin } from './admin.mjs';
 import { handleBooking } from './booking.mjs';
 import { handleTelegramUpdate } from './bot.mjs';
+import { handleGuideBuy } from './guide-buy.mjs';
 import { handleYookassaWebhook } from './payments.mjs';
 import { startTelegramPolling } from './poll.mjs';
 import { handleRegister } from './register.mjs';
-import { getGuidePriceRub, isSalesEnabled } from './settings.mjs';
+import { getGuidePriceRub, guideRequiresEmail, isSalesEnabled } from './settings.mjs';
 
 const PORT = Number(process.env.PORT || 3002);
 const DB_PATH = process.env.DB_PATH || '/data/booking.sqlite';
@@ -108,9 +109,21 @@ const server = createServer(async (req, res) => {
         priceRub: getGuidePriceRub(env.database, env),
         currency: 'RUB',
         salesEnabled: isSalesEnabled(env.database),
+        requireEmail: guideRequiresEmail(env.database, env),
       },
       cors,
     );
+    return;
+  }
+
+  if (req.method === 'POST' && (path === '/guide-buy' || path === '/api/guide-buy')) {
+    try {
+      const body = await readJson(req);
+      const result = await handleGuideBuy(env, body);
+      json(res, result.status, result.body, cors);
+    } catch {
+      json(res, 500, { error: 'Server error' }, cors);
+    }
     return;
   }
 

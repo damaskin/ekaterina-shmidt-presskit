@@ -199,19 +199,12 @@
           Это меньше, чем вы потеряете, если поедете по «левому» контракту.
         </p>
         <div class="gp-cta-row">
-          <a
-            class="btn btn--accent"
-            data-buy
-            href="https://t.me/shmidt01?text=%D0%93%D0%90%D0%99%D0%94"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Купить гайд</a
-          >
+          <button class="btn btn--accent" data-buy type="button">Купить гайд</button>
         </div>
         <p class="gp-buy__how">
-          Нажмите кнопку — бот спросит ваш <strong>email</strong> для чека и пришлёт ссылку на
-          оплату. Сразу после оплаты гайд придёт вам прямо в Telegram. Переслать или
-          скопировать его нельзя — это ваша личная копия.
+          Нажмите кнопку, войдите через Telegram и оплатите прямо на сайте. Сразу после
+          оплаты гайд придёт вам в бот — переслать или скопировать его нельзя, это ваша
+          личная копия.
         </p>
       </section>
 
@@ -372,19 +365,12 @@
           That’s less than you’d lose on one shady contract.
         </p>
         <div class="gp-cta-row">
-          <a
-            class="btn btn--accent"
-            data-buy
-            href="https://t.me/shmidt01?text=GUIDE"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Buy the guide</a
-          >
+          <button class="btn btn--accent" data-buy type="button">Buy the guide</button>
         </div>
         <p class="gp-buy__how">
-          Tap the button — the bot will ask for your <strong>email</strong> for the receipt and
-          send a payment link. Right after payment the guide arrives in your Telegram. It can’t
-          be forwarded or copied — it’s your personal copy.
+          Tap the button, sign in with Telegram and pay right on the site. Right after payment
+          the guide arrives in your bot — it can’t be forwarded or copied, it’s your personal
+          copy.
         </p>
       </section>
 
@@ -431,6 +417,52 @@
         >
       </footer>
     </main>
+    </div>
+
+    <!-- ═══════════════ PURCHASE PANEL ═══════════════ -->
+    <div class="gp-panel" id="purchase-panel" aria-hidden="true">
+      <div class="gp-panel__backdrop" id="panel-backdrop"></div>
+      <div class="gp-panel__sheet">
+        <!-- Step 1: Telegram Login Widget -->
+        <div class="gp-panel__step" id="step-tg">
+          <h2 class="gp-panel__title">Войдите через Telegram</h2>
+          <p class="gp-panel__hint">
+            Гайд придёт вам в бот <strong>@dj_shmidt_bot</strong> — нам нужно знать ваш
+            аккаунт, чтобы доставить его туда.
+          </p>
+          <div class="gp-panel__widget" id="tg-widget-mount"></div>
+          <button class="gp-panel__cancel" type="button" id="panel-cancel">Отмена</button>
+        </div>
+        <!-- Step 2: Email + Pay -->
+        <div class="gp-panel__step" id="step-email" hidden>
+          <h2 class="gp-panel__title">Привет, <span id="tg-user-name"></span>!</h2>
+          <p class="gp-panel__hint">
+            Гайд придёт в <strong>@dj_shmidt_bot</strong> сразу после оплаты.
+          </p>
+          <div id="email-field-wrap">
+            <label class="gp-panel__label" for="purchase-email">Email для чека</label>
+            <input
+              class="gp-input"
+              id="purchase-email"
+              type="email"
+              placeholder="your@email.com"
+              autocomplete="email"
+            />
+          </div>
+          <button class="btn btn--accent gp-panel__pay" id="purchase-pay-btn" type="button">
+            Оплатить
+          </button>
+          <p class="gp-panel__error" id="purchase-error" hidden></p>
+          <button class="gp-panel__cancel" type="button" id="step-back">
+            ← Войти другим аккаунтом
+          </button>
+        </div>
+        <!-- Step 3: Loading -->
+        <div class="gp-panel__step gp-panel__step--loading" id="step-loading" hidden>
+          <div class="gp-panel__spinner"></div>
+          <p class="gp-panel__hint">Создаём платёж…</p>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./guide.js"></script>

@@ -56,18 +56,140 @@ document.querySelectorAll('.gp-lang__btn').forEach((btn) => {
 
 applyLang(resolveInitialLang());
 
-/* Кнопка покупки ведёт в бота с deep-link ?start=guide.
-   Username бота берётся из VITE_GUIDE_BOT_USERNAME (запекается при сборке).
-   Если не задан — остаётся fallback-href из HTML (личка @shmidt01). */
+/* Кнопка покупки.
+   В TMA (открыт внутри Telegram): MainButton ведёт в бота через openTelegramLink.
+   В браузере: открывается панель с Telegram Login Widget + оплата на сайте. */
 const BOT_USERNAME = import.meta.env.VITE_GUIDE_BOT_USERNAME;
 const buyButtons = document.querySelectorAll('[data-buy]');
-const buyUrl = BOT_USERNAME
-  ? `https://t.me/${BOT_USERNAME}?start=guide`
-  : buyButtons[0]?.getAttribute('href') || null;
-if (BOT_USERNAME) {
-  buyButtons.forEach((a) => {
-    a.href = buyUrl;
+const buyUrl = BOT_USERNAME ? `https://t.me/${BOT_USERNAME}?start=guide` : null;
+const API_BASE = (import.meta.env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking')
+  .replace(/\/booking$/, '');
+
+// ─── Purchase panel ─────────────────────────────────────────
+const panel = document.getElementById('purchase-panel');
+let tgUser = null;
+let requireEmailForPurchase = true;
+
+function openPurchasePanel() {
+  if (!panel) return;
+  panel.removeAttribute('aria-hidden');
+  document.body.style.overflow = 'hidden';
+  tgUser = null;
+  showPanelStep('tg');
+  mountTelegramWidget();
+}
+
+function closePurchasePanel() {
+  if (!panel) return;
+  panel.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+function showPanelStep(name) {
+  ['tg', 'email', 'loading'].forEach((id) => {
+    const el = document.getElementById(`step-${id}`);
+    if (el) el.hidden = id !== name;
   });
+}
+
+function showPurchaseError(msg) {
+  const el = document.getElementById('purchase-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.hidden = false;
+}
+
+function mountTelegramWidget() {
+  const mount = document.getElementById('tg-widget-mount');
+  if (!mount) return;
+  mount.innerHTML = '';
+  if (!BOT_USERNAME) {
+    mount.innerHTML =
+      '<p style="color:rgba(255,255,255,.5);font-size:.85rem;text-align:center">Бот не настроен. Напишите @shmidt01.</p>';
+    return;
+  }
+  window.__tgAuthCb = (user) => {
+    tgUser = user;
+    const nameEl = document.getElementById('tg-user-name');
+    if (nameEl) nameEl.textContent = user.first_name || 'друг';
+    const emailWrap = document.getElementById('email-field-wrap');
+    if (emailWrap) emailWrap.hidden = !requireEmailForPurchase;
+    showPanelStep('email');
+  };
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  script.setAttribute('data-telegram-login', BOT_USERNAME);
+  script.setAttribute('data-size', 'large');
+  script.setAttribute('data-radius', '8');
+  script.setAttribute('data-request-access', 'write');
+  script.setAttribute('data-onauth', '__tgAuthCb(user)');
+  mount.appendChild(script);
+}
+
+buyButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const isTma = document.documentElement.classList.contains('tg-webapp');
+    if (isTma && buyUrl) {
+      const tgApp = window.Telegram?.WebApp;
+      if (tgApp?.openTelegramLink) tgApp.openTelegramLink(buyUrl);
+      else window.location.href = buyUrl;
+    } else {
+      openPurchasePanel();
+    }
+  });
+});
+
+document.getElementById('panel-backdrop')?.addEventListener('click', closePurchasePanel);
+document.getElementById('panel-cancel')?.addEventListener('click', closePurchasePanel);
+document.getElementById('step-back')?.addEventListener('click', () => {
+  tgUser = null;
+  showPanelStep('tg');
+  mountTelegramWidget();
+});
+
+document.getElementById('purchase-pay-btn')?.addEventListener('click', async () => {
+  const errorEl = document.getElementById('purchase-error');
+  if (errorEl) errorEl.hidden = true;
+
+  const email = requireEmailForPurchase
+    ? (document.getElementById('purchase-email')?.value?.trim() || '')
+    : null;
+
+  if (requireEmailForPurchase && !email) {
+    showPurchaseError('Введите email для чека');
+    return;
+  }
+
+  showPanelStep('loading');
+
+  try {
+    const res = await fetch(`${API_BASE}/guide-buy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tg_auth: tgUser, email }),
+    });
+    const data = await res.json();
+    if (data.confirmationUrl) {
+      window.location.href = data.confirmationUrl;
+    } else {
+      showPanelStep('email');
+      showPurchaseError(data.error || 'Ошибка при создании платежа. Попробуйте позже.');
+    }
+  } catch {
+    showPanelStep('email');
+    showPurchaseError('Нет связи с сервером. Попробуйте позже.');
+  }
+});
+
+// ?paid=1 — показываем баннер после возврата с ЮKassa
+if (new URLSearchParams(window.location.search).get('paid') === '1') {
+  const banner = document.createElement('div');
+  banner.className = 'gp-paid-banner';
+  banner.innerHTML =
+    '✅ Оплата прошла! Гайд скоро придёт в <strong>@dj_shmidt_bot</strong>. Если вы его ещё не открывали — <a href="https://t.me/dj_shmidt_bot" target="_blank" style="color:inherit">откройте сейчас</a>.';
+  const firstPage = document.querySelector('.gp-page');
+  if (firstPage) firstPage.prepend(banner);
 }
 
 /* Telegram Mini App: полноэкранный режим + отступ под шапку, нативные кнопки.
@@ -93,18 +215,21 @@ function updatePrice(rub) {
 }
 
 if (buyButtons.length) {
-  const priceUrl = (import.meta.env.VITE_BOOKING_API_URL || 'https://shmidt01.ru/api/booking').replace(
-    /\/booking$/,
-    '/guide-price',
-  );
-  fetch(priceUrl)
+  fetch(`${API_BASE}/guide-price`)
     .then((r) => r.json())
     .then((data) => {
       const rub = Number(data?.priceRub);
-      if (Number.isFinite(rub) && rub > 0) updatePrice(rub);
+      if (Number.isFinite(rub) && rub > 0) {
+        updatePrice(rub);
+        const payBtn = document.getElementById('purchase-pay-btn');
+        if (payBtn) payBtn.textContent = `Оплатить ${rub.toLocaleString('ru-RU')} ₽`;
+      }
+      if (typeof data?.requireEmail === 'boolean') {
+        requireEmailForPurchase = data.requireEmail;
+      }
     })
     .catch(() => {
-      /* сеть недоступна — остаётся дефолтная цена из HTML */
+      /* сеть недоступна — остаётся дефолт */
     });
 }
 
