@@ -187,7 +187,7 @@ if (new URLSearchParams(window.location.search).get('paid') === '1') {
   const banner = document.createElement('div');
   banner.className = 'gp-paid-banner';
   banner.innerHTML =
-    '✅ Оплата прошла! Гайд скоро придёт в <strong>@dj_shmidt_bot</strong>. Если вы его ещё не открывали — <a href="https://t.me/dj_shmidt_bot" target="_blank" style="color:inherit">откройте сейчас</a>.';
+    '✅ Оплата прошла! Гайд скоро придёт в <a href="https://t.me/dj_shmidt_bot" target="_blank" rel="noopener" style="color:inherit"><strong>@dj_shmidt_bot</strong></a>. Если вы его ещё не открывали — откройте прямо сейчас.';
   const firstPage = document.querySelector('.gp-page');
   if (firstPage) firstPage.prepend(banner);
 }
