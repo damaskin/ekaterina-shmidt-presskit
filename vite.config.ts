@@ -39,6 +39,11 @@ export default defineConfig(({ mode }) => ({
         guideMaldives: entry('guide/maldives-311da15937d7/index.html'),
         // Админ-панель (защищена паролем на стороне API)
         admin: entry('admin/index.html'),
+        // Юридические страницы продавца (ИНН, оферта, политика, оплата/возврат)
+        legalOffer: entry('guide/legal/offer/index.html'),
+        legalPrivacy: entry('guide/legal/privacy/index.html'),
+        legalPayment: entry('guide/legal/payment/index.html'),
+        legalContacts: entry('guide/legal/contacts/index.html'),
       },
       output: {
         manualChunks: {

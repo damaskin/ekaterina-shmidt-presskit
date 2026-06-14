@@ -45,6 +45,10 @@ ${guideHreflangLinks}
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url><loc>${siteUrl}/guide/legal/offer/</loc><lastmod>${now}</lastmod><priority>0.4</priority></url>
+  <url><loc>${siteUrl}/guide/legal/payment/</loc><lastmod>${now}</lastmod><priority>0.4</priority></url>
+  <url><loc>${siteUrl}/guide/legal/privacy/</loc><lastmod>${now}</lastmod><priority>0.4</priority></url>
+  <url><loc>${siteUrl}/guide/legal/contacts/</loc><lastmod>${now}</lastmod><priority>0.4</priority></url>
 </urlset>
 `;
 

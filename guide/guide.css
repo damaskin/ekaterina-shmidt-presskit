@@ -672,6 +672,86 @@ html[data-guide-lang='en'] [data-lang='ru'] {
   text-decoration: underline;
 }
 
+.gp-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.4rem 0;
+}
+
+.gp-merchant {
+  margin-top: 0.6rem;
+  opacity: 0.85;
+}
+
+.gp-merchant b {
+  color: var(--color-text-on-dark);
+  font-weight: 600;
+}
+
+/* Юр-страницы: единая колонка длинного текста на тёмном фоне */
+.gp-legal-page h2 {
+  margin: 2rem 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.gp-legal-page h3 {
+  margin: 1.4rem 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.gp-legal-page p,
+.gp-legal-page li {
+  font-size: 0.96rem;
+  line-height: 1.7;
+  opacity: 0.92;
+}
+
+.gp-legal-page ul,
+.gp-legal-page ol {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+}
+
+.gp-legal-page dl {
+  margin: 0 0 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(180px, max-content) 1fr;
+  gap: 0.45rem 1.25rem;
+}
+
+.gp-legal-page dt {
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.gp-legal-page dd {
+  margin: 0;
+}
+
+.gp-legal-page a {
+  color: var(--color-accent);
+}
+
+@media (max-width: 560px) {
+  .gp-legal-page dl {
+    grid-template-columns: 1fr;
+    gap: 0 0;
+  }
+
+  .gp-legal-page dd {
+    margin-bottom: 0.7rem;
+  }
+}
+
 /* ── Появление при скролле ─────────────────────────── */
 
 /* Скрываем элементы только когда JS подтвердил, что наблюдение запущено
